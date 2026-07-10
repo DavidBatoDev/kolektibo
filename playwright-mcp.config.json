@@ -1,0 +1,8 @@
+{
+  "browser": {
+    "launchOptions": {
+      "headless": false,
+      "slowMo": 500
+    }
+  }
+}

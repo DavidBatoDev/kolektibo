@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@playwright/mcp@latest",
+        "--browser",
+        "msedge",
+        "--viewport-size",
+        "400x860",
+        "--config",
+        "d:/Documents/GitHub/kolektibo/playwright-mcp.config.json"
+      ]
+    }
+  }
+}
