@@ -1,0 +1,89 @@
+import { Link, Outlet, useRouterState } from '@tanstack/react-router'
+import type { ComponentType } from 'react'
+
+type Tab = { to: string; label: string; Icon: ComponentType<{ className?: string }> }
+
+const tabs: Tab[] = [
+  { to: '/', label: 'Pool', Icon: IconHome },
+  { to: '/contribute', label: 'Contribute', Icon: IconPlus },
+  { to: '/spend', label: 'Spend', Icon: IconSend },
+  { to: '/setup', label: 'Rules', Icon: IconGear },
+]
+
+export function AppShell() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+
+  return (
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/60 shadow-2xl shadow-black/40 ring-1 ring-white/5">
+      {/* Header */}
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/5 bg-ink-950/70 px-4 py-3 backdrop-blur">
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/kolektibo.svg" alt="" className="h-7 w-7" />
+          <span className="text-lg font-semibold tracking-tight text-white">Kolektibo</span>
+        </Link>
+        <span className="rounded-full bg-brand-600/15 px-2.5 py-1 text-[11px] font-medium text-brand-400 ring-1 ring-brand-500/30">
+          Stellar Testnet
+        </span>
+      </header>
+
+      {/* Content */}
+      <main className="no-scrollbar flex-1 overflow-y-auto px-4 pb-28 pt-4">
+        <Outlet />
+      </main>
+
+      {/* Bottom nav */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md items-stretch justify-around border-t border-white/5 bg-ink-950/85 backdrop-blur"
+        style={{ paddingBottom: 'var(--safe-bottom)' }}
+      >
+        {tabs.map(({ to, label, Icon }) => {
+          const active = to === '/' ? pathname === '/' : pathname.startsWith(to)
+          return (
+            <Link
+              key={to}
+              to={to}
+              className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition ${
+                active ? 'text-brand-400' : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              <Icon className="h-5 w-5" />
+              {label}
+            </Link>
+          )
+        })}
+      </nav>
+    </div>
+  )
+}
+
+function IconHome({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M3 10.5 12 3l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 9.5V21h14V9.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+function IconPlus({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8v8M8 12h8" strokeLinecap="round" />
+    </svg>
+  )
+}
+function IconSend({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M4 12l16-8-6 16-3-6-7-2z" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+function IconGear({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7.7 1.6 1.6 0 0 0-1.1 1.5V22a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 8 20.3a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-.7-2.7 1.6 1.6 0 0 0-1.5-1.1H2a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 3.7 8a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 9 3.7a1.6 1.6 0 0 0 1.1-1.5V2a2 2 0 1 1 4 0v.1A1.6 1.6 0 0 0 15 3.7a1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 .7 2.7z" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
