@@ -7,8 +7,13 @@ Live, verified deployment of the Kolektibo treasury.
 | What | Contract ID |
 |---|---|
 | Treasury | `CBPAYECARJ5B4JR6B5HYLPZGSAHAXMIPWULWQ3JBXDXC7PP3WT2C3JLR` |
+| Paluwagan (rotating ROSCA) | `CBX7WXQ5STPXPR2K3YFEBMPLMMDFBEIVPUVJTTPBSVJNWBG5WVGIL4SW` |
 | Test USDC (Stellar Asset Contract) | `CDTCIZLKSZNDFDSZRQUFIHQ5P5L2OOI5DDOMSY5NH6NQQTGSOE5LK7QR` |
 | USDC issuer (classic) | `GBYFIFSFQUE6M4O4ESBX7I4FU2XXPRI3V47C2BONMZBG6VKYCBSG55HM` |
+
+> **Paluwagan** (production roadmap Phase 3): 6/6 unit tests pass; a full 3-cycle rotation was
+> executed on testnet via `scripts/paluwagan-testnet.sh` — pot rotated to each member in order,
+> ending zero-sum (every member back to their starting balance, contract at 0).
 
 Explorer: https://stellar.expert/explorer/testnet/contract/CBPAYECARJ5B4JR6B5HYLPZGSAHAXMIPWULWQ3JBXDXC7PP3WT2C3JLR
 
