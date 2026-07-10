@@ -7,7 +7,7 @@ import {
 } from '@stellar/stellar-sdk'
 import { basicNodeSigner } from '@stellar/stellar-sdk/contract'
 import { Client } from '../contract/treasury/src/index'
-import { NETWORK, horizon, fundWithFriendbot } from './stellar'
+import { NETWORK, horizon, soroban, fundWithFriendbot } from './stellar'
 import { rawToUsd, usdToRaw } from './contract'
 import { createPoolOnChain, faucet, getConfig } from './backend'
 import { getPersonas, keypairFor } from './wallet'
@@ -60,7 +60,10 @@ function client(contractId: string, signerKp?: Keypair): Client {
 
 async function ensureFunded(pk: string): Promise<void> {
   try {
-    await horizon.loadAccount(pk)
+    // Probe via Soroban RPC (a POST that returns HTTP 200; "not found" comes back
+    // as a thrown JS error) instead of Horizon's GET /accounts/{id}, which returns
+    // 404 for not-yet-funded accounts and logs a red error in the browser console.
+    await soroban.getAccount(pk)
   } catch {
     await fundWithFriendbot(pk)
   }
