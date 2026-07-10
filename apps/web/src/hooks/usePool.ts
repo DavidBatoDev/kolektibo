@@ -4,6 +4,7 @@ import { poolBalance } from '../lib/pool'
 import * as live from '../lib/livepool'
 
 const POOL_KEY = ['pool'] as const
+const LIVE_KEY = ['live-treasury'] as const
 
 export function usePool() {
   return useQuery({
@@ -32,14 +33,20 @@ export function useCreatePool() {
   })
   const mutation = useMutation({
     mutationFn: () => live.createPool((u) => setProgress(u)),
-    onSuccess: () => qc.invalidateQueries({ queryKey: POOL_KEY }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: POOL_KEY })
+      qc.invalidateQueries({ queryKey: LIVE_KEY })
+    },
   })
   return { ...mutation, progress }
 }
 
 export function usePoolActions() {
   const qc = useQueryClient()
-  const invalidate = () => qc.invalidateQueries({ queryKey: POOL_KEY })
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: POOL_KEY })
+    qc.invalidateQueries({ queryKey: LIVE_KEY })
+  }
 
   const contribute = useMutation({
     mutationFn: (i: { personaName: string; amount: number }) =>

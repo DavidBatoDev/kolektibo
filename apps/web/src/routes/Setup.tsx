@@ -7,7 +7,7 @@ import { resetPersonas } from '../lib/wallet'
 import { Badge, Button, Card, Field, inputClass, peso, SectionLabel } from '../components/ui'
 
 const EXAMPLE =
-  '₱200 per member every month. Equipment up to ₱5,000, venue up to ₱3,000, snacks up to ₱1,500. Any spend over ₱5,000 needs 2 of 3 officers to approve.'
+  '₱200 per member every month. Equipment up to ₱5,000, venue up to ₱3,000, refreshments up to ₱1,500. Any spend over ₱5,000 needs 2 of 3 officers to approve.'
 
 export function SetupPage() {
   const { data: pool } = usePool()

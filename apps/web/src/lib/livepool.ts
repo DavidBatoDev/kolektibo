@@ -233,20 +233,27 @@ export async function readPool(): Promise<Pool | null> {
   const officers = officersR.result.map((pk) => ({ address: pk, name: nameFor(pk) }))
   const threshold = thresholdR.result
 
-  const spends: Spend[] = spendsR.result.map((s) => ({
-    id: s.id,
-    category: s.category,
-    amount: rawToUsd(s.amount),
-    recipient: s.recipient,
-    recipientName: short(s.recipient),
-    memo: s.memo,
-    proposedBy: nameFor(s.proposer),
-    approvals: s.approvals.map(nameFor),
-    executed: s.executed,
-    requestTx: getTx(`${id}:spend:${s.id}:request`),
-    executeTx: s.executed ? getTx(`${id}:spend:${s.id}:execute`) : undefined,
-    createdAt: 0,
-  }))
+  const spends: Spend[] = spendsR.result.map((s) => {
+    // Payee names aren't stored on-chain; request_spend encodes them into the memo
+    // as "Payee — description", so recover the name (and clean memo) for display.
+    const sep = s.memo.indexOf(' — ')
+    const recipientName = sep >= 0 ? s.memo.slice(0, sep) : short(s.recipient)
+    const memo = sep >= 0 ? s.memo.slice(sep + 3) : s.memo
+    return {
+      id: s.id,
+      category: s.category,
+      amount: rawToUsd(s.amount),
+      recipient: s.recipient,
+      recipientName,
+      memo,
+      proposedBy: nameFor(s.proposer),
+      approvals: s.approvals.map(nameFor),
+      executed: s.executed,
+      requestTx: getTx(`${id}:spend:${s.id}:request`),
+      executeTx: s.executed ? getTx(`${id}:spend:${s.id}:execute`) : undefined,
+      createdAt: 0,
+    }
+  })
 
   return {
     name: 'Barangay 143 Basketball League',
