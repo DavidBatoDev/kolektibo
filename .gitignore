@@ -5,6 +5,7 @@ node_modules/
 # Builds
 dist/
 build/
+dev-dist/
 *.tsbuildinfo
 
 # Rust / Soroban
