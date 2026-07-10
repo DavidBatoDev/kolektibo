@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+build/
+*.tsbuildinfo
+
+# Rust / Soroban
+target/
+**/target/
+*.wasm
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+**/.env
+*.pem
+.stellar/identity/*.toml
+
+# Editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Capacitor
+android/
+ios/
+
+# Logs
+*.log
+npm-debug.log*
+
+# QA / Playwright run artifacts (test outputs, not source)
+.playwright-mcp/
+/qa-*.png

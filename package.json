@@ -1,0 +1,18 @@
+{
+  "name": "kolektibo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-Governed Group Treasury on Stellar",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"@kolektibo/web\" --filter \"@kolektibo/ai\" dev",
+    "dev:web": "pnpm --filter @kolektibo/web dev",
+    "dev:ai": "pnpm --filter @kolektibo/ai dev",
+    "build": "pnpm --filter @kolektibo/web build",
+    "contract:build": "cd contracts/treasury && stellar contract build",
+    "contract:deploy": "bash scripts/deploy.sh"
+  }
+}
