@@ -1,0 +1,32 @@
+# Supabase local/project config (subset — the CLI may add more keys on `supabase start`).
+# Reflects Kolektibo's locked auth decisions: email magic-link + Google + anonymous.
+project_id = "kolektibo"
+
+[auth]
+enable_signup = true
+enable_anonymous_sign_ins = true          # "browse a pool before signing up" → link later
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173", "http://localhost:8787"]
+jwt_expiry = 3600                          # short TTL; rely on refresh rotation
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true                # magic-link / confirm email
+
+# Google OAuth — secrets come from the environment, never committed.
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_SECRET)"
+
+[db]
+port = 54322
+
+[api]
+port = 54321
+schemas = ["public"]
+
+[storage]
+enabled = true
+# Buckets `avatars` (public) and `receipts` (private, signed URLs) are created in
+# a later migration once the project exists; policies follow the folder-per-owner idiom.
