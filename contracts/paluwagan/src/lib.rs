@@ -1,6 +1,10 @@
 #![no_std]
 //! Kolektibo Paluwagan — on-chain rotating savings (ROSCA / "paluwagan").
 //!
+//! STATUS: descoped from the hackathon demo (see docs/decision-descope-paluwagan_2026-07-11_1345.md)
+//! — the demo ships a single idea (the AI-governed treasury). This contract is built +
+//! testnet-verified and retained as a post-hackathon (roadmap Phase 3) spike. Not wired into the app.
+//!
 //! N members each contribute a fixed amount every cycle. When everyone has paid
 //! in a cycle, the whole pot rotates to the next member in a fixed order. After
 //! N cycles everyone has received the pot exactly once. The rotation is enforced

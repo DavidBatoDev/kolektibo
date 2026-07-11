@@ -7,13 +7,8 @@ Live, verified deployment of the Kolektibo treasury.
 | What | Contract ID |
 |---|---|
 | Treasury | `CBPAYECARJ5B4JR6B5HYLPZGSAHAXMIPWULWQ3JBXDXC7PP3WT2C3JLR` |
-| Paluwagan (rotating ROSCA) | `CBX7WXQ5STPXPR2K3YFEBMPLMMDFBEIVPUVJTTPBSVJNWBG5WVGIL4SW` |
 | Test USDC (Stellar Asset Contract) | `CDTCIZLKSZNDFDSZRQUFIHQ5P5L2OOI5DDOMSY5NH6NQQTGSOE5LK7QR` |
 | USDC issuer (classic) | `GBYFIFSFQUE6M4O4ESBX7I4FU2XXPRI3V47C2BONMZBG6VKYCBSG55HM` |
-
-> **Paluwagan** (production roadmap Phase 3): 6/6 unit tests pass; a full 3-cycle rotation was
-> executed on testnet via `scripts/paluwagan-testnet.sh` — pot rotated to each member in order,
-> ending zero-sum (every member back to their starting balance, contract at 0).
 
 Explorer: https://stellar.expert/explorer/testnet/contract/CBPAYECARJ5B4JR6B5HYLPZGSAHAXMIPWULWQ3JBXDXC7PP3WT2C3JLR
 
@@ -54,3 +49,21 @@ via `change-trust`). App onboarding will:
 - create one for a payee before the first disbursement to them.
 
 A real on/off-ramp (SEP-24 anchor) does this automatically — which is exactly the composability story.
+
+---
+
+## Not in demo scope — Paluwagan (post-hackathon spike)
+
+Paluwagan (rotating ROSCA) is **descoped from the hackathon demo** to keep the demo focused on a
+single idea — the AI-governed treasury. See
+[Decision Record — Descope Paluwagan](./docs/decision-descope-paluwagan_2026-07-11_1345.md).
+The verified contract stays in the repo as a post-hackathon (roadmap Phase 3) spike and is **not
+part of the demo loop**:
+
+| What | Contract ID |
+|---|---|
+| Paluwagan (rotating ROSCA) | `CBX7WXQ5STPXPR2K3YFEBMPLMMDFBEIVPUVJTTPBSVJNWBG5WVGIL4SW` |
+
+6/6 unit tests pass; a full 3-cycle rotation was executed on testnet via
+`scripts/paluwagan-testnet.sh` — the pot rotated to each member in order, ending zero-sum (every
+member back to their starting balance, contract at 0). Kept as proof the trust engine generalizes.

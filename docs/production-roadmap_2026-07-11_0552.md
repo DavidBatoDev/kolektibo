@@ -16,7 +16,7 @@ The hackathon build (Soroban treasury + AI treasurer + PWA; testnet-verified, QA
 | Custody | **Passkey smart wallets** (OpenZeppelin Smart Accounts + `smart-account-kit`) | Fingerprint approvals, no seed phrases — the only fit for barangay/co-op users |
 | Auth (launch) | **Email magic-link + Google OAuth** (+ anonymous→link); phone OTP later | Free, fast; SMS cost deferred |
 | Sequencing | **Hackathon follow-through first**, then production phases | Jul 15 submit → Jul 18 Demo → Jul 24 Finale → SCF |
-| Paluwagan/ROSCA mode | **Core differentiator** (v2 contract mode) | Strongest PH-native wedge |
+| Paluwagan/ROSCA mode | **Post-hackathon (Phase 3)** — descoped from the demo ([decision record](./decision-descope-paluwagan_2026-07-11_1345.md)) | Strong PH-native wedge; retained + verified, but kept out of the single-idea demo |
 
 ## Strategic findings (that shaped this plan)
 
@@ -66,7 +66,9 @@ Order matters: **contract v2 first, then migration, then passkeys go live as off
 5. **Money-UX table stakes:** transaction-queue UI, plain-language tx preview before signing, batching, address book everywhere, CSV/PDF export (barangay audit format), receipts (`spend_meta` + Storage), recurring dues reminders + one-tap "nudge" (GCash KKB pattern).
 6. **Fiat edge v1 (gated on the anchor agreement):** **MoneyGram Ramps** (SEP-24, USDC, PH cash-in/out live since 2022); the anchor owns KYC in its hosted webview; the app never touches conversion. **Settle in USDC — no PHP stablecoin exists on Stellar** (Coins.ph PHPC is Polygon/Ronin); ₱ is a display currency (labeled rate feed) and a cash-out endpoint.
 
-## Phase 3 — Paluwagan mode (core differentiator) 〔≈ wks 6–9, overlaps 2〕
+## Phase 3 — Paluwagan mode 〔≈ wks 6–9, overlaps 2〕
+
+> **Descoped from the hackathon demo** — see the [decision record](./decision-descope-paluwagan_2026-07-11_1345.md). The paluwagan contract is already built + testnet-verified (6/6 tests, zero-sum rotation); this phase adds only the read-model + UI. Kept out of the Jul 15 demo to keep it single-idea.
 
 1. **Contract mode** `Paluwagan { contribution, period, payout_order, cycle }`: cycle-aware `contribute()`; permissionless `advance_cycle()` auto-pays the cycle's payout **address** when all contributions are in; shortfalls need officer threshold to force/skip (the group governs itself). Payout order fixed at init — drawn in-app via commit-reveal (proof stored) or physically. Auction/bidding deferred. Tests land with the feature.
 2. **Read-model that can run it:** `paluwagan_cycles` + `cycle_contributions` (who-hasn't-paid drives reminders/penalties) + stored `payout_order` with commit-reveal proof; payout tracked as **address + user_id**.
