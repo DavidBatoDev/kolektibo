@@ -1,17 +1,29 @@
 # Supabase local/project config (subset — the CLI may add more keys on `supabase start`).
-# Reflects Kolektibo's locked auth decisions: email magic-link + Google + anonymous.
+# Reflects Kolektibo's auth: email + password (email confirmation) + Google + anonymous.
 project_id = "kolektibo"
 
 [auth]
 enable_signup = true
 enable_anonymous_sign_ins = true          # "browse a pool before signing up" → link later
 site_url = "http://localhost:5173"
-additional_redirect_urls = ["http://localhost:5173", "http://localhost:8787"]
+additional_redirect_urls = ["http://localhost:5173", "http://localhost:5173/**", "http://localhost:8787"]
 jwt_expiry = 3600                          # short TTL; rely on refresh rotation
+password_min_length = 8
 
 [auth.email]
 enable_signup = true
-enable_confirmations = true                # magic-link / confirm email
+enable_confirmations = false               # native confirmation OFF; we verify via our own
+                                           # profiles.is_email_verified + backend 6-digit codes
+
+# Transactional email via Gmail SMTP (app password). Secrets come from the environment.
+[auth.email.smtp]
+enabled = true
+host = "smtp.gmail.com"
+port = 465
+user = "env(GMAIL_USER)"
+pass = "env(GMAIL_APP_PASSWORD)"
+admin_email = "env(GMAIL_USER)"
+sender_name = "Kolektibo"
 
 # Google OAuth — secrets come from the environment, never committed.
 [auth.external.google]
@@ -28,5 +40,5 @@ schemas = ["public"]
 
 [storage]
 enabled = true
-# Buckets `avatars` (public) and `receipts` (private, signed URLs) are created in
-# a later migration once the project exists; policies follow the folder-per-owner idiom.
+# `avatars` (public) bucket + owner-folder policies are created in migration 0003.
+# `receipts` (private, signed URLs) follows in a later migration.
