@@ -120,5 +120,7 @@ against the stub until then.
 ---
 
 Each teammate's file has their full task list with acceptance criteria, the exact repo files to
-touch, effort estimates (`S` ≤2h · `M` ½–1d · `L` 1–2d · `XL` >2d), and a "Start here" first task.
-Ping David on any interface question — the seams matter more than the internals.
+touch, effort estimates (`S` ≤2h · `M` ½–1d · `L` 1–2d · `XL` >2d), a **Blockers & dependencies**
+section (what you need from whom, the workaround until it lands, and who's waiting on you), and a
+"Start here" first task. If a stub costs you more than ~an hour to fake, raise it the same day —
+David re-sequences. Ping David on any interface question — the seams matter more than the internals.

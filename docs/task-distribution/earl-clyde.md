@@ -77,6 +77,30 @@ listens on). Keep the *delivery* (Web Push / VAPID) in Shello's workstream — y
 
 ---
 
+## Blockers & dependencies
+
+### What I need from others
+
+| My task | Needs | From | Until it lands |
+|---|---|---|---|
+| E1 member-read RLS on `chain_events` | `pool_members` table (D3) | David | Ship `chain_events` **service-role-only** first (poller doesn't need client reads); add the member-read policy in a follow-up migration when D3 lands |
+| E4 wallet endpoints | `user_wallets` + `wallet_link_challenges` tables (D1) and the frozen endpoint contract (D0) | David | Blocked on D1 for real — build the signature-verify logic as a pure function with unit tests in the meantime |
+| E5 notification trigger | `push_subscriptions` shape (S4) | Shello | Emit the trigger as a Realtime signal / `notifications` row first; wire to his table when S4 lands |
+| — | Design tokens if you touch any UI (unlikely) | Jasmin | n/a — your work is headless |
+
+### Who's waiting on me (don't let these slip)
+
+| My task | Unblocks | Their task |
+|---|---|---|
+| **E1 `chain_events` + seed rows** | Shello | S0/S1 — **his entire workstream starts from your seed**; get 10 seeded rows into the DB by end of day 1 even if the poller is half-done |
+| E2 Realtime channel | Shello | S2 live updates |
+| E4 wallet endpoints | David | D2 wallet-link flow (he's stubbing until you land) |
+| E5 trigger | Shello | S5 push delivery |
+
+**If I'm the bottleneck:** E1's seed rows matter more than E1's poller — hand-insert realistic rows
+for the canonical pool (`CBR36Q2…INF2`) so Shello starts, then make the poller real. E3 (backend v1)
+has **zero downstream consumers** pre-cutover — it never justifies delaying E1/E2/E4.
+
 ## Start here (Day 1)
 Do **E0** + open **E1** (the `chain_events` migration + a minimal poller against the canonical demo
 pool `CBR36Q2…INF2`). Getting real events into a table is the single highest-leverage thing you can

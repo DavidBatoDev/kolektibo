@@ -77,6 +77,30 @@ references don't dangle; the user's PII is gone.
 
 ---
 
+## Blockers & dependencies
+
+### What I need from others
+
+| My task | Needs | From | Until it lands |
+|---|---|---|---|
+| EL0/EL1 directory | `pools`/`pool_members` tables + seed rows (D0/D3) | David | **Day-1 need — chase him for the seed.** The table shapes are already frozen in the [README contracts](./README.md#interface-contracts); you can write `usePools.ts` against them before the seed exists |
+| EL1 directory UI | Directory mock (J3) + component kit (J1) | Jasmin | Build with existing `Card`/`Badge`/`ListItem`; restyle to the mock when it arrives |
+| EL2 invite share | Create-invite call (D5) + `QRCode`/`CopyField` primitives (J1) | David, Jasmin | Render the raw invite link with a copy button; add QR when the primitive lands |
+| EL3 join flow | `preview_pool()` + `redeem_invite()` RPCs (D4) | David | Build the screen states (preview / errors / success) against a stubbed response object; swap to the RPC when callable |
+| EL4 verified badge | `user_wallets.verified_at` (D1/D2) | David | Render the badge from seed data; it goes live when wallet-linking ships |
+| EL5 address book | Address-book mock (J3) | Jasmin | Migration + hook first (UI-independent); skin the picker later |
+| EL6 DPA deletion | Officer check needs `pool_members` (D3) | David | Blocked on D3 for the guard only — the deletion/tombstone plumbing can be built first |
+
+### Who's waiting on me
+
+| My task | Unblocks | Their task |
+|---|---|---|
+| EL1 active-pool selection | Shello | His feed scopes to the pool your directory marks active — agree the "active pool" state shape with him early (a shared hook or context) |
+| EL5 `payees` shape | David | D5's spend flow shows named payees; publish the migration shape when drafted |
+
+**Escalation rule:** if a dependency stub costs you more than ~an hour to fake, say so in the team
+channel the same day — David re-sequences; don't sit blocked.
+
 ## Start here (Day 1)
 Do **EL0** + **EL1** against David's seed rows and Jasmin's directory mock — the directory is fully
 buildable from seeded `pools`/`pool_members` before any RPC body is final. Then **EL3** (join) once

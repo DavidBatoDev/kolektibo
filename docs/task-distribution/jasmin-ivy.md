@@ -83,6 +83,33 @@ basic a11y audit passes.
 
 ---
 
+## Blockers & dependencies
+
+### What I need from others
+
+| My task | Needs | From | Until it lands |
+|---|---|---|---|
+| J3 screen designs | 10 minutes with each flow owner (what data exists per screen: David D2/D5, Elton EL1–EL5, Shello S3/S4) | David, Elton, Shello | The interface contracts in [README](./README.md#interface-contracts) already list the fields — design from those, confirm with owners async |
+| J4 polish pass | The M1 screens actually existing | everyone | Do the polish sweep on the **current** demo screens first (roadmap 1.4 targets); sweep the new screens as they merge |
+
+You are otherwise **dependency-free** — J0/J1/J2 start cold on day 1.
+
+### Who's waiting on me (don't let these slip)
+
+| My task | Unblocks | Their task |
+|---|---|---|
+| **J0 tokens + J1 primitives** | Shello, Elton, David | Every screen they build — without the kit they hand-roll CSS you'll have to unwind. **This is the day-1 deliverable.** |
+| J1 `QRCode` + `CopyField` | Elton | EL2 invite share UI |
+| J1 `Skeleton`/`EmptyState` | Shello | S3 feed states |
+| J2 `t()` scaffold | Shello, Elton | Every string they add — if `t()` isn't there when they start, hardcoded strings creep in and the en/tl retrofit costs a week |
+| J3 feed + notif-settings mocks | Shello | S3 UI, S4 settings screen |
+| J3 directory/invite/roster/address-book mocks | Elton | EL1–EL5 UIs |
+| J3 link-wallet mock | David | D2 screen |
+
+**If I'm the bottleneck:** ship J0+J1+J2 as one early PR even if imperfect — a good-enough kit on
+day 2 beats a perfect one at M1. For J3, deliver Shello's feed mock and Elton's directory mock
+**first** (their day-1 tasks); the rest can trail by a few days.
+
 ## Start here (Day 1)
 Do **J0** (theme + tokens) and start **J1** in parallel — the token set and the component kit are what
 unblock Shello and Elton at M1. Then get the **J3** mockups for _their two flows_ (directory/invite and

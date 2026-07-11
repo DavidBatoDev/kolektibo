@@ -91,6 +91,29 @@ set and the DB roster never disagree for the demo pool.
 
 ---
 
+## Blockers & dependencies
+
+### What I need from others
+
+| My task | Needs | From | Until it lands |
+|---|---|---|---|
+| D2 wallet-link flow | `POST /wallet/challenge` + `POST /wallet/verify` endpoints (E4) | Earl | Stub the two endpoints locally (hardcoded nonce + always-verify) and build the screen against the stub |
+| D2 Link-Wallet screen | Link-wallet mock + spec (J3) | Jasmin | Build with existing `ui.tsx` primitives; restyle when the spec arrives |
+| D5 invite UI hooks | Invite/share + join screens (EL2/EL3) | Elton | Ship the create-invite call + `routes/JoinPool.tsx` skeleton yourself; Elton takes them over |
+
+### Who's waiting on me (don't let these slip)
+
+| My task | Unblocks | Their task |
+|---|---|---|
+| **D0 contracts + seed** | Elton, Shello, Earl | EL0 (everything Elton does), S1 (pool scoping), E4 (nonce shapes) — **day-1 blocker for three people** |
+| D1 `0005` migration | Earl | E4 needs `user_wallets` + `wallet_link_challenges` to exist |
+| D3 `0006` migration | Elton, Earl, Shello | EL1/EL4 (directory/roster), E1's member-read RLS policy on `chain_events`, S1's pool scoping |
+| D4 RPCs | Elton | EL2/EL3 (invite create + join preview/redeem) |
+| D1+D2 verified wallets | Elton | EL4's verified-wallet badge; D6 invariant |
+
+**If I'm the bottleneck:** D0 is hours, not days — nothing excuses it slipping past day 1. D3's *shape*
+can ship at M0 even if the RPC bodies (D4) are stubs; Elton builds against seed rows, not live RPCs.
+
 ## Start here (Day 1)
 Do **D0** (freeze contracts) this morning so Elton/Shello/Earl unblock, then open the `0005` migration
 (**D1**). By end of week 1 you want D1 applied + the D3/D4 shapes posted, even if the RPC bodies are

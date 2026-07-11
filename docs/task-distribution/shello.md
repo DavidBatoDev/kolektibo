@@ -67,6 +67,28 @@ to the pending spend; disabled prefs suppress it.
 
 ---
 
+## Blockers & dependencies
+
+### What I need from others
+
+| My task | Needs | From | Until it lands |
+|---|---|---|---|
+| S0/S1 feed data | `chain_events` table + ~10 seed rows (E1) | Earl | **Day-1 need — chase him for the seed.** If truly blocked, hand-write the seed rows yourself from the event shapes in `contracts/treasury/src/lib.rs` and align later |
+| S1 pool scoping | `pools`/`pool_members` (D3) | David | Scope by the localStorage contract id (`lib/contract.ts` `activePoolId()`) as the fallback — it's the same `pool_contract_id` string |
+| S2 live updates | Realtime channel name + payload (E2) | Earl | Keep S1's polling query as the refresh; swap to the subscription when E2 lands |
+| S3 feed UI | Feed mock (J3) + `Skeleton`/`EmptyState` primitives (J1) | Jasmin | Build the rows with existing `Card`/`Badge`; restyle to the mock when it arrives |
+| S4 settings screen | Notification-settings mock (J3) | Jasmin | Ship the permission + subscription logic behind a bare toggle; skin it later |
+| S5 delivery | Fan-out trigger (E5) | Earl | Test delivery by inserting a fake trigger row/signal by hand |
+
+### Who's waiting on me
+
+| My task | Unblocks | Their task |
+|---|---|---|
+| S4 `push_subscriptions` migration + shape | Earl | E5 fan-out writes to your table — publish the shape as soon as the migration is drafted, don't wait for the UI |
+
+**Escalation rule:** if a dependency stub costs you more than ~an hour to fake, say so in the team
+channel the same day — David re-sequences; don't sit blocked.
+
 ## Start here (Day 1)
 Do **S0** + **S1** against Earl's seed rows and Jasmin's spec — you can build and style the entire feed
 from static/seed data before Realtime is live, then flip to **S2** when Earl's channel lands. That
