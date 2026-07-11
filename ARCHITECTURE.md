@@ -135,7 +135,7 @@ Full reference: [`docs/05-frontend`](./docs/05-frontend_2026-07-11_0146.md).
 | Multi-device (shared directory service) | ⏳ next — single-browser today (keys in `localStorage`) |
 | Native mobile | PWA today; Capacitor wrap = stretch |
 
-Roadmap detail: [`docs/10-roadmap-and-next-steps`](./docs/10-roadmap-and-next-steps_2026-07-11_0146.md).
+Roadmap detail: [`docs/10-roadmap-and-next-steps`](./docs/10-roadmap-and-next-steps_2026-07-11_0146.md) (hackathon horizon) and the go-forward **[production roadmap](./docs/production-roadmap_2026-07-11_0552.md)** (passkeys · Supabase · paluwagan · compliance).
 
 ---
 
