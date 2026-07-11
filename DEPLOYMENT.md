@@ -4,27 +4,41 @@ Live, verified deployment of the Kolektibo treasury.
 
 ## Contracts
 
+Two treasury instances exist on testnet (both 2-of-3, same USDC SAC + issuer). The **canonical**
+treasury is the one the web app runs against — its ID is baked into the generated TS bindings and
+written to `apps/web/.env.local` (`VITE_TREASURY_CONTRACT_ID`). The **first** treasury is the
+original proof-of-concept and is the subject of the multisig-release proof tx below.
+
 | What | Contract ID |
 |---|---|
-| Treasury | `CBPAYECARJ5B4JR6B5HYLPZGSAHAXMIPWULWQ3JBXDXC7PP3WT2C3JLR` |
+| **Treasury — canonical** (the demo runs against this; seeded 20,000 USDC) | `CBR36Q2AEAUQWZ6CXESIYEGWPYCDUDHQP62EEYFHS5JELW4T3FGKINF2` |
+| Treasury — first (multisig-release proof) | `CBPAYECARJ5B4JR6B5HYLPZGSAHAXMIPWULWQ3JBXDXC7PP3WT2C3JLR` |
 | Test USDC (Stellar Asset Contract) | `CDTCIZLKSZNDFDSZRQUFIHQ5P5L2OOI5DDOMSY5NH6NQQTGSOE5LK7QR` |
 | USDC issuer (classic) | `GBYFIFSFQUE6M4O4ESBX7I4FU2XXPRI3V47C2BONMZBG6VKYCBSG55HM` |
 
-Explorer: https://stellar.expert/explorer/testnet/contract/CBPAYECARJ5B4JR6B5HYLPZGSAHAXMIPWULWQ3JBXDXC7PP3WT2C3JLR
+Explorer (canonical): https://stellar.expert/explorer/testnet/contract/CBR36Q2AEAUQWZ6CXESIYEGWPYCDUDHQP62EEYFHS5JELW4T3FGKINF2
 
-> These IDs are written to `apps/web/.env.local` by `scripts/deploy.sh`. Re-running the
-> script deploys a fresh instance with new IDs.
+> `scripts/deploy.sh` writes these IDs to `apps/web/.env.local`; re-running it deploys a **fresh**
+> instance with a new ID (which is how the two instances above came to exist). For the submission the
+> canonical ID above is authoritative and matches the bindings + `.env.local`.
+
+Canonical state **verified on-chain (read-only) on 2026-07-11**: `get_threshold` = **2**,
+`get_officers` = **3**, `get_balance` = **200000000000** (20,000 USDC), `get_categories` = Equipment
+5,000 / Venue 3,000 / Refreshments 1,500 (raw ×1e7). Full artifact list + explorer links:
+[`docs/06-deployment-and-onchain-proof`](./docs/06-deployment-and-onchain-proof_2026-07-11_0146.md).
 
 ## Verified end-to-end (the whole thesis, on-chain)
 
-Policy: 2-of-3 officers; Equipment/Venue/Refreshments category caps. Treasury seeded with 20,000 test USDC.
+The multisig-release proof below was executed against the **first treasury** (`CBPAYE…3JLR`); the
+canonical treasury is the **identically configured** live instance the app uses (2-of-3, same caps,
+seeded 20,000 USDC — verified above). Policy: 2-of-3 officers; Equipment/Venue/Refreshments caps.
 
 1. `request_spend` → spend #1 created, proposer auto-approved (1 approval).
 2. `execute` with 1 approval → **reverted `Error(Contract, #6)` NotEnoughApprovals**. The fund cannot be drained by one officer.
 3. second officer `approve` → 2 approvals. A duplicate approval → **reverted `Error(Contract, #7)` AlreadyApproved**.
 4. `execute` with 2-of-3 → **real USDC `transfer` event**, treasury → recipient, 1000 raw units.
    Proof: https://stellar.expert/explorer/testnet/tx/127e4e3f868798c3df9d6d8f4376d18e38d80dc9b470f961cb87420d1aa31278
-5. Balances confirmed on-chain: treasury `200000000000 → 199999999000`, recipient `0 → 1000`.
+5. Balances confirmed on-chain: first treasury `200000000000 → 199999999000`, recipient `0 → 1000`.
 
 ## Two things the app must handle (learned during deploy)
 
