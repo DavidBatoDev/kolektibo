@@ -1,4 +1,4 @@
-# David E. Bato-bato — The Backbone (Lead)
+# David E. Bato-bato — The Backbone
 
 **Mission:** connect the two halves of the app. Auth + profile already ship; the treasury is still a
 single-browser persona simulation. Your workstream builds the bridge — **auth → real linked wallet →
@@ -94,7 +94,7 @@ set and the DB roster never disagree for the demo pool.
 ## Start here (Day 1)
 Do **D0** (freeze contracts) this morning so Elton/Shello/Earl unblock, then open the `0005` migration
 (**D1**). By end of week 1 you want D1 applied + the D3/D4 shapes posted, even if the RPC bodies are
-still stubs — that's what lets the juniors start their vertical slices at M1.
+still stubs — that's what lets the team start their vertical slices at M1.
 
 ## Definition of done (your workstream)
 - Migrations 0005 + 0006 applied, RLS + advisors clean, `types.gen.ts` regenerated.

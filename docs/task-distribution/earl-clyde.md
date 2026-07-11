@@ -1,4 +1,4 @@
-# Earl Clyde — Backend v1 + Indexer v0 (Mid Full-Stack)
+# Earl Clyde — Backend v1 + Indexer v0
 
 **Mission:** you own the two most architecturally demanding pieces of Phase 1 — the ones that underpin
 everyone else. First, **replace the Stellar-CLI shelling** in `services/ai` with real `stellar-sdk`

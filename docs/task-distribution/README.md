@@ -12,13 +12,13 @@ independent, mostly-parallel workstreams — one per teammate. The goal of Phase
 
 ## Who owns what
 
-| Owner | Level | Workstream (the one-line mission) | File |
-|---|---|---|---|
-| **David E. Bato-bato** | Lead | **The backbone** — auth → real wallet linking (proof-of-ownership) → multi-member pools (create / invite / join / roster) | [david-bato-bato.md](./david-bato-bato.md) |
-| **Earl Clyde** | Mid Full-Stack | **Backend v1 + Indexer v0** — replace the Stellar-CLI shelling with `stellar-sdk` server code; build the `chain_events` read-model that powers every feed & notification | [earl-clyde.md](./earl-clyde.md) |
-| **Jasmin Ivy** | Sr UI/UX (Jr FE) | **Design system, theme & polish** — own the theme, formalize design tokens & the component library, stand up i18n (en/tl), design every new screen, drive the money-UX polish pass | [jasmin-ivy.md](./jasmin-ivy.md) |
-| **Shello** | Jr Full-Stack | **Activity feed + notifications** — the Realtime in-app feed (reads `chain_events`) and Web Push ("a spend needs your approval") | [shello.md](./shello.md) |
-| **Elton James** | Jr Full-Stack | **Directory, invites & roster UI** — the screens for David's pools/membership backend: pool directory, invite/join, member roster, address book, DPA account deletion | [elton-james.md](./elton-james.md) |
+| Owner | Workstream (the one-line mission) | File |
+|---|---|---|
+| **David E. Bato-bato** | **The backbone** — auth → real wallet linking (proof-of-ownership) → multi-member pools (create / invite / join / roster) | [david-bato-bato.md](./david-bato-bato.md) |
+| **Earl Clyde** | **Backend v1 + Indexer v0** — replace the Stellar-CLI shelling with `stellar-sdk` server code; build the `chain_events` read-model that powers every feed & notification | [earl-clyde.md](./earl-clyde.md) |
+| **Jasmin Ivy** | **Design system, theme & polish** — own the theme, formalize design tokens & the component library, stand up i18n (en/tl), design every new screen, drive the money-UX polish pass | [jasmin-ivy.md](./jasmin-ivy.md) |
+| **Shello** | **Activity feed + notifications** — the Realtime in-app feed (reads `chain_events`) and Web Push ("a spend needs your approval") | [shello.md](./shello.md) |
+| **Elton James** | **Directory, invites & roster UI** — the screens for David's pools/membership backend: pool directory, invite/join, member roster, address book, DPA account deletion | [elton-james.md](./elton-james.md) |
 
 ## Two laws every task obeys
 
@@ -41,7 +41,7 @@ independent, mostly-parallel workstreams — one per teammate. The goal of Phase
 
 ```
                  ┌─────────────────────────────────────────────┐
-   DAVID (lead)  │ migrations 0005+: user_wallets, pools,       │
+   DAVID         │ migrations 0005+: user_wallets, pools,       │
    the backbone  │ pool_members, pool_invites, invite_redempt.  │
                  │ RPCs: preview_pool(), redeem_invite()        │
                  │ wallet nonce challenge  ────────────────────┐│
@@ -65,7 +65,7 @@ independent, mostly-parallel workstreams — one per teammate. The goal of Phase
 
 **Nobody is hard-blocked on day 1.** Each person has a self-contained "Start here" task, and every
 cross-team dependency ships with a **contract + a stub/seed** (see [Interface contracts](#interface-contracts))
-so juniors can build against a mock and swap to the real thing later.
+so everyone can build against a mock and swap to the real thing later.
 
 ## Milestones (2–3 week Phase-1 sprint; estimates degrade gracefully if solo/part-time)
 

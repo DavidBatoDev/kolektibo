@@ -1,4 +1,4 @@
-# Shello — Activity Feed + Notifications (Jr Full-Stack)
+# Shello — Activity Feed + Notifications
 
 **Mission:** make the app talk back. Build the **Realtime in-app activity feed** (reads Earl's
 `chain_events` read-model — who contributed, who requested a spend, who approved, what was released)
@@ -72,7 +72,7 @@ Do **S0** + **S1** against Earl's seed rows and Jasmin's spec — you can build 
 from static/seed data before Realtime is live, then flip to **S2** when Earl's channel lands. That
 keeps you productive on day 1 with zero hard blocker.
 
-## Junior guardrails (ask early, these bite)
+## Guardrails (ask early, these bite)
 - **Never write authority to the DB** — `chain_events` is a read-model; the feed only *displays* what
   the contract already did. If you find yourself computing a balance to *store*, stop and ask David.
 - **Gate everything behind `isSupabaseEnabled()`** so the no-env demo build stays identical.

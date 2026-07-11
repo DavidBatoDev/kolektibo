@@ -1,4 +1,4 @@
-# Elton James — Directory, Invites & Roster UI (Jr Full-Stack)
+# Elton James — Directory, Invites & Roster UI
 
 **Mission:** build the human-facing surface of the multi-user pools that David's schema makes possible.
 Today a user's "pool" is a single contract id in `localStorage` — clear the browser and it's gone.
@@ -82,7 +82,7 @@ Do **EL0** + **EL1** against David's seed rows and Jasmin's directory mock — t
 buildable from seeded `pools`/`pool_members` before any RPC body is final. Then **EL3** (join) once
 David's `preview_pool`/`redeem_invite` are callable at M1.
 
-## Junior guardrails (ask early, these bite)
+## Guardrails (ask early, these bite)
 - **The DB is a directory, never authority.** Your tables hold names, membership, and labels keyed by
   on-chain address/contract id. Never store or compute a balance as truth — the contract owns money.
   If unsure, ask David.

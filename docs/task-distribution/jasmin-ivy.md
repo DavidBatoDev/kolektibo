@@ -1,8 +1,8 @@
-# Jasmin Ivy — Design System, Theme & Polish (Sr UI/UX · Jr Front-End)
+# Jasmin Ivy — Design System, Theme & Polish
 
 **Mission:** you are the design authority for the team. You **own the theme**, formalize the design
 tokens and the shared component library, stand up the **i18n** framework (English + Tagalog), design
-every new Phase-1 screen so the two junior devs build from a spec (not a blank canvas), and drive the
+every new Phase-1 screen so Shello and Elton build from a spec (not a blank canvas), and drive the
 **money-UX polish pass** that makes the app read as a real fintech product on camera and in-hand.
 
 > You front-stop Shello and Elton: your mockups + components are what they implement. Ship the design
@@ -41,7 +41,7 @@ a one-page rationale, and a swatch/preview. **Don't fork the palette names** oth
 Figma link) the team can reference; no regression in the existing screens.
 
 ### J1 — Component library audit + extension `M`
-Audit `ui.tsx` and add the shared primitives Phase 1 needs so juniors never hand-roll: `Modal`/`Sheet`
+Audit `ui.tsx` and add the shared primitives Phase 1 needs so nobody hand-rolls: `Modal`/`Sheet`
 (bottom sheet for mobile), `Toast`, `EmptyState`, `Skeleton`/loading, `Avatar`, `ListItem`/`Row`,
 `SegmentedControl`, `QRCode` display, `CopyField` (for invite links). Keep the existing API style
 (variant props, Tailwind classes, `className` passthrough).
@@ -58,7 +58,7 @@ translatable. Coordinate money/number formatting with `peso()`.
 strings added by Shello/Elton go through `t()`, not hardcoded.
 
 ### J3 — Screen designs for the new Phase-1 flows `L`
-Design (mock, then spec) the screens the juniors and David build. Deliver mobile-first layouts with
+Design (mock, then spec) the screens Shello, Elton, and David build. Deliver mobile-first layouts with
 states (loading / empty / error / success):
 - **Link a wallet** (David's D2) — nonce-sign UX, "verified" state.
 - **Pool directory** + **create/join pool** (Elton) — list, create CTA, join-via-code.
