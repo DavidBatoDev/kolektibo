@@ -20,8 +20,8 @@ export function SignInPage() {
   return (
     <div className="mx-auto flex min-h-[70dvh] max-w-sm flex-col justify-center space-y-5 py-6">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-white">Welcome back</h1>
-        <p className="mt-1 text-sm text-slate-400">Sign in to your Kolektibo account</p>
+        <h1 className="text-2xl font-semibold text-ink-950">Welcome back</h1>
+        <p className="mt-1 text-sm text-ink-700">Sign in to your Kolektibo account</p>
       </div>
       <Card className="space-y-4">
         <Field label="Email">
@@ -52,12 +52,12 @@ export function SignInPage() {
         >
           Sign in
         </Button>
-        {m.isError && <p className="text-center text-xs text-rose-400">{authErrorMessage(m.error)}</p>}
+        {m.isError && <p className="text-center text-xs text-danger">{authErrorMessage(m.error)}</p>}
         <div className="flex items-center justify-between text-xs">
-          <Link to="/forgot-password" className="text-slate-400 hover:text-slate-200">
+          <Link to="/forgot-password" className="text-ink-700 hover:text-ink-950">
             Forgot password?
           </Link>
-          <Link to="/signup" className="text-brand-400 hover:text-brand-300">
+          <Link to="/signup" className="text-brand-600 hover:text-brand-700">
             Create account
           </Link>
         </div>

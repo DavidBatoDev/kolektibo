@@ -4,10 +4,14 @@ import { useHasPool, usePool } from '../hooks/usePool'
 import { parseRules, type Policy } from '../lib/ai'
 import { clearPool } from '../lib/livepool'
 import { resetPersonas } from '../lib/wallet'
-import { Badge, Button, Card, Field, inputClass, peso, SectionLabel } from '../components/ui'
+import { Badge, Button, Card, List, Row, peso, SectionLabel } from '../components/ui'
 
 const EXAMPLE =
   '₱200 per member every month. Equipment up to ₱5,000, venue up to ₱3,000, refreshments up to ₱1,500. Any spend over ₱5,000 needs 2 of 3 officers to approve.'
+
+// Textarea needs to grow with rows — inputClass fixes h-11, so it gets its own style here.
+const textareaClass =
+  'w-full min-h-28 resize-none rounded-2xl bg-paper-100 px-4 py-3 text-[15px] text-ink-950 placeholder:text-ink-500 outline-none focus:ring-2 focus:ring-brand-500 focus:bg-paper-0'
 
 export function SetupPage() {
   const { data: pool } = usePool()
@@ -34,8 +38,8 @@ export function SetupPage() {
     <div className="space-y-5">
       <Card className="space-y-3">
         <div>
-          <p className="text-sm font-semibold text-white">How the AI reads your rules</p>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm font-semibold text-ink-950">How the AI reads your rules</p>
+          <p className="text-xs text-ink-500">
             Plain language → the on-chain policy the contract enforces.
           </p>
         </div>
@@ -43,13 +47,13 @@ export function SetupPage() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={4}
-          className={inputClass + ' resize-none'}
+          className={textareaClass}
         />
         <Button loading={parse.isPending} onClick={() => parse.mutate(text)}>
           Parse with AI
         </Button>
         {parse.isError && (
-          <p className="text-xs text-rose-400">
+          <p className="text-xs text-danger">
             AI service not reachable. Start it with <code>pnpm dev:ai</code> and set{' '}
             <code>OPENAI_API_KEY</code>.
           </p>
@@ -57,9 +61,9 @@ export function SetupPage() {
       </Card>
 
       {parsed && (
-        <Card className="space-y-3 ring-brand-500/30">
-          <p className="text-sm font-semibold text-white">Parsed policy</p>
-          <p className="text-sm text-slate-300">{parsed.summary}</p>
+        <Card className="space-y-3 ring-1 ring-brand-200">
+          <p className="text-sm font-semibold text-ink-950">Parsed policy</p>
+          <p className="text-sm text-ink-700">{parsed.summary}</p>
           <div className="flex flex-wrap gap-1.5">
             {parsed.dues && (
               <Badge tone="brand">
@@ -69,19 +73,19 @@ export function SetupPage() {
             <Badge tone="gold">
               {parsed.approval.threshold} of {parsed.approval.of} approvals
             </Badge>
-            <Badge tone="slate">{parsed.currency}</Badge>
+            <Badge tone="neutral">{parsed.currency}</Badge>
           </div>
           <div className="space-y-1">
             {parsed.categories.map((c) => (
               <div key={c.name} className="flex justify-between text-sm">
-                <span className="text-slate-300">{c.name}</span>
-                <span className="text-slate-400">
+                <span className="text-ink-700">{c.name}</span>
+                <span className="text-ink-700">
                   {c.monthlyLimit ? peso(c.monthlyLimit) : 'no limit'}
                 </span>
               </div>
             ))}
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-500">
             Your live pool enforces {pool ? `${pool.policy.approval.threshold}-of-${pool.policy.approval.of}` : '2-of-3'} approvals and these category caps on-chain.
           </p>
         </Card>
@@ -90,23 +94,26 @@ export function SetupPage() {
       {pool && (
         <div>
           <SectionLabel>Officers ({pool.policy.approval.of}) — on-chain signers</SectionLabel>
-          <Card className="divide-y divide-white/5 p-0">
+          <List>
             {pool.officers.map((o) => (
-              <div key={o.address} className="flex items-center justify-between p-4">
-                <p className="text-sm font-medium text-white">{o.name}</p>
-                <p className="font-mono text-xs text-slate-500">
-                  {o.address.slice(0, 6)}…{o.address.slice(-4)}
-                </p>
-              </div>
+              <Row
+                key={o.address}
+                title={o.name}
+                trailing={
+                  <span className="font-mono text-xs text-ink-500">
+                    {o.address.slice(0, 6)}…{o.address.slice(-4)}
+                  </span>
+                }
+              />
             ))}
-          </Card>
+          </List>
         </div>
       )}
 
       {hasPool && (
         <button
           onClick={startOver}
-          className="w-full py-2 text-center text-xs text-slate-500 hover:text-slate-300"
+          className="w-full py-2 text-center text-xs text-ink-500 hover:text-ink-700"
         >
           Start over (create a brand-new pool)
         </button>

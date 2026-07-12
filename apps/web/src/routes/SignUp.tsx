@@ -22,8 +22,8 @@ export function SignUpPage() {
   return (
     <div className="mx-auto flex min-h-[70dvh] max-w-sm flex-col justify-center space-y-5 py-6">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-white">Create your account</h1>
-        <p className="mt-1 text-sm text-slate-400">Join Kolektibo</p>
+        <h1 className="text-2xl font-semibold text-ink-950">Create your account</h1>
+        <p className="mt-1 text-sm text-ink-700">Join Kolektibo</p>
       </div>
       <Card className="space-y-4">
         <Field label="Display name">
@@ -64,8 +64,8 @@ export function SignUpPage() {
             placeholder="••••••••"
           />
         </Field>
-        {tooShort && <p className="text-xs text-rose-400">Password must be at least 8 characters.</p>}
-        {mismatch && <p className="text-xs text-rose-400">Passwords don't match.</p>}
+        {tooShort && <p className="text-xs text-danger">Password must be at least 8 characters.</p>}
+        {mismatch && <p className="text-xs text-danger">Passwords don't match.</p>}
         <Button
           className="w-full"
           loading={m.isPending}
@@ -74,10 +74,10 @@ export function SignUpPage() {
         >
           Create account
         </Button>
-        {m.isError && <p className="text-center text-xs text-rose-400">{authErrorMessage(m.error)}</p>}
-        <p className="text-center text-xs text-slate-400">
+        {m.isError && <p className="text-center text-xs text-danger">{authErrorMessage(m.error)}</p>}
+        <p className="text-center text-xs text-ink-700">
           Already have an account?{' '}
-          <Link to="/signin" className="text-brand-400 hover:text-brand-300">
+          <Link to="/signin" className="text-brand-600 hover:text-brand-700">
             Sign in
           </Link>
         </p>

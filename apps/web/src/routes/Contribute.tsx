@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { usePool, usePoolActions } from '../hooks/usePool'
 import { getPersonas } from '../lib/wallet'
-import { Button, Card, Field, inputClass, peso, SectionLabel } from '../components/ui'
+import { Button, Card, Field, inputClass, List, Row, peso, SectionLabel } from '../components/ui'
 import { shortAddr } from '../lib/identity'
 import { explorerTxUrl } from '../lib/stellar'
 
@@ -18,8 +18,8 @@ export function ContributePage() {
     <div className="space-y-5">
       <Card className="space-y-4">
         <div>
-          <p className="text-sm font-semibold text-white">Add to the pool</p>
-          <p className="text-xs text-slate-500">
+          <p className="text-sm font-semibold text-ink-950">Add to the pool</p>
+          <p className="text-xs text-ink-500">
             Real USDC on Stellar testnet · dues{' '}
             {pool.policy.dues ? peso(pool.policy.dues.amount) : 'none'}/mo
           </p>
@@ -41,7 +41,7 @@ export function ContributePage() {
 
         <Field label="Amount">
           <div className="flex items-center gap-2">
-            <span className="text-lg text-slate-400">₱</span>
+            <span className="text-lg text-ink-500">₱</span>
             <input
               type="number"
               className={inputClass}
@@ -56,7 +56,7 @@ export function ContributePage() {
             <button
               key={v}
               onClick={() => setAmount(v)}
-              className="flex-1 rounded-xl bg-white/5 py-2 text-sm text-slate-200 ring-1 ring-white/10 hover:bg-white/10"
+              className="flex-1 rounded-xl bg-paper-100 py-2 text-sm text-ink-700 transition hover:bg-ink-300/50"
             >
               {peso(v)}
             </button>
@@ -71,10 +71,10 @@ export function ContributePage() {
           Contribute {peso(amount)}
         </Button>
         {contribute.isPending && (
-          <p className="text-center text-xs text-slate-500">Signing & submitting to Stellar…</p>
+          <p className="text-center text-xs text-ink-500">Signing & submitting to Stellar…</p>
         )}
         {contribute.isSuccess && (
-          <p className="text-center text-xs text-emerald-400">
+          <p className="text-center text-xs text-brand-700">
             Contribution confirmed on-chain ✓{' '}
             {contribute.data && (
               <a
@@ -89,7 +89,7 @@ export function ContributePage() {
           </p>
         )}
         {contribute.isError && (
-          <p className="text-center text-xs text-rose-400">
+          <p className="text-center text-xs text-danger">
             {String((contribute.error as Error)?.message || contribute.error)}
           </p>
         )}
@@ -97,20 +97,19 @@ export function ContributePage() {
 
       <div>
         <SectionLabel>Members & contributions</SectionLabel>
-        <Card className="divide-y divide-white/5 p-0">
+        <List>
           {pool.members.length === 0 && (
-            <p className="p-4 text-sm text-slate-500">No contributions yet.</p>
+            <p className="px-4 py-8 text-center text-sm text-ink-500">No contributions yet.</p>
           )}
           {pool.members.map((m) => (
-            <div key={m.address} className="flex items-center justify-between p-4">
-              <div>
-                <p className="text-sm font-medium text-white">{m.name}</p>
-                <p className="font-mono text-xs text-slate-500">{shortAddr(m.address)}</p>
-              </div>
-              <p className="text-sm font-semibold text-white">{peso(m.contributed)}</p>
-            </div>
+            <Row
+              key={m.address}
+              title={m.name}
+              subtitle={<span className="font-mono">{shortAddr(m.address)}</span>}
+              trailing={<p className="text-sm font-semibold text-ink-950">{peso(m.contributed)}</p>}
+            />
           ))}
-        </Card>
+        </List>
       </div>
     </div>
   )

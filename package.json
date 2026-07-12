@@ -13,6 +13,10 @@
     "dev:ai": "pnpm --filter @kolektibo/ai dev",
     "build": "pnpm --filter @kolektibo/web build",
     "contract:build": "cd contracts/treasury && stellar contract build",
-    "contract:deploy": "bash scripts/deploy.sh"
+    "contract:deploy": "bash scripts/deploy.sh",
+    "assets:optimize": "node scripts/optimize-assets.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3"
   }
 }

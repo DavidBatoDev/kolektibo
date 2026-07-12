@@ -11,7 +11,7 @@ import {
   explorerAccountUrl,
   explorerTxUrl,
 } from '../lib/stellar'
-import { Badge, Button, Card, peso, ProgressBar, SectionLabel } from '../components/ui'
+import { Badge, Button, Card, List, Row, peso, ProgressBar, SectionLabel, inputClass } from '../components/ui'
 import { LiveOnChain } from '../components/LiveOnChain'
 
 const SUGGESTIONS = [
@@ -29,8 +29,8 @@ export function HomePage() {
     return (
       <div className="space-y-5">
         <div className="px-1 pt-2">
-          <h1 className="text-xl font-bold text-white">Pooled money your group can trust</h1>
-          <p className="mt-1 text-sm text-slate-400">
+          <h1 className="text-xl font-bold text-ink-950">Pooled money your group can trust</h1>
+          <p className="mt-1 text-sm text-ink-700">
             An AI treasurer, made honest by a smart contract. No single person can touch the fund.
           </p>
         </div>
@@ -42,7 +42,7 @@ export function HomePage() {
 
   if (!pool)
     return (
-      <div className="p-6 text-center text-slate-400">
+      <div className="p-6 text-center text-ink-700">
         {isLoading ? 'Reading your pool from Stellar…' : 'No pool data.'}
       </div>
     )
@@ -55,21 +55,23 @@ export function HomePage() {
   return (
     <div className="space-y-5">
       {/* Pool balance hero */}
-      <Card className="bg-linear-to-br from-brand-700/40 to-ink-800/60">
+      <Card hero>
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm text-slate-300">{pool.name}</p>
-            <p className="mt-1 text-4xl font-bold tracking-tight text-white">
+            <p className="text-[13px] text-white/80">{pool.name}</p>
+            <p className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.02em] tabular-nums text-white">
               {peso(balance)}
             </p>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-[11px] text-white/70">
               pooled balance · settles in {pool.currency} on Stellar
             </p>
           </div>
-          <Badge tone="brand">{pool.members.length} members</Badge>
+          <span className="rounded-full bg-white/15 px-2.5 py-1 text-[12px] font-semibold text-white">
+            {pool.members.length} members
+          </span>
         </div>
-        <div className="mt-4 flex items-center gap-2 text-xs text-slate-300">
-          <span className="text-slate-500">Rule:</span>
+        <div className="mt-4 flex items-center gap-2 text-[12px] text-white/85">
+          <span className="text-white/60">Rule:</span>
           <span className="flex-1">{pool.policy.summary}</span>
         </div>
       </Card>
@@ -90,10 +92,10 @@ export function HomePage() {
             return (
               <div key={c.name}>
                 <div className="mb-1 flex items-center justify-between text-sm">
-                  <span className="text-slate-200">{c.name}</span>
-                  <span className="text-slate-400">
+                  <span className="text-ink-800">{c.name}</span>
+                  <span className="text-ink-700">
                     {peso(spent)}{' '}
-                    <span className="text-slate-600">/ {limit ? peso(limit) : '∞'}</span>
+                    <span className="text-ink-500">/ {limit ? peso(limit) : '∞'}</span>
                   </span>
                 </div>
                 {limit > 0 && <ProgressBar value={spent} max={limit} />}
@@ -106,42 +108,41 @@ export function HomePage() {
       {/* Recent activity */}
       <div>
         <SectionLabel>Recent activity</SectionLabel>
-        <Card className="divide-y divide-white/5 p-0">
+        <List>
           {pool.spends.length === 0 && (
-            <p className="p-4 text-sm text-slate-500">No disbursements yet.</p>
+            <p className="px-4 py-8 text-center text-sm text-ink-500">No disbursements yet.</p>
           )}
           {pool.spends.map((s) => (
-            <div key={s.id} className="flex items-center justify-between p-4">
-              <div>
-                <p className="text-sm font-medium text-white">{s.recipientName}</p>
-                <p className="text-xs text-slate-500">
-                  {s.category} · {s.memo}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-white">−{peso(s.amount)}</p>
-                {s.executed ? (
-                  s.executeTx ? (
-                    <a
-                      href={explorerTxUrl(s.executeTx)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[11px] text-emerald-400 hover:underline"
-                    >
-                      paid · tx ↗
-                    </a>
+            <Row
+              key={s.id}
+              title={s.recipientName}
+              subtitle={`${s.category} · ${s.memo}`}
+              trailing={
+                <div className="text-right">
+                  <p className="text-[15px] font-semibold text-ink-950">−{peso(s.amount)}</p>
+                  {s.executed ? (
+                    s.executeTx ? (
+                      <a
+                        href={explorerTxUrl(s.executeTx)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] text-brand-700 hover:underline"
+                      >
+                        paid · tx ↗
+                      </a>
+                    ) : (
+                      <Badge tone="brand">paid</Badge>
+                    )
                   ) : (
-                    <Badge tone="green">paid</Badge>
-                  )
-                ) : (
-                  <Badge tone="gold">
-                    {s.approvals.length}/{pool.policy.approval.threshold} approvals
-                  </Badge>
-                )}
-              </div>
-            </div>
+                    <Badge tone="gold">
+                      {s.approvals.length}/{pool.policy.approval.threshold} approvals
+                    </Badge>
+                  )}
+                </div>
+              }
+            />
           ))}
-        </Card>
+        </List>
       </div>
 
     </div>
@@ -166,12 +167,12 @@ function AskTreasurer() {
   return (
     <Card className="space-y-3">
       <div className="flex items-center gap-2">
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-brand-600/20 text-brand-400">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-brand-100 text-brand-700">
           ✦
         </span>
         <div>
-          <p className="text-sm font-semibold text-white">Ask your AI treasurer</p>
-          <p className="text-xs text-slate-500">Answers grounded in on-chain history</p>
+          <p className="text-sm font-semibold text-ink-950">Ask your AI treasurer</p>
+          <p className="text-xs text-ink-500">Answers grounded in on-chain history</p>
         </div>
       </div>
 
@@ -183,7 +184,7 @@ function AskTreasurer() {
               setQ(s)
               ask.mutate(s)
             }}
-            className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] text-slate-300 ring-1 ring-white/10 hover:bg-white/10"
+            className="rounded-full bg-paper-100 px-2.5 py-1 text-[11px] text-ink-700 transition hover:bg-ink-300/50"
           >
             {s}
           </button>
@@ -201,7 +202,7 @@ function AskTreasurer() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="How much do we have, and where did it go?"
-          className="flex-1 rounded-xl bg-ink-950/60 px-3.5 py-2.5 text-sm text-white ring-1 ring-white/10 outline-none placeholder:text-slate-600 focus:ring-2 focus:ring-brand-500"
+          className={`${inputClass} flex-1`}
         />
         <Button type="submit" loading={ask.isPending}>
           Ask
@@ -209,13 +210,13 @@ function AskTreasurer() {
       </form>
 
       {ask.isError && (
-        <p className="text-xs text-rose-400">
+        <p className="text-xs text-danger">
           AI service not reachable. Start it with <code>pnpm dev:ai</code> and set{' '}
           <code>OPENAI_API_KEY</code>.
         </p>
       )}
       {ask.data && (
-        <div className="rounded-xl bg-ink-950/50 p-3 text-sm leading-relaxed text-slate-200 ring-1 ring-white/5">
+        <div className="rounded-xl bg-paper-100 p-3 text-sm leading-relaxed text-ink-800">
           {ask.data}
         </div>
       )}
@@ -241,19 +242,19 @@ function WalletCard() {
       <Card className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-slate-500">Address</p>
+            <p className="text-xs text-ink-500">Address</p>
             <a
               href={explorerAccountUrl(pk)}
               target="_blank"
               rel="noreferrer"
-              className="font-mono text-sm text-brand-400 hover:underline"
+              className="font-mono text-sm text-brand-700 hover:underline"
             >
               {shortAddr(pk, 8, 6)}
             </a>
           </div>
           <div className="text-right">
-            <p className="text-xs text-slate-500">XLM balance</p>
-            <p className="text-sm font-semibold text-white">
+            <p className="text-xs text-ink-500">XLM balance</p>
+            <p className="text-sm font-semibold text-ink-950">
               {account.isLoading
                 ? '…'
                 : account.data?.exists
