@@ -1,10 +1,13 @@
-import { Link, Outlet, useRouterState } from '@tanstack/react-router'
-import type { ComponentType } from 'react'
+import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router'
+import { useEffect, type ComponentType } from 'react'
 import { isSupabaseEnabled } from '../lib/supabase'
+import { useAuth } from '../lib/auth'
+import { useFeatureFlag } from '../hooks/useFeatureFlag'
+import { PENDING_JOIN_KEY } from '../routes/Join'
 
 type Tab = { to: string; label: string; Icon: ComponentType<{ className?: string }> }
 
-const tabs: Tab[] = [
+const baseTabs: Tab[] = [
   { to: '/', label: 'Pool', Icon: IconHome },
   { to: '/contribute', label: 'Contribute', Icon: IconPlus },
   { to: '/spend', label: 'Spend', Icon: IconSend },
@@ -16,8 +19,29 @@ const AUTH_PATHS = ['/signin', '/signup', '/forgot-password', '/reset-password',
 
 export function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const multiPool = useFeatureFlag('multi_pool')
   const isAuthRoute = AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
   const showAccount = isSupabaseEnabled() && !isAuthRoute
+
+  // Multi-user pools tab appears only with Supabase env + the multi_pool flag —
+  // the no-env demo build keeps its exact 4-tab nav.
+  const tabs = multiPool
+    ? [...baseTabs, { to: '/pools', label: 'Pools', Icon: IconUsers }]
+    : baseTabs
+
+  // Resume a pending invite after the signup/verify detour (set by /join/$code
+  // only for a VALID invite). Never fires on auth routes — otherwise it would
+  // yank a freshly-signed-up user off /verify-email before they can enter their
+  // code — and only when the multi_pool feature is live.
+  useEffect(() => {
+    if (!user || !multiPool || isAuthRoute) return
+    const code = localStorage.getItem(PENDING_JOIN_KEY)
+    if (code && !pathname.startsWith('/join/')) {
+      void navigate({ to: '/join/$code', params: { code } })
+    }
+  }, [user, multiPool, isAuthRoute, pathname, navigate])
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/60 shadow-2xl shadow-black/40 ring-1 ring-white/5">
@@ -111,6 +135,16 @@ function IconUser({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
       <circle cx="12" cy="8" r="3.5" />
       <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+function IconUsers({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="9" cy="8.5" r="3" />
+      <path d="M3.5 19c0-3 2.4-5 5.5-5s5.5 2 5.5 5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="17" cy="9.5" r="2.4" />
+      <path d="M16 14.3c2.6.3 4.5 2 4.5 4.7" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }

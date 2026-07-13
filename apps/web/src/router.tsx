@@ -10,6 +10,14 @@ import { ForgotPasswordPage } from './routes/ForgotPassword'
 import { ResetPasswordPage } from './routes/ResetPassword'
 import { VerifyEmailPage } from './routes/VerifyEmail'
 import { ProfilePage } from './routes/Profile'
+import { WalletPage } from './routes/Wallet'
+import { PoolsPage } from './routes/Pools'
+import { PoolNewPage } from './routes/PoolNew'
+import { PoolDetailPage } from './routes/PoolDetail'
+import { PoolInvitePage } from './routes/PoolInvite'
+import { PoolContributePage } from './routes/PoolContribute'
+import { PoolSpendPage } from './routes/PoolSpend'
+import { JoinPage } from './routes/Join'
 import { requireAuth } from './lib/authGuard'
 import { supabase } from './lib/supabase'
 
@@ -22,6 +30,17 @@ const setupRoute = createRoute({ getParentRoute: () => rootRoute, path: '/setup'
 const contributeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/contribute', component: ContributePage, beforeLoad: requireAuth })
 const spendRoute = createRoute({ getParentRoute: () => rootRoute, path: '/spend', component: SpendPage, beforeLoad: requireAuth })
 const profileRoute = createRoute({ getParentRoute: () => rootRoute, path: '/profile', component: ProfilePage, beforeLoad: requireAuth })
+const walletRoute = createRoute({ getParentRoute: () => rootRoute, path: '/wallet', component: WalletPage, beforeLoad: requireAuth })
+
+// ── Multi-user pools (DB directory; gated by isSupabaseEnabled + multi_pool flag in UI) ──
+const poolsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/pools', component: PoolsPage, beforeLoad: requireAuth })
+const poolNewRoute = createRoute({ getParentRoute: () => rootRoute, path: '/pools/new', component: PoolNewPage, beforeLoad: requireAuth })
+const poolDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/pools/$poolId', component: PoolDetailPage, beforeLoad: requireAuth })
+const poolInviteRoute = createRoute({ getParentRoute: () => rootRoute, path: '/pools/$poolId/invite', component: PoolInvitePage, beforeLoad: requireAuth })
+const poolContributeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/pools/$poolId/contribute', component: PoolContributePage, beforeLoad: requireAuth })
+const poolSpendRoute = createRoute({ getParentRoute: () => rootRoute, path: '/pools/$poolId/spend', component: PoolSpendPage, beforeLoad: requireAuth })
+// Invite landing is public: anonymous preview → signup → back here to redeem.
+const joinRoute = createRoute({ getParentRoute: () => rootRoute, path: '/join/$code', component: JoinPage })
 
 // ── Public auth routes (no guard; render full-screen without the bottom nav) ──
 const signinRoute = createRoute({ getParentRoute: () => rootRoute, path: '/signin', component: SignInPage })
@@ -53,6 +72,14 @@ const routeTree = rootRoute.addChildren([
   contributeRoute,
   spendRoute,
   profileRoute,
+  walletRoute,
+  poolsRoute,
+  poolNewRoute,
+  poolDetailRoute,
+  poolInviteRoute,
+  poolContributeRoute,
+  poolSpendRoute,
+  joinRoute,
   signinRoute,
   signupRoute,
   forgotRoute,
