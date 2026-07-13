@@ -573,7 +573,7 @@ export type Database = {
       }
       pools: {
         Row: {
-          contract_id: string
+          contract_id: string | null
           contract_version: number
           created_at: string
           created_by: string | null
@@ -590,7 +590,7 @@ export type Database = {
           wasm_hash: string | null
         }
         Insert: {
-          contract_id: string
+          contract_id?: string | null
           contract_version?: number
           created_at?: string
           created_by?: string | null
@@ -607,7 +607,7 @@ export type Database = {
           wasm_hash?: string | null
         }
         Update: {
-          contract_id?: string
+          contract_id?: string | null
           contract_version?: number
           created_at?: string
           created_by?: string | null
@@ -819,11 +819,63 @@ export type Database = {
           },
         ]
       }
+      wallet_link_challenges: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          nonce: string
+          stellar_address: string
+          user_id: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          nonce: string
+          stellar_address: string
+          user_id: string
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          nonce?: string
+          stellar_address?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_link_challenges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      activate_pool: {
+        Args: { p_contract_id: string; p_pool: string; p_wasm_hash?: string }
+        Returns: undefined
+      }
+      create_pool_draft: {
+        Args: {
+          p_description?: string
+          p_kind?: string
+          p_name: string
+          p_policy?: Json
+          p_rules_text?: string
+        }
+        Returns: string
+      }
       get_user_id_by_email: { Args: { p_email: string }; Returns: string }
       is_pool_member: { Args: { p_pool: string }; Returns: boolean }
       is_pool_officer: { Args: { p_pool: string }; Returns: boolean }
@@ -841,6 +893,10 @@ export type Database = {
       redeem_invite: {
         Args: { p_address?: string; p_code: string }
         Returns: string
+      }
+      set_my_pool_address: {
+        Args: { p_address: string; p_pool: string }
+        Returns: undefined
       }
       shares_pool: { Args: { p_other: string }; Returns: boolean }
     }
