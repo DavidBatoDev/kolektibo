@@ -12,7 +12,13 @@
     "dev:web": "pnpm --filter @kolektibo/web dev",
     "dev:ai": "pnpm --filter @kolektibo/ai dev",
     "build": "pnpm --filter @kolektibo/web build",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
     "contract:build": "cd contracts/treasury && stellar contract build",
     "contract:deploy": "bash scripts/deploy.sh"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
   }
 }

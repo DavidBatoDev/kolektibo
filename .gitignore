@@ -37,4 +37,6 @@ npm-debug.log*
 
 # QA / Playwright run artifacts (test outputs, not source)
 .playwright-mcp/
+playwright-report/
+test-results/
 /qa-*.png
