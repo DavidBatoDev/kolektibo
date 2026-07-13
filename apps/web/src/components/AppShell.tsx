@@ -14,13 +14,15 @@ export function AppShell() {
   const isInvite = pathname.startsWith('/invite/') || pathname.startsWith('/join/')
   const isPublic = !isAuth && !isDemo && !isInvite && PUBLIC_PATHS.some((path) => path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`))
 
+  if (pathname === '/') return <LandingShell />
   if (isPublic) return <PublicShell />
   if (isAuth || isInvite) return <FocusShell />
   if (isDemo) return <DemoShell />
   return <ProductShell />
 }
 
-function PublicShell() {
+/** The marketing landing page is the only deliberately wide page. */
+function LandingShell() {
   const { user } = useAuth()
   return (
     <div className="min-h-dvh">
@@ -45,6 +47,26 @@ function PublicShell() {
           <div className="sm:col-span-2"><Brand /><p className="mt-3 max-w-sm text-xs leading-5 text-slate-500">A non-custodial group treasury for Filipino communities. Testnet beta only.</p></div>
           <div className="space-y-2"><p className="font-medium text-white">Product</p><Link to="/about" className="block text-slate-500 hover:text-slate-300">About</Link><Link to="/help" className="block text-slate-500 hover:text-slate-300">Help</Link><Link to="/status" className="block text-slate-500 hover:text-slate-300">Status</Link></div>
           <div className="space-y-2"><p className="font-medium text-white">Legal</p><Link to="/legal/terms" className="block text-slate-500 hover:text-slate-300">Terms</Link><Link to="/legal/privacy" className="block text-slate-500 hover:text-slate-300">Privacy</Link><Link to="/legal/risk" className="block text-slate-500 hover:text-slate-300">Risk</Link></div>
+        </div>
+      </footer>
+    </div>
+  )
+}
+
+/** Public reading pages use the same phone frame as the member product. */
+function PublicShell() {
+  const { user } = useAuth()
+  return (
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/50 shadow-2xl shadow-black/40 ring-1 ring-white/5">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-white/5 bg-ink-950/85 px-4 py-3 backdrop-blur">
+        <Brand />
+        <Link to={user ? '/app' : '/auth/sign-in'} className="text-sm text-slate-300 hover:text-white">{user ? 'Open app' : 'Sign in'}</Link>
+      </header>
+      <main className="flex-1 px-4"><Outlet /></main>
+      <footer className="border-t border-white/5 px-4 py-7 text-xs text-slate-500">
+        <div className="grid grid-cols-2 gap-5">
+          <div className="space-y-2"><p className="font-medium text-white">Product</p><Link to="/about" className="block hover:text-slate-300">About</Link><Link to="/help" className="block hover:text-slate-300">Help</Link><Link to="/status" className="block hover:text-slate-300">Status</Link></div>
+          <div className="space-y-2"><p className="font-medium text-white">Legal</p><Link to="/legal/terms" className="block hover:text-slate-300">Terms</Link><Link to="/legal/privacy" className="block hover:text-slate-300">Privacy</Link><Link to="/legal/risk" className="block hover:text-slate-300">Risk</Link></div>
         </div>
       </footer>
     </div>
@@ -95,30 +117,14 @@ function ProductShell() {
     { to: '/app/wallet', label: 'Wallet', Icon: IconWallet, exact: false },
     { to: '/app/profile', label: 'More', Icon: IconMenu, exact: false },
   ] as const
-  const secondary = [
-    { to: '/app/notifications', label: 'Notifications' },
-    { to: '/app/profile', label: 'Profile' },
-    { to: '/app/preferences', label: 'Preferences' },
-    { to: '/app/security', label: 'Security' },
-    { to: '/app/help', label: 'Help' },
-  ] as const
   const active = (to: string, exact?: boolean) => exact ? pathname === to : pathname === to || pathname.startsWith(`${to}/`)
   return (
-    <div className="min-h-dvh">
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-ink-950/85 backdrop-blur lg:hidden">
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/50 shadow-2xl shadow-black/40 ring-1 ring-white/5">
+      <header className="sticky top-0 z-20 border-b border-white/5 bg-ink-950/85 backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3"><Brand to="/app" /><div className="flex items-center gap-3"><span className="rounded-full bg-brand-600/15 px-2 py-1 text-[10px] text-brand-400 ring-1 ring-brand-500/30">Testnet</span><Link to="/app/notifications" aria-label="Notifications" className="text-slate-400"><IconBell className="h-5 w-5" /></Link></div></div>
       </header>
-      <div className="mx-auto flex max-w-7xl">
-        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-white/5 p-5 lg:flex">
-          <Brand to="/app" />
-          <nav className="mt-8 space-y-1">{nav.slice(0, 4).map(({ to, label, Icon, exact }) => <Link key={to} to={to} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${active(to, exact) ? 'bg-brand-600/15 text-brand-300' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}><Icon className="h-5 w-5" />{label}</Link>)}</nav>
-          <p className="mb-2 mt-8 px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-600">Account</p>
-          <nav className="space-y-1">{secondary.map(({ to, label }) => <Link key={to} to={to} className={`block rounded-xl px-3 py-2 text-sm ${active(to) ? 'text-brand-300' : 'text-slate-500 hover:text-white'}`}>{label}</Link>)}</nav>
-          <div className="mt-auto rounded-2xl bg-white/3 p-3 ring-1 ring-white/5"><p className="truncate text-xs text-slate-400">{user?.email}</p><p className="mt-1 text-[10px] text-slate-600">Private testnet beta</p></div>
-        </aside>
-        <main className="min-w-0 flex-1 px-4 pb-28 pt-5 sm:px-6 lg:px-10 lg:pb-10 lg:pt-8"><Outlet /></main>
-      </div>
-      <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-white/5 bg-ink-950/92 backdrop-blur lg:hidden" style={{ paddingBottom: 'var(--safe-bottom)' }}>
+      <main className="min-w-0 flex-1 px-4 pb-28 pt-5"><Outlet /></main>
+      <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t border-white/5 bg-ink-950/92 backdrop-blur" style={{ paddingBottom: 'var(--safe-bottom)' }}>
         {nav.map(({ to, label, Icon, exact }) => <Link key={to} to={to} className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${active(to, exact) ? 'text-brand-400' : 'text-slate-500'}`}><Icon className="h-5 w-5" />{label}</Link>)}
       </nav>
     </div>

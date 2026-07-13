@@ -32,3 +32,15 @@ test('shows useful empty states for unavailable demo actions', async ({ page }) 
   await page.goto('/demo/spend')
   await expect(page.getByText('No demo pool to spend from')).toBeVisible()
 })
+
+test('keeps non-landing public pages in a phone-width frame on desktop', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+
+  await page.goto('/')
+  const landing = await page.getByRole('main').boundingBox()
+  expect(landing?.width).toBeGreaterThan(1000)
+
+  await page.goto('/features')
+  const features = await page.getByRole('main').boundingBox()
+  expect(features?.width).toBeLessThanOrEqual(449)
+})
