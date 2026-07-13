@@ -16,7 +16,7 @@ export function VerifyEmailPage() {
     mutationFn: () => verifyCode(user!.email!, code),
     onSuccess: () => {
       if (user) markVerified(user.id)
-      navigate({ to: '/' })
+      navigate({ to: '/onboarding/profile' })
     },
   })
 
@@ -40,7 +40,7 @@ export function VerifyEmailPage() {
 
   const onSignOut = async () => {
     await signOut()
-    navigate({ to: '/signin' })
+    navigate({ to: '/auth/sign-in' })
   }
 
   return (

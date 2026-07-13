@@ -66,7 +66,7 @@ export function PoolSpendPage() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['pool-state', pool.data?.contract_id] })
-      navigate({ to: '/pools/$poolId', params: { poolId } })
+      navigate({ to: '/app/pools/$poolId', params: { poolId } })
     },
   })
 
@@ -75,7 +75,7 @@ export function PoolSpendPage() {
       <Card className="mt-4">
         <p className="text-sm text-slate-300">Only officers can request spends.</p>
         <Link
-          to="/pools/$poolId"
+          to="/app/pools/$poolId"
           params={{ poolId }}
           className="mt-2 block text-sm text-brand-400 hover:text-brand-300"
         >
@@ -89,7 +89,7 @@ export function PoolSpendPage() {
     <div className="space-y-5 pb-4">
       <div>
         <Link
-          to="/pools/$poolId"
+          to="/app/pools/$poolId"
           params={{ poolId }}
           className="text-xs text-slate-500 hover:text-slate-300"
         >

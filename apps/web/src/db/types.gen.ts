@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
   public: {
     Tables: {
       ai_usage: {
@@ -176,27 +171,40 @@ export type Database = {
       }
       contribution_meta: {
         Row: {
+          contribution_type: string
           created_at: string
+          goal_id: string | null
           note: string | null
           pool_id: string
           proof_url: string | null
           tx_hash: string
         }
         Insert: {
+          contribution_type?: string
           created_at?: string
+          goal_id?: string | null
           note?: string | null
           pool_id: string
           proof_url?: string | null
           tx_hash: string
         }
         Update: {
+          contribution_type?: string
           created_at?: string
+          goal_id?: string | null
           note?: string | null
           pool_id?: string
           proof_url?: string | null
           tx_hash?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "contribution_meta_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "pool_goals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contribution_meta_pool_id_fkey"
             columns: ["pool_id"]
@@ -432,35 +440,291 @@ export type Database = {
       }
       payees: {
         Row: {
+          contact_name: string | null
           created_at: string
+          email: string | null
           id: string
           name: string
           notes: string | null
+          payee_type: string
+          phone: string | null
           pool_id: string
           stellar_address: string
+          tags: string[]
           verified: boolean
         }
         Insert: {
+          contact_name?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           name: string
           notes?: string | null
+          payee_type?: string
+          phone?: string | null
           pool_id: string
           stellar_address: string
+          tags?: string[]
           verified?: boolean
         }
         Update: {
+          contact_name?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           name?: string
           notes?: string | null
+          payee_type?: string
+          phone?: string | null
           pool_id?: string
           stellar_address?: string
+          tags?: string[]
           verified?: boolean
         }
         Relationships: [
           {
             foreignKeyName: "payees_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pool_approval_tiers: {
+        Row: {
+          id: string
+          minimum_amount: number
+          pool_id: string
+          required_approvals: number
+        }
+        Insert: {
+          id?: string
+          minimum_amount: number
+          pool_id: string
+          required_approvals: number
+        }
+        Update: {
+          id?: string
+          minimum_amount?: number
+          pool_id?: string
+          required_approvals?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_approval_tiers_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pool_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          goal_id: string | null
+          id: string
+          mime_type: string
+          pool_id: string
+          size_bytes: number
+          spend_id: number | null
+          storage_path: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          goal_id?: string | null
+          id?: string
+          mime_type: string
+          pool_id: string
+          size_bytes: number
+          spend_id?: number | null
+          storage_path: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          goal_id?: string | null
+          id?: string
+          mime_type?: string
+          pool_id?: string
+          size_bytes?: number
+          spend_id?: number | null
+          storage_path?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_attachments_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "pool_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_attachments_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pool_categories: {
+        Row: {
+          attachment_required: boolean
+          description: string | null
+          id: string
+          name: string
+          per_transaction_cap: number | null
+          pool_id: string
+          rolling_monthly_cap: number | null
+          sort_order: number
+        }
+        Insert: {
+          attachment_required?: boolean
+          description?: string | null
+          id?: string
+          name: string
+          per_transaction_cap?: number | null
+          pool_id: string
+          rolling_monthly_cap?: number | null
+          sort_order?: number
+        }
+        Update: {
+          attachment_required?: boolean
+          description?: string | null
+          id?: string
+          name?: string
+          per_transaction_cap?: number | null
+          pool_id?: string
+          rolling_monthly_cap?: number | null
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_categories_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pool_contribution_policies: {
+        Row: {
+          amount: number | null
+          due_day: number | null
+          ends_on: string | null
+          frequency: string | null
+          grace_days: number
+          member_totals_visible: boolean
+          mode: string
+          pool_id: string
+          reminder_rules: Json
+          starts_on: string | null
+          target_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number | null
+          due_day?: number | null
+          ends_on?: string | null
+          frequency?: string | null
+          grace_days?: number
+          member_totals_visible?: boolean
+          mode?: string
+          pool_id: string
+          reminder_rules?: Json
+          starts_on?: string | null
+          target_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number | null
+          due_day?: number | null
+          ends_on?: string | null
+          frequency?: string | null
+          grace_days?: number
+          member_totals_visible?: boolean
+          mode?: string
+          pool_id?: string
+          reminder_rules?: Json
+          starts_on?: string | null
+          target_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_contribution_policies_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: true
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pool_goals: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          ends_on: string | null
+          id: string
+          name: string
+          pool_id: string
+          starts_on: string | null
+          status: string
+          target_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_on?: string | null
+          id?: string
+          name: string
+          pool_id: string
+          starts_on?: string | null
+          status?: string
+          target_amount: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_on?: string | null
+          id?: string
+          name?: string
+          pool_id?: string
+          starts_on?: string | null
+          status?: string
+          target_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_goals_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_goals_pool_id_fkey"
             columns: ["pool_id"]
             isOneToOne: false
             referencedRelation: "pools"
@@ -571,14 +835,76 @@ export type Database = {
           },
         ]
       }
+      pool_signers: {
+        Row: {
+          added_at: string
+          id: string
+          pool_id: string
+          recovery_ready: boolean
+          removed_at: string | null
+          status: string
+          stellar_address: string | null
+          user_id: string
+          wallet_id: string | null
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          pool_id: string
+          recovery_ready?: boolean
+          removed_at?: string | null
+          status?: string
+          stellar_address?: string | null
+          user_id: string
+          wallet_id?: string | null
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          pool_id?: string
+          recovery_ready?: boolean
+          removed_at?: string | null
+          status?: string
+          stellar_address?: string | null
+          user_id?: string
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_signers_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_signers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_signers_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "user_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pools: {
         Row: {
+          archived_at: string | null
           contract_id: string | null
           contract_version: number
           created_at: string
           created_by: string | null
           currency_label: string
+          default_language: string
+          deployed_at: string | null
           description: string | null
+          display_currency: string
           id: string
           kind: string
           name: string
@@ -586,16 +912,23 @@ export type Database = {
           policy: Json | null
           rules_text: string | null
           status: string
+          template: string
+          timezone: string
           updated_at: string
+          visibility: string
           wasm_hash: string | null
         }
         Insert: {
+          archived_at?: string | null
           contract_id?: string | null
           contract_version?: number
           created_at?: string
           created_by?: string | null
           currency_label?: string
+          default_language?: string
+          deployed_at?: string | null
           description?: string | null
+          display_currency?: string
           id?: string
           kind?: string
           name: string
@@ -603,16 +936,23 @@ export type Database = {
           policy?: Json | null
           rules_text?: string | null
           status?: string
+          template?: string
+          timezone?: string
           updated_at?: string
+          visibility?: string
           wasm_hash?: string | null
         }
         Update: {
+          archived_at?: string | null
           contract_id?: string | null
           contract_version?: number
           created_at?: string
           created_by?: string | null
           currency_label?: string
+          default_language?: string
+          deployed_at?: string | null
           description?: string | null
+          display_currency?: string
           id?: string
           kind?: string
           name?: string
@@ -620,7 +960,10 @@ export type Database = {
           policy?: Json | null
           rules_text?: string | null
           status?: string
+          template?: string
+          timezone?: string
           updated_at?: string
+          visibility?: string
           wasm_hash?: string | null
         }
         Relationships: [
@@ -635,33 +978,42 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accessibility_prefs: Json
           avatar_url: string | null
           created_at: string
+          date_format: string
           display_name: string
           id: string
           is_email_verified: boolean
           locale: string
           phone: string | null
+          timezone: string
           updated_at: string
         }
         Insert: {
+          accessibility_prefs?: Json
           avatar_url?: string | null
           created_at?: string
+          date_format?: string
           display_name?: string
           id: string
           is_email_verified?: boolean
           locale?: string
           phone?: string | null
+          timezone?: string
           updated_at?: string
         }
         Update: {
+          accessibility_prefs?: Json
           avatar_url?: string | null
           created_at?: string
+          date_format?: string
           display_name?: string
           id?: string
           is_email_verified?: boolean
           locale?: string
           phone?: string | null
+          timezone?: string
           updated_at?: string
         }
         Relationships: []
@@ -708,26 +1060,53 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          decision_reason: string | null
+          decision_status: string
+          description: string | null
+          expires_at: string | null
+          external_reference: string | null
+          line_items: Json
+          needed_by: string | null
           note: string | null
           pool_id: string
+          purpose: string | null
           receipt_urls: string[]
           spend_id: number
+          urgency: string
         }
         Insert: {
           created_at?: string
           created_by?: string | null
+          decision_reason?: string | null
+          decision_status?: string
+          description?: string | null
+          expires_at?: string | null
+          external_reference?: string | null
+          line_items?: Json
+          needed_by?: string | null
           note?: string | null
           pool_id: string
+          purpose?: string | null
           receipt_urls?: string[]
           spend_id: number
+          urgency?: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
+          decision_reason?: string | null
+          decision_status?: string
+          description?: string | null
+          expires_at?: string | null
+          external_reference?: string | null
+          line_items?: Json
+          needed_by?: string | null
           note?: string | null
           pool_id?: string
+          purpose?: string | null
           receipt_urls?: string[]
           spend_id?: number
+          urgency?: string
         }
         Relationships: [
           {
@@ -742,6 +1121,44 @@ export type Database = {
             columns: ["pool_id"]
             isOneToOne: false
             referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_consents: {
+        Row: {
+          created_at: string
+          granted: boolean
+          id: number
+          kind: string
+          source: string
+          user_id: string
+          version: string
+        }
+        Insert: {
+          created_at?: string
+          granted: boolean
+          id?: never
+          kind: string
+          source?: string
+          user_id: string
+          version: string
+        }
+        Update: {
+          created_at?: string
+          granted?: boolean
+          id?: never
+          kind?: string
+          source?: string
+          user_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_consents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -781,30 +1198,42 @@ export type Database = {
       user_wallets: {
         Row: {
           created_at: string
+          credential_count: number
           id: string
           is_primary: boolean
           kind: string
           label: string | null
+          last_verified_at: string | null
+          recovery_ready: boolean
+          smart_account_address: string | null
           stellar_address: string
           user_id: string
           verified_at: string | null
         }
         Insert: {
           created_at?: string
+          credential_count?: number
           id?: string
           is_primary?: boolean
           kind?: string
           label?: string | null
+          last_verified_at?: string | null
+          recovery_ready?: boolean
+          smart_account_address?: string | null
           stellar_address: string
           user_id: string
           verified_at?: string | null
         }
         Update: {
           created_at?: string
+          credential_count?: number
           id?: string
           is_primary?: boolean
           kind?: string
           label?: string | null
+          last_verified_at?: string | null
+          recovery_ready?: boolean
+          smart_account_address?: string | null
           stellar_address?: string
           user_id?: string
           verified_at?: string | null

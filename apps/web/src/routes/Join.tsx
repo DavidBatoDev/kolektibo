@@ -38,7 +38,7 @@ export function JoinPage() {
 
   const dismiss = () => {
     localStorage.removeItem(PENDING_JOIN_KEY)
-    navigate({ to: '/' })
+    navigate({ to: '/app' })
   }
 
   if (!isSupabaseEnabled()) {
@@ -55,7 +55,7 @@ export function JoinPage() {
       {
         onSuccess: (poolId) => {
           localStorage.removeItem(PENDING_JOIN_KEY)
-          navigate({ to: '/pools/$poolId', params: { poolId } })
+          navigate({ to: '/app/pools/$poolId', params: { poolId } })
         },
       },
     )
@@ -82,7 +82,7 @@ export function JoinPage() {
             Ask an officer for a fresh invite link.
           </p>
           {user && (
-            <Button variant="ghost" className="w-full" onClick={() => navigate({ to: '/' })}>
+            <Button variant="ghost" className="w-full" onClick={() => navigate({ to: '/app' })}>
               Go home
             </Button>
           )}
@@ -129,12 +129,12 @@ export function JoinPage() {
             </Button>
           ) : (
             <div className="space-y-2">
-              <Button className="w-full" onClick={() => navigate({ to: '/signup' })}>
+              <Button className="w-full" onClick={() => navigate({ to: '/auth/sign-up' })}>
                 Sign up to join
               </Button>
               <p className="text-center text-xs text-slate-400">
                 Already have an account?{' '}
-                <Link to="/signin" className="text-brand-400 hover:text-brand-300">
+                <Link to="/auth/sign-in" className="text-brand-400 hover:text-brand-300">
                   Sign in
                 </Link>
               </p>

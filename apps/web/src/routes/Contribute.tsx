@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { usePool, usePoolActions } from '../hooks/usePool'
 import { getPersonas } from '../lib/wallet'
 import { Button, Card, Field, inputClass, peso, SectionLabel } from '../components/ui'
@@ -12,7 +13,21 @@ export function ContributePage() {
   const [personaName, setPersonaName] = useState(personas[0]?.name ?? '')
   const [amount, setAmount] = useState(pool?.policy.dues?.amount ?? 200)
 
-  if (!pool) return null
+  if (!pool) {
+    return (
+      <Card className="space-y-4 text-center">
+        <div>
+          <p className="font-semibold text-white">Create the demo pool first</p>
+          <p className="mt-1 text-sm text-slate-400">
+            Contributions appear after the sample treasury has been deployed on testnet.
+          </p>
+        </div>
+        <Link to="/demo">
+          <Button>Return to demo setup</Button>
+        </Link>
+      </Card>
+    )
+  }
 
   return (
     <div className="space-y-5">

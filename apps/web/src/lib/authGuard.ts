@@ -36,3 +36,24 @@ export async function requireAuth(): Promise<void> {
   }
   throw redirect({ to: '/verify-email' })
 }
+
+/** Production workspace guard. Unlike the legacy demo guard, this never opens
+ * the account application when Supabase is missing. The public site and
+ * /demo remain available without production environment variables. */
+export async function requireProductionAuth(): Promise<void> {
+  if (!supabase) throw redirect({ to: '/auth/sign-in' })
+  const { data } = await supabase.auth.getSession()
+  const session = data.session
+  if (!session) throw redirect({ to: '/auth/sign-in' })
+  if (verifiedFor === session.user.id) return
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_email_verified')
+    .eq('id', session.user.id)
+    .single()
+  if (profile?.is_email_verified) {
+    verifiedFor = session.user.id
+    return
+  }
+  throw redirect({ to: '/auth/verify-email' })
+}

@@ -62,7 +62,7 @@ export function PoolContributePage() {
     <div className="space-y-5 pb-4">
       <div>
         <Link
-          to="/pools/$poolId"
+          to="/app/pools/$poolId"
           params={{ poolId }}
           className="text-xs text-slate-500 hover:text-slate-300"
         >
@@ -90,7 +90,7 @@ export function PoolContributePage() {
               View transaction on stellar.expert
             </a>
           )}
-          <Button className="w-full" onClick={() => navigate({ to: '/pools/$poolId', params: { poolId } })}>
+          <Button className="w-full" onClick={() => navigate({ to: '/app/pools/$poolId', params: { poolId } })}>
             Back to pool
           </Button>
         </Card>

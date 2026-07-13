@@ -21,7 +21,7 @@ export function ForgotPasswordPage() {
             <p className="text-center text-sm text-emerald-400">
               If an account exists for {email}, we emailed a 6-digit code. Enter it next.
             </p>
-            <Button className="w-full" onClick={() => navigate({ to: '/reset-password' })}>
+            <Button className="w-full" onClick={() => navigate({ to: '/auth/reset-password' })}>
               Enter code
             </Button>
           </>
@@ -48,7 +48,7 @@ export function ForgotPasswordPage() {
           </>
         )}
         <p className="text-center text-xs text-slate-400">
-          <Link to="/signin" className="text-brand-400 hover:text-brand-300">
+          <Link to="/auth/sign-in" className="text-brand-400 hover:text-brand-300">
             Back to sign in
           </Link>
         </p>

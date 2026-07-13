@@ -65,12 +65,24 @@ function client() {
   return supabase
 }
 
-export async function signUp(email: string, password: string, displayName: string) {
+export async function signUp(
+  email: string,
+  password: string,
+  displayName: string,
+  consent?: { termsAccepted: boolean; ageConfirmed: boolean; marketingConsent: boolean },
+) {
   // With mailer_autoconfirm on, signUp returns a session immediately (no native email).
   const { data, error } = await client().auth.signUp({
     email,
     password,
-    options: { data: displayName ? { full_name: displayName } : undefined },
+    options: {
+      data: {
+        ...(displayName ? { full_name: displayName } : {}),
+        terms_accepted_at: consent?.termsAccepted ? new Date().toISOString() : null,
+        age_confirmed_at: consent?.ageConfirmed ? new Date().toISOString() : null,
+        marketing_consent: consent?.marketingConsent ?? false,
+      },
+    },
   })
   if (error) throw error
   // Kick off our own 6-digit verification code (backend sends async; non-fatal if it hiccups).
@@ -80,6 +92,15 @@ export async function signUp(email: string, password: string, displayName: strin
 
 export async function signIn(email: string, password: string) {
   const { data, error } = await client().auth.signInWithPassword({ email, password })
+  if (error) throw error
+  return data
+}
+
+export async function signInWithGoogle() {
+  const { data, error } = await client().auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: `${window.location.origin}/auth/callback` },
+  })
   if (error) throw error
   return data
 }
@@ -97,7 +118,7 @@ export function authErrorMessage(err: unknown): string {
   if (m.includes('already registered') || m.includes('already been registered'))
     return 'That email is already registered. Try signing in.'
   if (m.includes('should be at least') || m.includes('at least 8') || m.includes('weak'))
-    return 'Password must be at least 8 characters.'
+    return 'Password must be at least 10 characters.'
   if (m.includes('rate limit') || m.includes('too many') || m.includes('for security purposes'))
     return 'Too many attempts. Please wait a moment and try again.'
   return msg || 'Something went wrong. Please try again.'

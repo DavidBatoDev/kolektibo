@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { usePool, usePoolActions, usePoolBalance } from '../hooks/usePool'
 import { poolBalance } from '../lib/pool'
 import type { Spend } from '../lib/pool'
@@ -16,7 +17,21 @@ export function SpendPage() {
   const [recipientName, setRecipientName] = useState('')
   const [memo, setMemo] = useState('')
 
-  if (!pool) return null
+  if (!pool) {
+    return (
+      <Card className="space-y-4 text-center">
+        <div>
+          <p className="font-semibold text-white">No demo pool to spend from</p>
+          <p className="mt-1 text-sm text-slate-400">
+            Deploy the sample pool before creating or approving a testnet spend.
+          </p>
+        </div>
+        <Link to="/demo">
+          <Button>Return to demo setup</Button>
+        </Link>
+      </Card>
+    )
+  }
   const cat = pool.policy.categories.find((c) => c.name === category)
   const overLimit = cat?.monthlyLimit != null && amount > cat.monthlyLimit
   const overBalance = amount > balance

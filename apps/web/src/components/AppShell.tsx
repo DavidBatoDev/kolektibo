@@ -1,150 +1,141 @@
 import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router'
-import { useEffect, type ComponentType } from 'react'
-import { isSupabaseEnabled } from '../lib/supabase'
+import { useEffect } from 'react'
 import { useAuth } from '../lib/auth'
-import { useFeatureFlag } from '../hooks/useFeatureFlag'
-import { PENDING_JOIN_KEY } from '../routes/Join'
 
-type Tab = { to: string; label: string; Icon: ComponentType<{ className?: string }> }
+type IconProps = { className?: string }
 
-const baseTabs: Tab[] = [
-  { to: '/', label: 'Pool', Icon: IconHome },
-  { to: '/contribute', label: 'Contribute', Icon: IconPlus },
-  { to: '/spend', label: 'Spend', Icon: IconSend },
-  { to: '/setup', label: 'Rules', Icon: IconGear },
-]
-
-// Full-screen auth routes hide the treasury bottom-nav (the 4-tab demo nav is otherwise untouched).
-const AUTH_PATHS = ['/signin', '/signup', '/forgot-password', '/reset-password', '/verify-email']
+const PUBLIC_PATHS = ['/', '/how-it-works', '/features', '/security', '/pricing', '/about', '/help', '/status', '/legal']
+const AUTH_PATHS = ['/auth', '/onboarding', '/signin', '/signup', '/forgot-password', '/reset-password', '/verify-email']
 
 export function AppShell() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const navigate = useNavigate()
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const isAuth = AUTH_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
+  const isDemo = pathname === '/demo' || pathname.startsWith('/demo/')
+  const isInvite = pathname.startsWith('/invite/') || pathname.startsWith('/join/')
+  const isPublic = !isAuth && !isDemo && !isInvite && PUBLIC_PATHS.some((path) => path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`))
+
+  if (isPublic) return <PublicShell />
+  if (isAuth || isInvite) return <FocusShell />
+  if (isDemo) return <DemoShell />
+  return <ProductShell />
+}
+
+function PublicShell() {
   const { user } = useAuth()
-  const multiPool = useFeatureFlag('multi_pool')
-  const isAuthRoute = AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
-  const showAccount = isSupabaseEnabled() && !isAuthRoute
-
-  // Multi-user pools tab appears only with Supabase env + the multi_pool flag —
-  // the no-env demo build keeps its exact 4-tab nav.
-  const tabs = multiPool
-    ? [...baseTabs, { to: '/pools', label: 'Pools', Icon: IconUsers }]
-    : baseTabs
-
-  // Resume a pending invite after the signup/verify detour (set by /join/$code
-  // only for a VALID invite). Never fires on auth routes — otherwise it would
-  // yank a freshly-signed-up user off /verify-email before they can enter their
-  // code — and only when the multi_pool feature is live.
-  useEffect(() => {
-    if (!user || !multiPool || isAuthRoute) return
-    const code = localStorage.getItem(PENDING_JOIN_KEY)
-    if (code && !pathname.startsWith('/join/')) {
-      void navigate({ to: '/join/$code', params: { code } })
-    }
-  }, [user, multiPool, isAuthRoute, pathname, navigate])
-
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/60 shadow-2xl shadow-black/40 ring-1 ring-white/5">
-      {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/5 bg-ink-950/70 px-4 py-3 backdrop-blur">
-        <Link to="/" className="flex items-center gap-2">
-          <img src="/kolektibo.svg" alt="" className="h-7 w-7" />
-          <span className="text-lg font-semibold tracking-tight text-white">Kolektibo</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <span className="rounded-full bg-brand-600/15 px-2.5 py-1 text-[11px] font-medium text-brand-400 ring-1 ring-brand-500/30">
-            Stellar Testnet
-          </span>
-          {showAccount && (
-            <Link
-              to="/profile"
-              aria-label="Account"
-              className="text-slate-400 transition hover:text-white"
-            >
-              <IconUser className="h-6 w-6" />
-            </Link>
-          )}
+    <div className="min-h-dvh">
+      <header className="sticky top-0 z-20 border-b border-white/5 bg-ink-950/80 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-5 px-4 py-3 sm:px-6">
+          <Brand />
+          <nav className="hidden items-center gap-5 text-sm text-slate-400 md:flex">
+            <Link to="/how-it-works" activeProps={{ className: 'text-white' }} className="hover:text-white">How it works</Link>
+            <Link to="/features" activeProps={{ className: 'text-white' }} className="hover:text-white">Features</Link>
+            <Link to="/security" activeProps={{ className: 'text-white' }} className="hover:text-white">Security</Link>
+            <Link to="/pricing" activeProps={{ className: 'text-white' }} className="hover:text-white">Pricing</Link>
+          </nav>
+          <div className="flex items-center gap-2">
+            <Link to={user ? '/app' : '/auth/sign-in'} className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:text-white">{user ? 'Open app' : 'Sign in'}</Link>
+            {!user && <Link to="/auth/sign-up" className="hidden rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-500 sm:block">Get started</Link>}
+          </div>
         </div>
       </header>
-
-      {/* Content */}
-      <main className={`no-scrollbar flex-1 overflow-y-auto px-4 pt-4 ${isAuthRoute ? 'pb-4' : 'pb-28'}`}>
-        <Outlet />
-      </main>
-
-      {/* Bottom nav */}
-      {!isAuthRoute && (
-        <nav
-          className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md items-stretch justify-around border-t border-white/5 bg-ink-950/85 backdrop-blur"
-          style={{ paddingBottom: 'var(--safe-bottom)' }}
-        >
-          {tabs.map(({ to, label, Icon }) => {
-            const active = to === '/' ? pathname === '/' : pathname.startsWith(to)
-            return (
-              <Link
-                key={to}
-                to={to}
-                className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition ${
-                  active ? 'text-brand-400' : 'text-slate-500 hover:text-slate-300'
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                {label}
-              </Link>
-            )
-          })}
-        </nav>
-      )}
+      <main className="mx-auto max-w-6xl px-4 sm:px-6"><Outlet /></main>
+      <footer className="border-t border-white/5">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-sm sm:grid-cols-4 sm:px-6">
+          <div className="sm:col-span-2"><Brand /><p className="mt-3 max-w-sm text-xs leading-5 text-slate-500">A non-custodial group treasury for Filipino communities. Testnet beta only.</p></div>
+          <div className="space-y-2"><p className="font-medium text-white">Product</p><Link to="/about" className="block text-slate-500 hover:text-slate-300">About</Link><Link to="/help" className="block text-slate-500 hover:text-slate-300">Help</Link><Link to="/status" className="block text-slate-500 hover:text-slate-300">Status</Link></div>
+          <div className="space-y-2"><p className="font-medium text-white">Legal</p><Link to="/legal/terms" className="block text-slate-500 hover:text-slate-300">Terms</Link><Link to="/legal/privacy" className="block text-slate-500 hover:text-slate-300">Privacy</Link><Link to="/legal/risk" className="block text-slate-500 hover:text-slate-300">Risk</Link></div>
+        </div>
+      </footer>
     </div>
   )
 }
 
-function IconHome({ className }: { className?: string }) {
+function FocusShell() {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M3 10.5 12 3l9 7.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 9.5V21h14V9.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/50 shadow-2xl shadow-black/40 ring-1 ring-white/5">
+      <header className="flex items-center justify-between border-b border-white/5 px-4 py-3"><Brand /><span className="rounded-full bg-white/5 px-2 py-1 text-[10px] text-slate-500 ring-1 ring-white/10">Testnet beta</span></header>
+      <main className="flex-1 px-4 py-4"><Outlet /></main>
+    </div>
   )
 }
-function IconPlus({ className }: { className?: string }) {
+
+function DemoShell() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const tabs = [
+    { to: '/demo', label: 'Pool', Icon: IconHome },
+    { to: '/demo/contribute', label: 'Contribute', Icon: IconPlus },
+    { to: '/demo/spend', label: 'Spend', Icon: IconSend },
+    { to: '/demo/rules', label: 'Rules', Icon: IconGear },
+  ] as const
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 8v8M8 12h8" strokeLinecap="round" />
-    </svg>
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/60 shadow-2xl shadow-black/40 ring-1 ring-white/5">
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/5 bg-ink-950/80 px-4 py-3 backdrop-blur"><Brand to="/demo" /><div className="flex items-center gap-2"><span className="rounded-full bg-gold-500/15 px-2 py-1 text-[10px] font-medium text-gold-400 ring-1 ring-gold-500/30">Demo</span><Link to="/" aria-label="Leave demo" className="text-xs text-slate-500 hover:text-white">Exit</Link></div></header>
+      <main className="no-scrollbar flex-1 overflow-y-auto px-4 pb-28 pt-4"><Outlet /></main>
+      <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md border-t border-white/5 bg-ink-950/90 backdrop-blur" style={{ paddingBottom: 'var(--safe-bottom)' }}>
+        {tabs.map(({ to, label, Icon }) => { const active = to === '/demo' ? pathname === to : pathname.startsWith(to); return <Link key={to} to={to} className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium ${active ? 'text-brand-400' : 'text-slate-500'}`}><Icon className="h-5 w-5" />{label}</Link> })}
+      </nav>
+    </div>
   )
 }
-function IconSend({ className }: { className?: string }) {
+
+function ProductShell() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  useEffect(() => {
+    if (!user || pathname.startsWith('/invite/')) return
+    const code = localStorage.getItem('kolektibo.join.pending')
+    if (code) void navigate({ to: '/invite/$code', params: { code } })
+  }, [user, pathname, navigate])
+  const nav = [
+    { to: '/app', label: 'Home', Icon: IconHome, exact: true },
+    { to: '/app/pools', label: 'Pools', Icon: IconUsers, exact: false },
+    { to: '/app/activity', label: 'Activity', Icon: IconActivity, exact: false },
+    { to: '/app/wallet', label: 'Wallet', Icon: IconWallet, exact: false },
+    { to: '/app/profile', label: 'More', Icon: IconMenu, exact: false },
+  ] as const
+  const secondary = [
+    { to: '/app/notifications', label: 'Notifications' },
+    { to: '/app/profile', label: 'Profile' },
+    { to: '/app/preferences', label: 'Preferences' },
+    { to: '/app/security', label: 'Security' },
+    { to: '/app/help', label: 'Help' },
+  ] as const
+  const active = (to: string, exact?: boolean) => exact ? pathname === to : pathname === to || pathname.startsWith(`${to}/`)
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M4 12l16-8-6 16-3-6-7-2z" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <div className="min-h-dvh">
+      <header className="sticky top-0 z-20 border-b border-white/5 bg-ink-950/85 backdrop-blur lg:hidden">
+        <div className="flex items-center justify-between px-4 py-3"><Brand to="/app" /><div className="flex items-center gap-3"><span className="rounded-full bg-brand-600/15 px-2 py-1 text-[10px] text-brand-400 ring-1 ring-brand-500/30">Testnet</span><Link to="/app/notifications" aria-label="Notifications" className="text-slate-400"><IconBell className="h-5 w-5" /></Link></div></div>
+      </header>
+      <div className="mx-auto flex max-w-7xl">
+        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-white/5 p-5 lg:flex">
+          <Brand to="/app" />
+          <nav className="mt-8 space-y-1">{nav.slice(0, 4).map(({ to, label, Icon, exact }) => <Link key={to} to={to} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${active(to, exact) ? 'bg-brand-600/15 text-brand-300' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}><Icon className="h-5 w-5" />{label}</Link>)}</nav>
+          <p className="mb-2 mt-8 px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-600">Account</p>
+          <nav className="space-y-1">{secondary.map(({ to, label }) => <Link key={to} to={to} className={`block rounded-xl px-3 py-2 text-sm ${active(to) ? 'text-brand-300' : 'text-slate-500 hover:text-white'}`}>{label}</Link>)}</nav>
+          <div className="mt-auto rounded-2xl bg-white/3 p-3 ring-1 ring-white/5"><p className="truncate text-xs text-slate-400">{user?.email}</p><p className="mt-1 text-[10px] text-slate-600">Private testnet beta</p></div>
+        </aside>
+        <main className="min-w-0 flex-1 px-4 pb-28 pt-5 sm:px-6 lg:px-10 lg:pb-10 lg:pt-8"><Outlet /></main>
+      </div>
+      <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-white/5 bg-ink-950/92 backdrop-blur lg:hidden" style={{ paddingBottom: 'var(--safe-bottom)' }}>
+        {nav.map(({ to, label, Icon, exact }) => <Link key={to} to={to} className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${active(to, exact) ? 'text-brand-400' : 'text-slate-500'}`}><Icon className="h-5 w-5" />{label}</Link>)}
+      </nav>
+    </div>
   )
 }
-function IconGear({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <circle cx="12" cy="12" r="3.2" />
-      <path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7.7 1.6 1.6 0 0 0-1.1 1.5V22a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 8 20.3a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-.7-2.7 1.6 1.6 0 0 0-1.5-1.1H2a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 3.7 8a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 9 3.7a1.6 1.6 0 0 0 1.1-1.5V2a2 2 0 1 1 4 0v.1A1.6 1.6 0 0 0 15 3.7a1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 .7 2.7z" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
+
+function Brand({ to = '/' }: { to?: '/' | '/app' | '/demo' }) {
+  return <Link to={to} className="flex items-center gap-2"><img src="/kolektibo.svg" alt="" className="h-7 w-7" /><span className="text-lg font-semibold tracking-tight text-white">Kolektibo</span></Link>
 }
-function IconUser({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-function IconUsers({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <circle cx="9" cy="8.5" r="3" />
-      <path d="M3.5 19c0-3 2.4-5 5.5-5s5.5 2 5.5 5" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="17" cy="9.5" r="2.4" />
-      <path d="M16 14.3c2.6.3 4.5 2 4.5 4.7" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
+
+function SvgIcon({ className, children }: IconProps & { children: React.ReactNode }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{children}</svg> }
+function IconHome(props: IconProps) { return <SvgIcon {...props}><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /></SvgIcon> }
+function IconPlus(props: IconProps) { return <SvgIcon {...props}><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></SvgIcon> }
+function IconSend(props: IconProps) { return <SvgIcon {...props}><path d="M4 12l16-8-6 16-3-6-7-2z" /></SvgIcon> }
+function IconGear(props: IconProps) { return <SvgIcon {...props}><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M4.9 4.9 7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1" /></SvgIcon> }
+function IconUsers(props: IconProps) { return <SvgIcon {...props}><circle cx="9" cy="8" r="3" /><path d="M3.5 19c0-3 2.4-5 5.5-5s5.5 2 5.5 5" /><circle cx="17" cy="9" r="2.5" /><path d="M16 14c2.7.3 4.5 2 4.5 5" /></SvgIcon> }
+function IconActivity(props: IconProps) { return <SvgIcon {...props}><path d="M4 17l5-5 3 3 7-8" /><path d="M15 7h4v4" /></SvgIcon> }
+function IconWallet(props: IconProps) { return <SvgIcon {...props}><path d="M4 6h14a2 2 0 0 1 2 2v10H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12" /><path d="M15 11h5v4h-5a2 2 0 0 1 0-4Z" /></SvgIcon> }
+function IconMenu(props: IconProps) { return <SvgIcon {...props}><path d="M4 7h16M4 12h16M4 17h16" /></SvgIcon> }
+function IconBell(props: IconProps) { return <SvgIcon {...props}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></SvgIcon> }

@@ -25,7 +25,7 @@ export function PoolsPage() {
           <h1 className="text-xl font-semibold text-white">My pools</h1>
           <p className="mt-1 text-sm text-slate-400">Shared treasuries you belong to.</p>
         </div>
-        <Link to="/wallet" className="text-xs text-brand-400 hover:text-brand-300">
+        <Link to="/app/wallet" className="text-xs text-brand-400 hover:text-brand-300">
           My wallet →
         </Link>
       </div>
@@ -45,7 +45,7 @@ export function PoolsPage() {
       )}
 
       {pools.data?.map(({ role, pool }) => (
-        <Link key={pool.id} to="/pools/$poolId" params={{ poolId: pool.id }} className="block">
+        <Link key={pool.id} to="/app/pools/$poolId" params={{ poolId: pool.id }} className="block">
           <Card className="flex items-center justify-between transition hover:bg-ink-800">
             <div className="min-w-0">
               <p className="truncate font-medium text-white">{pool.name}</p>
@@ -60,7 +60,7 @@ export function PoolsPage() {
         </Link>
       ))}
 
-      <Button className="w-full" onClick={() => navigate({ to: '/pools/new' })}>
+      <Button className="w-full" onClick={() => navigate({ to: '/app/pools/new' })}>
         Create a pool
       </Button>
 
@@ -78,7 +78,7 @@ export function PoolsPage() {
           variant="ghost"
           className="w-full"
           disabled={joinCode.length < 6}
-          onClick={() => navigate({ to: '/join/$code', params: { code: joinCode } })}
+          onClick={() => navigate({ to: '/invite/$code', params: { code: joinCode } })}
         >
           Preview invite
         </Button>

@@ -43,7 +43,7 @@ export function PoolDetailPage() {
     return (
       <Card className="mt-4">
         <p className="text-sm text-slate-300">Pool not found (or you're not a member).</p>
-        <Link to="/pools" className="mt-2 block text-sm text-brand-400 hover:text-brand-300">
+        <Link to="/app/pools" className="mt-2 block text-sm text-brand-400 hover:text-brand-300">
           ← Back to my pools
         </Link>
       </Card>
@@ -102,7 +102,7 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
   return (
     <div className="space-y-5 pb-4">
       <div>
-        <Link to="/pools" className="text-xs text-slate-500 hover:text-slate-300">
+        <Link to="/app/pools" className="text-xs text-slate-500 hover:text-slate-300">
           ← My pools
         </Link>
         <div className="mt-1 flex items-center justify-between">
@@ -111,6 +111,8 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
         </div>
         {pool.description && <p className="mt-1 text-sm text-slate-400">{pool.description}</p>}
       </div>
+
+      <PoolNavigation poolId={poolId} draft />
 
       {policy && (
         <Card>
@@ -131,7 +133,7 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
               <p className="text-sm text-slate-300">
                 Link your wallet so it can become one of this pool's on-chain signers.
               </p>
-              <Link to="/wallet">
+              <Link to="/app/wallet">
                 <Button className="w-full">Link my wallet</Button>
               </Link>
             </>
@@ -169,7 +171,7 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
         )}
       </div>
 
-      <Link to="/pools/$poolId/invite" params={{ poolId }}>
+      <Link to="/app/pools/$poolId/invites" params={{ poolId }}>
         <Button variant="ghost" className="w-full">
           Invite officers & members
         </Button>
@@ -272,7 +274,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
   return (
     <div className="space-y-5 pb-4">
       <div>
-        <Link to="/pools" className="text-xs text-slate-500 hover:text-slate-300">
+        <Link to="/app/pools" className="text-xs text-slate-500 hover:text-slate-300">
           ← My pools
         </Link>
         <div className="mt-1 flex items-center justify-between">
@@ -280,6 +282,8 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
           <Badge tone="green">on-chain</Badge>
         </div>
       </div>
+
+      <PoolNavigation poolId={poolId} />
 
       {/* Balance hero */}
       <Card className="text-center">
@@ -309,7 +313,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
             {myAddress
               ? 'Your signing key isn’t on this device — import your backed-up secret in '
               : 'You haven’t registered a signer for this pool yet — set it up in '}
-            <Link to="/wallet" className="underline">
+            <Link to="/app/wallet" className="underline">
               My wallet
             </Link>
             .
@@ -320,7 +324,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
       <div className="flex gap-2">
         <Button
           className="flex-1"
-          onClick={() => navigate({ to: '/pools/$poolId/contribute', params: { poolId } })}
+          onClick={() => navigate({ to: '/app/pools/$poolId/contribute', params: { poolId } })}
         >
           Contribute
         </Button>
@@ -328,7 +332,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
           <Button
             variant="gold"
             className="flex-1"
-            onClick={() => navigate({ to: '/pools/$poolId/spend', params: { poolId } })}
+            onClick={() => navigate({ to: '/app/pools/$poolId/spends/new', params: { poolId } })}
           >
             Request spend
           </Button>
@@ -431,7 +435,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
             <SectionLabel>Members</SectionLabel>
             {isOfficer && (
               <Link
-                to="/pools/$poolId/invite"
+                to="/app/pools/$poolId/invites"
                 params={{ poolId }}
                 className="mb-2 px-1 text-xs text-brand-400 hover:text-brand-300"
               >
@@ -478,6 +482,40 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
           </Card>
         </div>
       )}
+    </div>
+  )
+}
+
+function PoolNavigation({ poolId, draft = false }: { poolId: string; draft?: boolean }) {
+  const items = draft
+    ? [
+        ['People', '/app/pools/$poolId/members'],
+        ['Invites', '/app/pools/$poolId/invites'],
+        ['Rules', '/app/pools/$poolId/rules'],
+        ['Settings', '/app/pools/$poolId/settings/general'],
+      ] as const
+    : [
+        ['Activity', '/app/pools/$poolId/activity'],
+        ['Contributions', '/app/pools/$poolId/contributions'],
+        ['Spending', '/app/pools/$poolId/spends'],
+        ['Approvals', '/app/pools/$poolId/approvals'],
+        ['People', '/app/pools/$poolId/members'],
+        ['Payees', '/app/pools/$poolId/payees'],
+        ['Rules', '/app/pools/$poolId/rules'],
+        ['Reports', '/app/pools/$poolId/reports'],
+      ] as const
+  return (
+    <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+      {items.map(([label, to]) => (
+        <Link
+          key={to}
+          to={to}
+          params={{ poolId }}
+          className="shrink-0 rounded-full bg-white/5 px-3 py-1.5 text-xs text-slate-300 ring-1 ring-white/10 hover:bg-white/10"
+        >
+          {label}
+        </Link>
+      ))}
     </div>
   )
 }

@@ -8,7 +8,8 @@ enable_anonymous_sign_ins = true          # "browse a pool before signing up" â†
 site_url = "http://localhost:5173"
 additional_redirect_urls = ["http://localhost:5173", "http://localhost:5173/**", "http://localhost:8787"]
 jwt_expiry = 3600                          # short TTL; rely on refresh rotation
-password_min_length = 8
+# Password length is enforced by the web forms and the hosted Auth dashboard.
+# Current Supabase CLI config does not accept a local `password_min_length` key.
 
 [auth.email]
 enable_signup = true
@@ -32,7 +33,8 @@ client_id = "env(GOOGLE_CLIENT_ID)"
 secret = "env(GOOGLE_SECRET)"
 
 [db]
-port = 54322
+# 54322 is occupied by another local Supabase project on the development host.
+port = 54323
 
 [api]
 port = 54321

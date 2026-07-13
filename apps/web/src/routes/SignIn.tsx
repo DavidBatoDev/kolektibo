@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
-import { authErrorMessage, signIn, useAuth } from '../lib/auth'
+import { authErrorMessage, signIn, signInWithGoogle, useAuth } from '../lib/auth'
 import { Button, Card, Field, inputClass } from '../components/ui'
 
 export function SignInPage() {
@@ -12,10 +12,11 @@ export function SignInPage() {
 
   // Signed in → home (the route guard bounces unverified users to /verify-email).
   useEffect(() => {
-    if (session) navigate({ to: '/' })
+    if (session) navigate({ to: '/app' })
   }, [session, navigate])
 
   const m = useMutation({ mutationFn: () => signIn(email, password) })
+  const google = useMutation({ mutationFn: signInWithGoogle })
 
   return (
     <div className="mx-auto flex min-h-[70dvh] max-w-sm flex-col justify-center space-y-5 py-6">
@@ -24,6 +25,10 @@ export function SignInPage() {
         <p className="mt-1 text-sm text-slate-400">Sign in to your Kolektibo account</p>
       </div>
       <Card className="space-y-4">
+        <Button variant="ghost" className="w-full" loading={google.isPending} onClick={() => google.mutate()}>
+          Continue with Google
+        </Button>
+        <div className="flex items-center gap-3 text-[11px] text-slate-600"><span className="h-px flex-1 bg-white/10" />or use email<span className="h-px flex-1 bg-white/10" /></div>
         <Field label="Email">
           <input
             type="email"
@@ -53,11 +58,12 @@ export function SignInPage() {
           Sign in
         </Button>
         {m.isError && <p className="text-center text-xs text-rose-400">{authErrorMessage(m.error)}</p>}
+        {google.isError && <p className="text-center text-xs text-rose-400">Could not start Google sign-in. Please try again.</p>}
         <div className="flex items-center justify-between text-xs">
-          <Link to="/forgot-password" className="text-slate-400 hover:text-slate-200">
+          <Link to="/auth/forgot-password" className="text-slate-400 hover:text-slate-200">
             Forgot password?
           </Link>
-          <Link to="/signup" className="text-brand-400 hover:text-brand-300">
+          <Link to="/auth/sign-up" className="text-brand-400 hover:text-brand-300">
             Create account
           </Link>
         </div>

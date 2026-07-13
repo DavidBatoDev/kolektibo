@@ -34,7 +34,7 @@ export function PoolInvitePage() {
     <div className="space-y-5 pb-4">
       <div>
         <Link
-          to="/pools/$poolId"
+          to="/app/pools/$poolId"
           params={{ poolId }}
           className="text-xs text-slate-500 hover:text-slate-300"
         >

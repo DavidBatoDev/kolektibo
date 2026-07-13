@@ -44,6 +44,14 @@ supabase db push               # applies pending migrations to the REMOTE db
 supabase gen types typescript --linked > ../apps/web/src/db/types.gen.ts
 ```
 
+After a local reset, run the production-foundation authorization smoke test:
+
+```powershell
+Get-Content supabase/tests/0006_production_foundation_rls.sql |
+  docker exec -i supabase_db_kolektibo psql -v ON_ERROR_STOP=1 -U postgres -d postgres
+supabase db lint --level warning
+```
+
 ## Layout
 
 ```
@@ -52,6 +60,13 @@ migrations/0001_init.sql   schema v1: profiles, wallets, pools, members, invites
                            paluwagan cycles, ai_usage, notifications, audit_log, feature_flags;
                            SECURITY DEFINER membership helpers; RLS on every table;
                            preview_pool / redeem_invite RPCs; RLS test matrix (bottom comment)
+migrations/0005_multiuser_wiring.sql
+                           draft pools, wallet ownership challenges, invite return flow,
+                           and deployment lifecycle RPCs
+migrations/0006_production_foundation.sql
+                           production profile/consent fields, normalized pool policies,
+                           operational roles/signers, goals, attachments, and smart-wallet
+                           readiness fields. Authored only; apply after review and approval.
 seed.sql                   feature flags for local dev
 config.toml                auth providers (email magic-link · Google · anonymous), ports
 ```

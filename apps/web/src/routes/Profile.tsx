@@ -51,7 +51,7 @@ export function ProfilePage() {
 
   const onSignOut = async () => {
     await signOut()
-    navigate({ to: '/signin' })
+    navigate({ to: '/auth/sign-in' })
   }
 
   const avatarUrl = profileQ.data?.avatar_url

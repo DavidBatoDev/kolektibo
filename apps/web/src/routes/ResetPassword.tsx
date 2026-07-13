@@ -11,12 +11,12 @@ export function ResetPasswordPage() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
 
-  const tooShort = password.length > 0 && password.length < 8
+  const tooShort = password.length > 0 && password.length < 10
   const mismatch = confirm.length > 0 && password !== confirm
 
   const m = useMutation({
     mutationFn: () => resetPassword(email, code, password),
-    onSuccess: () => window.setTimeout(() => navigate({ to: '/signin' }), 1200),
+    onSuccess: () => window.setTimeout(() => navigate({ to: '/auth/sign-in' }), 1200),
   })
 
   return (
@@ -52,7 +52,7 @@ export function ResetPasswordPage() {
                 placeholder="000000"
               />
             </Field>
-            <Field label="New password" hint="At least 8 characters.">
+            <Field label="New password" hint="At least 10 characters.">
               <input
                 type="password"
                 autoComplete="new-password"
@@ -72,12 +72,12 @@ export function ResetPasswordPage() {
                 placeholder="••••••••"
               />
             </Field>
-            {tooShort && <p className="text-xs text-rose-400">Password must be at least 8 characters.</p>}
+            {tooShort && <p className="text-xs text-rose-400">Password must be at least 10 characters.</p>}
             {mismatch && <p className="text-xs text-rose-400">Passwords don't match.</p>}
             <Button
               className="w-full"
               loading={m.isPending}
-              disabled={!email || code.length !== 6 || password.length < 8 || mismatch}
+              disabled={!email || code.length !== 6 || password.length < 10 || mismatch}
               onClick={() => m.mutate()}
             >
               Update password
@@ -90,7 +90,7 @@ export function ResetPasswordPage() {
           </>
         )}
         <p className="text-center text-xs text-slate-400">
-          <Link to="/forgot-password" className="text-brand-400 hover:text-brand-300">
+          <Link to="/auth/forgot-password" className="text-brand-400 hover:text-brand-300">
             Request a new code
           </Link>
         </p>
