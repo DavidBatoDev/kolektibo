@@ -8,6 +8,23 @@ work plugs into the schema and RPCs you produce, so **freeze the interface contr
 > You already built auth, profile, custom email verification, and app-wide guards this sprint. This
 > is the next layer up.
 
+## ✅ Status — COMPLETE (2026-07-13, on `main`)
+
+The entire backbone (D0–D6) is built, committed (`e29684f` db, `faf527a` api, `ceeb58d` web), and
+**verified end-to-end** by a two-user Playwright run: two accounts on two device keys linked wallets,
+one created a draft pool, invited the other as officer, both linked → deploy on-chain → contribute →
+request → the *second* user approved from their own key → release, and funds moved on-chain. What
+shipped, vs. the original task text below:
+
+- **D1** → `wallet_link_challenges` + `verified_at` column-lock in `supabase/migrations/0005_multiuser_wiring.sql` (the `user_wallets` table itself was already in `0001_init.sql`).
+- **D2** → backend `services/ai/src/wallet.ts` (`/wallet/challenge` + `/wallet/verify`, nonce proof-of-ownership) + `apps/web/src/routes/Wallet.tsx` link screen (mandatory secret-backup gate).
+- **D3** → pools/membership tables were already in `0001`; `0005` adds the **draft-pool flow** (nullable `contract_id`, `draft`/`deploying` statuses).
+- **D4** → `preview_pool` / `redeem_invite` (in `0001`, extended in `0005`) + new RPCs `create_pool_draft` / `set_my_pool_address` / `activate_pool`.
+- **D5** → `apps/web/src/routes/{Pools,PoolNew,PoolDetail,PoolInvite,Join,PoolContribute,PoolSpend}.tsx` + `lib/{poolsApi,poolClient}.ts` + `hooks/usePools.ts`. Draft → invite → join → deploy → contribute/request/approve/release, all `multi_pool`-flag-gated, demo untouched without env.
+- **D6** → officers must have a `verified_at` wallet before their address is registered (`set_my_pool_address` enforces it); an officer without one is routed to the link flow. Verified live (Bob was prompted to link before he could sign).
+
+**Nothing left on your list.** The task detail below is retained for reference.
+
 **Effort legend:** `S` ≤2h · `M` ½–1d · `L` 1–2d · `XL` >2d. **Depends on:** nothing external — you
 are the upstream. **Consumers:** Elton (directory/invite/roster UI), Shello (pools for feed scoping),
 Earl (nonce endpoint, backend v1).

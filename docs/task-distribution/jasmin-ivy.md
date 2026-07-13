@@ -11,6 +11,18 @@ every new Phase-1 screen so Shello and Elton build from a spec (not a blank canv
 **Effort legend:** `S` ≤2h · `M` ½–1d · `L` 1–2d · `XL` >2d. **Depends on:** nothing to start.
 **Consumers:** everyone — tokens/components (David, Earl, Shello, Elton), mockups (Shello, Elton).
 
+## 🔲 Status — open, with a concrete first target (2026-07-13)
+
+None of your workstream (J0–J4) has been done — the build sprint shipped **functional** multi-user
+screens on the *existing* tokens and `ui.tsx` primitives (no new design system, no i18n). So your job
+is now sharper than "design from scratch": **a working reference already exists to reskin and translate.**
+
+- **Already live to design against** (behind the `multi_pool` flag): `apps/web/src/routes/{Wallet,Pools,PoolNew,PoolDetail,PoolInvite,Join,PoolContribute,PoolSpend}.tsx`. These are the exact flows J3 was to mock — you now have real screens to redline instead of a blank canvas.
+- **J0 🔲** theme + tokens, **J1 🔲** extended component kit (`Modal`/`Sheet`/`Toast`/`EmptyState`/`Skeleton`/`Avatar`/`QRCode`/`CopyField` — Elton's invite QR and Shello's feed states are both waiting on these), **J2 🔲** i18n (en/tl), **J3 🔲** specs, **J4 🔲** polish/a11y.
+- ⚠️ **Highest-leverage first job:** every string in the new screens is **hardcoded English**. Stand up the `t()` framework (J2) and retrofit those screens **before** more feature UI piles on — the longer it waits, the bigger the en/tl retrofit. Pair it with J0/J1 so Elton (QR, EL5/EL6) and Shello (feed, S1–S4) build their remaining screens on your kit, not more inline markup.
+
+Detail below is retained as the full brief.
+
 ---
 
 ## Current visual language (what you're inheriting)

@@ -20,6 +20,32 @@ independent, mostly-parallel workstreams — one per teammate. The goal of Phase
 | **Shello** | **Activity feed + notifications** — the Realtime in-app feed (reads `chain_events`) and Web Push ("a spend needs your approval") | [shello.md](./shello.md) |
 | **Elton James** | **Directory, invites & roster UI** — the screens for David's pools/membership backend: pool directory, invite/join, member roster, address book, DPA account deletion | [elton-james.md](./elton-james.md) |
 
+## Implementation status — updated 2026-07-13 (committed to `main`, pushed)
+
+A build sprint landed the load-bearing spine of this whole phase ahead of the team — commits
+`e29684f` (db), `faf527a` (api), `ceeb58d` (web), `4b33ba1` (test). It was **validated end-to-end**
+by a two-user Playwright run (two accounts, two device keys: link wallet → draft pool → officer
+invite → join → deploy on-chain → contribute → request → **cross-device approve** → release), and the
+indexer captured all four event types. **Gate note:** the entire new surface is behind the
+`multi_pool` feature flag, currently **off** (demo freeze intact) — flip it on to exercise it.
+
+| Owner | Status | Left to do |
+|---|---|---|
+| **David** | ✅ **Complete** (D0–D6, E2E-verified) | — |
+| **Earl** | 🟢 Mostly done — indexer (E1), wallet endpoints (E4), fan-out (E5) shipped; `chain.ts` SDK backend built but unwired | **E2** Realtime channel; **E3 cutover** (wire `USE_SDK_BACKEND` + faucet rate limits, post-Jul-15) |
+| **Elton** | 🟢 Mostly done — directory (EL1), invite (EL2), join (EL3), roster (EL4) shipped | **EL5** address book (payees), **EL6** DPA account deletion, invite **QR** |
+| **Shello** | 🟡 Backend done (`push.ts` sender + `notify.ts` triggers) | **S1–S3** activity-feed UI (reads `chain_events`), **S4–S5** client push subscribe + VAPID delivery (needs PWA SW switch) |
+| **Jasmin** | 🔲 Open — functional screens shipped on the *existing* tokens/`ui.tsx` | **All of J0–J4**; first concrete job: reskin + **i18n** the new screens (their strings are hardcoded English) |
+
+> **What actually got built vs. the original plan below.** Schema-v1 (`supabase/migrations/0001_init.sql`)
+> already contained most tables (`pools`, `pool_members`, `pool_invites`, `user_wallets`, `payees`,
+> `chain_events`, `indexer_cursor`, `push_subscriptions`, `notifications`). The one new migration is
+> **`0005_multiuser_wiring.sql`** (draft-pool flow, `wallet_link_challenges`, `verified_at` column-lock,
+> RPCs `create_pool_draft` / `set_my_pool_address` / `activate_pool`, extended `preview_pool` /
+> `redeem_invite`) — **not** the separate `0005_wallet_linking` + `0006_pools_membership` +
+> `0007_chain_events` the per-task docs below still describe. The original task text is kept for context;
+> the **✅ / 🟡 / 🔲 markers in each teammate file are the source of truth** for what remains.
+
 ## Two laws every task obeys
 
 1. **Architecture law — money authority lives *only* in the Soroban contract.** Supabase holds

@@ -14,6 +14,18 @@ every feed and notification (Shello builds on top of it).
 `user_wallets` shapes (D0/D1/D3) for the nonce + indexer scoping. **Consumers:** Shello (`chain_events`
 + Realtime), David (wallet `/challenge` + `/verify` endpoints).
 
+## 🟢 Status — mostly done (2026-07-13, on `main`)
+
+Most of your spine shipped in the build sprint (commit `faf527a`), so **review + extend, don't rebuild**:
+
+- **E1 ✅ DONE** — `services/ai/src/indexer.ts` + `indexer-main.ts` (`pnpm indexer`). `chain_events` + `indexer_cursor` were already in `0001_init.sql`. Checkpointed `getEvents` poller, idempotent upsert on the 5-tuple, i128 stored as **strings**, `spend_req`/`execute` enriched via `contract.Client.from` `get_spend`. **Verified live:** contribute/request/approve/execute all landed in `chain_events` within a poll. (Fixes already folded in: backfill suppresses stale notification fan-out, narrowed cursor age-out regex.)
+- **E4 ✅ DONE** — `services/ai/src/wallet.ts` (`/wallet/challenge` + `/wallet/verify`), with `supabaseAdmin.ts` + `ratelimit.ts`. Verified E2E. Rate limiter ignores spoofable `X-Forwarded-For` unless `TRUST_PROXY=1`.
+- **E5 ✅ DONE** — `services/ai/src/notify.ts` fans out per event type (+ `push.ts` sender). `spend_req` skips fan-out when un-enriched.
+- **E3 🟡 BUILT, UNWIRED** — `services/ai/src/chain.ts` has `deployPool` / `mintUsdc` / `ensureWasmHash` / `submitTx` (SDK equivalents of the CLI path), typechecked but **not cut over**. **Your remaining work:** wire the `USE_SDK_BACKEND=1` dispatch into `services/ai/src/index.ts` `/pool/create` + `/faucet` (keep the CLI branch as fallback), add faucet **rate limits** + CORS tightening, set `DEPLOYER_SECRET`/`ISSUER_SECRET` env, prove it with `smoke-write.mts`, then flip the default **after Jul 15**.
+- **E2 🔲 TODO** — Supabase **Realtime** on `chain_events` (the planned `0006_activity_push.sql` — `alter publication supabase_realtime add table …`) is **not applied**. Shello's feed currently has to poll. Land this so his S2 goes live; confirm RLS gates Realtime the same as reads.
+
+**Left for you: E2 (Realtime) + E3 cutover.** Everything else is done and E2E-verified. Detail below is retained for reference.
+
 ---
 
 ## Task list

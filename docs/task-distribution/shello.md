@@ -15,6 +15,20 @@ in the same room.
 Realtime channel, E1/E2/E5), Jasmin (feed + settings mockups, component kit), David (`pools` for
 scoping). **Consumers:** end users.
 
+## 🟡 Status — backend done, your UI is open (2026-07-13, on `main`)
+
+The build sprint gave you a head start on the plumbing, but **the feed + notification UI is still your
+job**:
+
+- **Already built for you:** `chain_events` is live and populated (Earl's `indexer.ts`, verified), the **push _sender_** `services/ai/src/push.ts` (web-push + VAPID gating on `user_settings.notif_prefs`), and the fan-out trigger `services/ai/src/notify.ts` (fires per event type). `push_subscriptions` + `notifications` tables exist (`0001_init.sql`).
+- **S1 🔲 TODO** — `apps/web/src/hooks/useActivity.ts`: read `chain_events` for the active pool, newest first. (Today `PoolDetail.tsx` shows a per-pool "Needs approval"/"Released" view from *on-chain state*, not a `chain_events`-backed feed — that feed is yours to build.)
+- **S2 🔲 TODO** — Realtime live updates. **Blocked on Earl's E2** (the Realtime publication isn't applied yet); ship S1 as a poll first, swap to the subscription when E2 lands.
+- **S3 🔲 TODO** — the activity-feed screen/route (`apps/web/src/routes/Activity.tsx`) from Jasmin's spec: one row per event, `peso()`, relative time, tx-hash → stellar.expert.
+- **S4 🔲 TODO** — client push subscription: switch `vite.config.ts` to `injectManifest` + a custom `apps/web/src/sw.ts` (`push`/`notificationclick` handlers), `apps/web/src/lib/push.ts` `subscribeToPush()` → upsert `push_subscriptions`, generate VAPID keys, add the toggle in Profile. **(Post-Jul-15 — it changes the service worker.)**
+- **S5 🟡 PARTIAL** — the backend delivery half (`push.ts` + `notify.ts` trigger) is done; the end-to-end loop needs S4's client subscription + real VAPID keys before it can be exercised.
+
+**Left for you: S1–S3 (the feed UI) + S4–S5 (client push).** Detail below is retained for reference.
+
 ---
 
 ## Task list
