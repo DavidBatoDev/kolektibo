@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { authRouter } from './auth'
+import { walletRouter } from './wallet'
 
 const pExecFile = promisify(execFile)
 
@@ -13,6 +14,7 @@ const app = express()
 app.use(cors())
 app.use(express.json({ limit: '1mb' }))
 app.use('/auth', authRouter)
+app.use('/wallet', walletRouter)
 
 const apiKey = process.env.OPENAI_API_KEY
 const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
