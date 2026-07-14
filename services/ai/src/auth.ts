@@ -9,6 +9,7 @@ import crypto from 'node:crypto'
 
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const ANON_KEY = process.env.SUPABASE_ANON_KEY
 const PEPPER = process.env.CODE_PEPPER || ''
 const GMAIL_USER = process.env.GMAIL_USER
 const GMAIL_PASS = process.env.GMAIL_APP_PASSWORD
@@ -84,6 +85,21 @@ function requireConfig(res: Response): boolean {
     return false
   }
   return true
+}
+
+function requireAdmin(res: Response): boolean {
+  if (!admin) {
+    res.status(500).send('Auth backend not configured (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY)')
+    return false
+  }
+  return true
+}
+
+function bearerToken(req: Request): string | null {
+  const raw = req.headers.authorization
+  if (!raw) return null
+  const m = raw.match(/^Bearer\s+(.+)$/i)
+  return m?.[1]?.trim() || null
 }
 
 async function userIdByEmail(email: string): Promise<string | null> {
@@ -265,5 +281,47 @@ authRouter.post('/reset-password', async (req, res) => {
   } catch (e) {
     console.error('[/auth/reset-password]', e)
     res.status(500).send('Reset failed. Please try again.')
+  }
+})
+
+// ── POST /auth/delete-account ────────────────────────────────────────────────
+authRouter.post('/delete-account', async (req, res) => {
+  if (!requireAdmin(res)) return
+  if (!allow(`delete:ip:${ipOf(req)}`, 3, HOUR)) {
+    return res.status(429).send('Too many delete attempts. Please try again later.')
+  }
+
+  const token = bearerToken(req)
+  if (!token) return res.status(401).send('Missing bearer token.')
+
+  try {
+    const {
+      data: { user },
+      error: authErr,
+    } = await admin!.auth.getUser(token)
+    if (authErr || !user) return res.status(401).send('Invalid or expired session.')
+
+    const asUser =
+      SUPABASE_URL && (ANON_KEY || SERVICE_KEY)
+        ? createClient(SUPABASE_URL, ANON_KEY || SERVICE_KEY!, {
+            auth: { persistSession: false, autoRefreshToken: false },
+            global: { headers: { Authorization: `Bearer ${token}` } },
+          })
+        : null
+
+    if (!asUser) {
+      return res.status(500).send('Supabase client not configured for account deletion.')
+    }
+
+    const { error: rpcErr } = await asUser.rpc('delete_my_account')
+    if (rpcErr) return res.status(400).send(rpcErr.message || 'Deletion pre-check failed.')
+
+    const { error: delErr } = await admin!.auth.admin.deleteUser(user.id)
+    if (delErr) return res.status(500).send(delErr.message || 'Could not delete account.')
+
+    res.json({ ok: true })
+  } catch (e) {
+    console.error('[/auth/delete-account]', e)
+    res.status(500).send('Could not delete account. Please try again.')
   }
 })

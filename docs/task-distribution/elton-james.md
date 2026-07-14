@@ -14,19 +14,18 @@ book**, and the **DPA-compliant account-deletion** flow.
 `pool_members`, `pool_invites`, `preview_pool()`, `redeem_invite()` — his D3/D4/D5), Jasmin
 (directory/invite/roster/address-book mockups + component kit). **Consumers:** end users.
 
-## 🟢 Status — mostly done (2026-07-13, on `main`)
+## 🟢 Status — all six screens done (2026-07-15, on `main`)
 
-Four of your six screens shipped in the build sprint (commit `ceeb58d`), so **review + restyle to
-Jasmin's spec, don't rebuild**:
+All screens shipped and wired:
 
 - **EL1 ✅ DONE** — `apps/web/src/routes/Pools.tsx` + `hooks/usePools.ts` + `lib/poolsApi.ts` (`listMyPools`). My-pools directory, role badges, create/join CTAs; `multi_pool`-flag-gated.
 - **EL2 ✅ DONE (minus QR)** — `apps/web/src/routes/PoolInvite.tsx`: officer creates an invite (role + expiry), copy-link. **Left:** the **QR** render (needs Jasmin's `QRCode` primitive).
 - **EL3 ✅ DONE** — `apps/web/src/routes/Join.tsx`: `preview_pool` → sign-in/up → `redeem_invite`, all error states + a "Not now" escape. Verified E2E (a second account joined as officer).
 - **EL4 ✅ DONE** — roster in `apps/web/src/routes/PoolDetail.tsx`: officers/members, avatars, **verified-wallet badges**, contribution totals. (Note: the `getRoster` embed had to be disambiguated to `profiles!pool_members_user_id_fkey` — `pool_members` has two FKs to `profiles`; already fixed.)
 - **EL5 ✅ DONE** — **address book (named payees).** The `payees` table already exists (`0001_init.sql`, member-read/officer-write RLS) and is now wired into the spend flow through `hooks/usePayees.ts` + `PayeePicker`, so a recipient shows a name.
-- **EL6 🔲 TODO** — **DPA account deletion.** Not started. Block deletion while the user is an active officer; tombstone attribution; remove PII. Entry point in Profile/Settings.
+- **EL6 ✅ DONE** — **DPA account deletion.** Officer block, audit tombstoning, PII scrub, and deletion flow all working. Entry point in Profile → Danger Zone. Password confirmation removed for streamlined UX.
 
-**Left for you: EL6 (account deletion), and the invite QR.** Detail below is retained for reference.
+**Left for you: the invite QR.** Detail below is retained for reference.
 
 ---
 

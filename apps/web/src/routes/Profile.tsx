@@ -8,7 +8,8 @@ import {
   useUpdateSettings,
   useUploadAvatar,
 } from '../hooks/useProfile'
-import { Button, Card, Field, inputClass, SectionLabel } from '../components/ui'
+import { useDeleteAccount, useOfficerPools } from '../hooks/useAccountDeletion'
+import { Button, Card, Field, inputClass, SectionLabel, Sheet } from '../components/ui'
 
 const NOTIF_ROWS: [string, string][] = [
   ['push', 'Push notifications'],
@@ -25,6 +26,8 @@ export function ProfilePage() {
   const updateProfile = useUpdateProfile()
   const updateSettings = useUpdateSettings()
   const uploadAvatar = useUploadAvatar()
+  const officerPools = useOfficerPools()
+  const deleteAccount = useDeleteAccount()
 
   const [displayName, setDisplayName] = useState('')
   const [phone, setPhone] = useState('')
@@ -32,6 +35,7 @@ export function ProfilePage() {
   const [currency, setCurrency] = useState('PHP')
   const [theme, setTheme] = useState('dark')
   const [notif, setNotif] = useState<Record<string, boolean>>({})
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   useEffect(() => {
     if (profileQ.data) {
@@ -55,6 +59,8 @@ export function ProfilePage() {
   }
 
   const avatarUrl = profileQ.data?.avatar_url
+  const blockingPools = officerPools.data ?? []
+  const isBlocked = blockingPools.length > 0
 
   return (
     <div className="space-y-5">
@@ -187,6 +193,59 @@ export function ProfilePage() {
       >
         Sign out
       </button>
+
+      <div>
+        <SectionLabel>Danger Zone</SectionLabel>
+        <Card className="space-y-3">
+          <p className="text-xs text-ink-600">
+            Permanently removes your account profile and personal data. Contribution and spend history
+            remain with anonymized attribution for audit purposes.
+          </p>
+          {isBlocked ? (
+            <>
+              <Button variant="danger" className="w-full" disabled>
+                Delete my account
+              </Button>
+              <p className="text-xs text-danger">
+                You are an officer of {blockingPools.join(', ')}. Transfer your role before deleting.
+              </p>
+            </>
+          ) : (
+            <Button variant="danger" className="w-full" onClick={() => setDeleteOpen(true)}>
+              Delete my account
+            </Button>
+          )}
+          {deleteAccount.isError && (
+            <p className="text-xs text-danger">{String((deleteAccount.error as Error).message)}</p>
+          )}
+        </Card>
+      </div>
+
+      <Sheet open={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete your account?">
+        <div className="space-y-4">
+          <p className="text-sm text-ink-700">
+            This will permanently remove your profile, settings, and wallet data. Your contribution and
+            spend history will be preserved anonymously for audit purposes. This cannot be undone.
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setDeleteOpen(false)
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              loading={deleteAccount.isPending}
+              onClick={() => deleteAccount.mutate()}
+            >
+              Delete permanently
+            </Button>
+          </div>
+        </div>
+      </Sheet>
     </div>
   )
 }
