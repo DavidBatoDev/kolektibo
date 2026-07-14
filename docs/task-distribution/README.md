@@ -32,7 +32,7 @@ indexer captured all four event types. **Gate note:** the entire new surface is 
 | Owner | Status | Left to do |
 |---|---|---|
 | **David** | ✅ **Complete** (D0–D6, E2E-verified) | — |
-| **Earl** | 🟢 Mostly done — indexer (E1), wallet endpoints (E4), fan-out (E5) shipped; `chain.ts` SDK backend built but unwired | **E2** Realtime channel; **E3 cutover** (wire `USE_SDK_BACKEND` + faucet rate limits, post-Jul-15) |
+| **Earl** | 🟢 Mostly done — indexer (E1), wallet endpoints (E4), fan-out (E5), **Realtime (E2)** shipped; `chain.ts` SDK backend built but unwired | **E3 cutover** (wire `USE_SDK_BACKEND` + faucet rate limits, post-Jul-15) |
 | **Elton** | 🟢 Mostly done — directory (EL1), invite (EL2), join (EL3), roster (EL4) shipped | **EL5** address book (payees), **EL6** DPA account deletion, invite **QR** |
 | **Shello** | 🟡 Backend done (`push.ts` sender + `notify.ts` triggers) | **S1–S3** activity-feed UI (reads `chain_events`), **S4–S5** client push subscribe + VAPID delivery (needs PWA SW switch) |
 | **Jasmin** | 🔲 Open — functional screens shipped on the *existing* tokens/`ui.tsx` | **All of J0–J4**; first concrete job: reskin + **i18n** the new screens (their strings are hardcoded English) |
@@ -135,8 +135,14 @@ against the stub until then.
 - **`preview_pool(invite_code)` / `redeem_invite(invite_code)`** (David → Elton): `SECURITY DEFINER`
   RPCs. Invites are **never** blanket-readable (codes leak roles); preview & redemption go through the
   RPC only; redemption is atomic against `used_count` / `invite_redemptions`.
-- **`chain_events`** (Earl → Shello): `id, pool_contract_id, event_type ∈ {contrib,spend_req,approve,
-  execute}, ledger, tx_hash, payload jsonb, created_at`. Append-only. Realtime channel per pool.
+- **`chain_events`** (Earl → Shello): `id, contract_id, event_type ∈ {contrib,spend_req,approve,
+  execute}, ledger, tx_hash, tx_index, op_index, event_index, payload jsonb, occurred_at`.
+  Append-only read-model; de-dupe key `(contract_id, ledger, tx_index, op_index, event_index)`.
+  **Realtime (E2):** channel `pool-events:{contract_id}`; subscribe to `postgres_changes`
+  `INSERT` on `public.chain_events` with filter `contract_id=eq.{contract_id}`; `payload.new`
+  is a full row. Payload shapes: `contrib` → `{from, amount}`; `spend_req` → spend fields;
+  `approve` → `{spend_id, officer}`; `execute` → `{spend_id, amount, recipient, category, memo}`
+  (amounts as strings). On reconnect (`SUBSCRIBED`), re-run the initial SELECT to backfill.
 - **Wallet nonce** (David UI ↔ Earl backend): `POST /wallet/challenge {address} → {nonce}`;
   client signs the nonce with the Stellar key; `POST /wallet/verify {address, signature}` → sets
   `user_wallets.verified_at`.
