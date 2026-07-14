@@ -23,10 +23,10 @@ Jasmin's spec, don't rebuild**:
 - **EL2 ✅ DONE (minus QR)** — `apps/web/src/routes/PoolInvite.tsx`: officer creates an invite (role + expiry), copy-link. **Left:** the **QR** render (needs Jasmin's `QRCode` primitive).
 - **EL3 ✅ DONE** — `apps/web/src/routes/Join.tsx`: `preview_pool` → sign-in/up → `redeem_invite`, all error states + a "Not now" escape. Verified E2E (a second account joined as officer).
 - **EL4 ✅ DONE** — roster in `apps/web/src/routes/PoolDetail.tsx`: officers/members, avatars, **verified-wallet badges**, contribution totals. (Note: the `getRoster` embed had to be disambiguated to `profiles!pool_members_user_id_fkey` — `pool_members` has two FKs to `profiles`; already fixed.)
-- **EL5 🔲 TODO** — **address book (named payees).** The `payees` table already exists (`0001_init.sql`, member-read/officer-write RLS) but is **unused** — `PoolSpend.tsx` still takes a raw `G…` address. Build `hooks/usePayees.ts` + a `PayeePicker` and wire it into the spend flow so a recipient shows a name.
+- **EL5 ✅ DONE** — **address book (named payees).** The `payees` table already exists (`0001_init.sql`, member-read/officer-write RLS) and is now wired into the spend flow through `hooks/usePayees.ts` + `PayeePicker`, so a recipient shows a name.
 - **EL6 🔲 TODO** — **DPA account deletion.** Not started. Block deletion while the user is an active officer; tombstone attribution; remove PII. Entry point in Profile/Settings.
 
-**Left for you: EL5 (address book), EL6 (account deletion), and the invite QR.** Detail below is retained for reference.
+**Left for you: EL6 (account deletion), and the invite QR.** Detail below is retained for reference.
 
 ---
 
@@ -110,7 +110,7 @@ references don't dangle; the user's PII is gone.
 | My task | Unblocks | Their task |
 |---|---|---|
 | EL1 active-pool selection | Shello | His feed scopes to the pool your directory marks active — agree the "active pool" state shape with him early (a shared hook or context) |
-| EL5 `payees` shape | David | D5's spend flow shows named payees; publish the migration shape when drafted |
+| EL5 `payees` shape | David | D5's spend flow shows named payees; migration and picker are now in place |
 
 **Escalation rule:** if a dependency stub costs you more than ~an hour to fake, say so in the team
 channel the same day — David re-sequences; don't sit blocked.

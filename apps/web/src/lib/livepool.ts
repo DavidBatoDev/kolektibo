@@ -27,7 +27,7 @@ export function clearPool(): void {
   localStorage.removeItem(POOL_KEY)
 }
 
-function getPayee(): { publicKey: string; secret: string } {
+export function getPayee(): { publicKey: string; secret: string } {
   const raw = localStorage.getItem(PAYEE_KEY)
   if (raw) {
     try {

@@ -193,8 +193,8 @@ app.post('/faucet', async (req, res) => {
 app.post('/pool/create', async (req, res) => {
   const officers: string[] = Array.isArray(req.body?.officers) ? req.body.officers : []
   const threshold = Number(req.body?.threshold ?? 2)
-  if (officers.length < 2 || officers.some((o) => !String(o).startsWith('G'))) {
-    return res.status(400).send('Provide at least 2 officer public keys')
+  if (officers.length < 1 || officers.some((o) => !String(o).startsWith('G'))) {
+    return res.status(400).send('Provide at least 1 officer public keys')
   }
   try {
     const contractId = await stellar([

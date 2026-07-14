@@ -7,6 +7,7 @@ import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { StrKey } from '@stellar/stellar-sdk'
 import { Button, Card, Field, SectionLabel, inputClass, peso } from '../components/ui'
+import { PayeePicker } from '../components/PayeePicker'
 import { myKeypair } from '../lib/mywallet'
 import {
   contractErrorMessage,
@@ -133,16 +134,11 @@ export function PoolSpendPage() {
             Over this category's per-spend cap — the contract will reject it.
           </p>
         )}
-        <Field label="Recipient address" hint="The payee's Stellar address (starts with G).">
-          <input
-            className={inputClass}
-            value={recipient}
-            onChange={(e) => setRecipient(e.target.value)}
-            placeholder="G…"
-            autoComplete="off"
-            spellCheck={false}
-          />
-        </Field>
+        <PayeePicker
+          poolId={poolId}
+          value={recipient}
+          onChange={setRecipient}
+        />
         {recipient.trim() !== '' && !validRecipient && (
           <p className="text-xs text-rose-400">That doesn't look like a valid Stellar address.</p>
         )}

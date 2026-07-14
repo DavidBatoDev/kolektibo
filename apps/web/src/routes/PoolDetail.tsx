@@ -88,7 +88,7 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
 
   const [threshold, setThreshold] = useState(policy?.approval?.threshold ?? 2)
   const clamped = Math.min(Math.max(1, threshold), Math.max(1, officers.length))
-  const ready = officers.length >= 2 && officers.every((o) => o.stellar_address)
+  const ready = officers.length >= 1 && officers.every((o) => o.stellar_address)
 
   const doDeploy = () =>
     deploy.mutate({
@@ -487,14 +487,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
 }
 
 function PoolNavigation({ poolId, draft = false }: { poolId: string; draft?: boolean }) {
-  const items = draft
-    ? [
-        ['People', '/app/pools/$poolId/members'],
-        ['Invites', '/app/pools/$poolId/invites'],
-        ['Rules', '/app/pools/$poolId/rules'],
-        ['Settings', '/app/pools/$poolId/settings/general'],
-      ] as const
-    : [
+  const items = [
         ['Activity', '/app/pools/$poolId/activity'],
         ['Contributions', '/app/pools/$poolId/contributions'],
         ['Spending', '/app/pools/$poolId/spends'],
@@ -503,6 +496,7 @@ function PoolNavigation({ poolId, draft = false }: { poolId: string; draft?: boo
         ['Payees', '/app/pools/$poolId/payees'],
         ['Rules', '/app/pools/$poolId/rules'],
         ['Reports', '/app/pools/$poolId/reports'],
+        ['Settings', '/app/pools/$poolId/settings/general'],
       ] as const
   return (
     <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
