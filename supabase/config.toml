@@ -34,6 +34,10 @@ secret = "env(GOOGLE_SECRET)"
 
 [db]
 # 54322 is occupied by another local Supabase project on the development host.
+# Do not use 54323 here — that is Studio's default port and causes a bind conflict.
+port = 54325
+
+[studio]
 port = 54323
 
 [api]

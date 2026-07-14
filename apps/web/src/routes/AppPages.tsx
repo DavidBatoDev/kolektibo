@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Badge, Button, Card, Field, SectionLabel, inputClass } from '../components/ui'
 import { useAuth } from '../lib/auth'
+import { subscribeManyPoolChainEvents } from '../lib/chainEventsRealtime'
 import { supabase } from '../lib/supabase'
 import { explorerTxUrl } from '../lib/stellar'
 import { usePools } from '../hooks/usePools'
@@ -10,11 +11,28 @@ import { useProfile, useSettings, useUpdateSettings } from '../hooks/useProfile'
 import { useMyWallets } from '../hooks/useWallet'
 
 export function AppActivityPage() {
+  const qc = useQueryClient()
   const pools = usePools()
   const contractIds = useMemo(
     () => (pools.data ?? []).map(({ pool }) => pool.contract_id).filter((id): id is string => !!id),
     [pools.data],
   )
+
+  useEffect(() => {
+    if (!supabase || contractIds.length === 0) return
+    const { unsubscribe } = subscribeManyPoolChainEvents(supabase, contractIds, {
+      onInsert: () => {
+        void qc.invalidateQueries({ queryKey: ['app-activity'] })
+      },
+      onStatus: (status) => {
+        if (status === 'SUBSCRIBED') {
+          void qc.invalidateQueries({ queryKey: ['app-activity'] })
+        }
+      },
+    })
+    return unsubscribe
+  }, [qc, contractIds])
+
   const events = useQuery({
     queryKey: ['app-activity', contractIds],
     enabled: !!supabase && contractIds.length > 0,
