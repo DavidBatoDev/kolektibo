@@ -1,0 +1,461 @@
+/* Kolektibo landing — faithful rebuild of the downloaded Figma Make template.
+   Same design DNA (green #22C55E, ink buttons #14211C, Plus Jakarta Sans, 28px
+   cards, soft green shadow, ghost 01/02/03 numbers), but flowing + responsive +
+   compact. Textured 3D-clay backgrounds carry each hero band so it's never flat. */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --green: #22C55E;
+  --green-600: #16A34A;
+  --green-700: #15803D;
+  --ink: #0B1210;          /* headings / body-strong */
+  --ink-btn: #14211C;      /* primary button fill */
+  --muted: #5B6B65;        /* secondary text */
+  --muted-2: #94A39D;
+  --surface: #EEF3F0;      /* sunken surface */
+  --page: #F7FAF8;         /* page */
+  --hairline: #D5DDD9;
+  --gold: #FBBF24;
+  --gold-700: #B45309;
+
+  --r-card: 28px;
+  --r-pill: 100px;
+  --shadow: 0 16px 40px -12px rgba(21,128,61,0.18);
+  --shadow-lg: 0 24px 60px -16px rgba(21,128,61,0.28);
+  --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --gutter: 24px;
+  --maxw: 1160px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body {
+  margin: 0; font-family: var(--font); color: var(--ink); line-height: 1.5;
+  background: var(--page);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+b { font-weight: 700; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); width: 100%; }
+
+/* ---- shared type ---- */
+.section-label {
+  display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--green-700); margin: 0 0 12px;
+}
+.section-head {
+  font-size: clamp(26px, 3.6vw, 42px); font-weight: 800; letter-spacing: -.02em;
+  line-height: 1.12; margin: 0 0 28px; max-width: 20ch;
+}
+
+/* ---- buttons ---- */
+.btn-primary, .btn-ghost {
+  display: inline-flex; align-items: center; gap: 10px; font-family: var(--font);
+  font-weight: 600; font-size: 17px; border-radius: var(--r-pill); transition: .16s;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--ink-btn); color: #fff; height: 58px; padding: 0 30px; box-shadow: var(--shadow);
+}
+.btn-primary:hover { background: #000; transform: translateY(-1px); }
+.btn-primary.sm { height: 44px; padding: 0 22px; font-size: 15px; box-shadow: none; }
+.btn-primary.lg { height: 62px; padding: 0 38px; font-size: 18px; }
+.btn-primary .arw { transition: transform .16s; }
+.btn-primary:hover .arw { transform: translateX(3px); }
+.btn-ghost { color: var(--green-700); }
+.btn-ghost:hover { color: var(--green-600); }
+.center-link { display: inline-flex; margin-top: 26px; }
+
+a:focus-visible, button:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+/* ---- floating card ---- */
+.card { background: #fff; border-radius: var(--r-card); box-shadow: var(--shadow); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* faint page texture so plain sections aren't flat */
+.app {
+  background:
+    radial-gradient(680px 380px at 88% 0%, rgba(74,222,128,.08), transparent 70%),
+    radial-gradient(560px 320px at 6% 100%, rgba(134,239,172,.10), transparent 70%),
+    var(--page);
+}
+
+/* halftone: dots build up from the bottom-left of the bento block and fade to
+   almost nothing going up — like the inspo (clean above the cards, densest
+   below-left). No hard rectangular band; lives on a masked ::before behind the
+   cards, so the "Powered by" strip above stays clean. */
+.pillars { position: relative; }
+.pillars::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(21,128,61,.22) 1.8px, transparent 2.1px);
+  background-size: 20px 20px;
+  /* solid across the whole bottom, holds up to ~70% then fades to nothing at top */
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 68%, rgba(0,0,0,.45) 86%, transparent 100%);
+          mask-image: linear-gradient(to top, #000 0%, #000 68%, rgba(0,0,0,.45) 86%, transparent 100%);
+}
+.pillars .wrap { position: relative; z-index: 1; }
+
+/* ===================== NAV ===================== */
+/* nav + hero share ONE continuous aura via .banner — no seam between them */
+.banner {
+  position: relative;
+  background:
+    radial-gradient(1100px 640px at 85% -40px, rgba(34,197,94,.26), transparent 66%),
+    radial-gradient(820px 560px at -2% -20px, rgba(134,239,172,.36), transparent 62%),
+    var(--page);
+}
+.nav {
+  position: sticky; top: 0; z-index: 30;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background .22s ease, backdrop-filter .22s ease, border-color .22s ease;
+}
+.nav.scrolled {
+  background: rgba(247,250,248,.82);
+  backdrop-filter: blur(12px);
+  border-bottom-color: rgba(213,221,217,.5);
+}
+.nav .wrap { display: flex; align-items: center; gap: 24px; height: 70px; }
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 19px; letter-spacing: -.02em; }
+.brand img { width: 30px; height: 30px; }
+.nav-links { display: flex; gap: 30px; margin-left: auto; }
+.nav-links a { font-size: 15px; font-weight: 500; color: var(--muted); }
+.nav-links a:hover { color: var(--ink); }
+
+/* ===================== HERO ===================== */
+.hero {
+  position: relative; padding: 36px 0 80px;
+  background: transparent;
+}
+.hero-card {
+  position: relative; overflow: hidden; display: flex; align-items: center;
+  border-radius: var(--r-card); box-shadow: var(--shadow-lg);
+  min-height: 560px; padding: clamp(32px, 5vw, 72px);
+  background-color: #F0FDF4;
+  /* left legibility wash + top/bottom/right edge fades so the clay scene melts
+     into the mint card instead of being hard-clipped by the rounded rectangle */
+  background-image:
+    linear-gradient(90deg, rgba(240,253,244,.95) 0%, rgba(240,253,244,.72) 33%, rgba(240,253,244,.18) 52%, rgba(240,253,244,0) 66%),
+    linear-gradient(180deg, rgba(240,253,244,.7) 0%, rgba(240,253,244,0) 22%),
+    linear-gradient(0deg,   rgba(240,253,244,.85) 0%, rgba(240,253,244,0) 24%),
+    linear-gradient(270deg, rgba(240,253,244,.55) 0%, rgba(240,253,244,0) 20%),
+    url('backgrounds/bg-hero-landing.png');
+  background-size: cover, cover, cover, cover, cover;
+  background-position: center, center, center, center, 76% center;
+  background-repeat: no-repeat;
+}
+.hero-text { max-width: 540px; }
+.eyebrow {
+  display: inline-block; margin-bottom: 20px; padding: 8px 16px; border-radius: var(--r-pill);
+  background: #DCFCE7; color: var(--green-700); font-size: 13px; font-weight: 700;
+}
+.hero h1 { margin: 0 0 18px; font-size: clamp(40px, 5.6vw, 72px); font-weight: 800; letter-spacing: -.03em; line-height: 1.02; }
+.hero .sub { margin: 0 0 16px; font-size: clamp(17px, 2vw, 21px); line-height: 1.55; color: var(--muted); max-width: 30ch; }
+.hero .micro-line { margin: 0 0 30px; font-size: 14px; font-weight: 600; color: var(--green-700); }
+.actions { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.live-chip {
+  display: inline-flex; align-items: center; gap: 9px; margin-top: 26px; padding: 10px 18px;
+  background: #fff; border-radius: var(--r-pill); box-shadow: var(--shadow);
+  font-size: 14px; color: var(--muted); font-weight: 500;
+}
+.live-chip b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.live-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(34,197,94,.5); animation: pulse 1.8s infinite; }
+@keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)} 70%{box-shadow:0 0 0 9px rgba(34,197,94,0)} 100%{box-shadow:0 0 0 0 rgba(34,197,94,0)} }
+
+/* ===================== POWERED-BY STRIP ===================== */
+/* hero section adds 80px below it, pillars adds 30px above the cards; give the
+   strip +50px more bottom padding than top so it lands at the visual midpoint
+   between the hero card and the bento cards, not hugging the bento. */
+section.powered { padding: 46px 0 96px; }
+section.powered .wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.powered-label { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-2); }
+.powered-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px 46px; }
+.logo-word { font-size: clamp(18px, 2.3vw, 24px); font-weight: 800; letter-spacing: -.01em; color: var(--muted); opacity: .68; transition: opacity .16s; }
+.logo-word:hover { opacity: 1; }
+
+/* ===================== PILLARS (bento) ===================== */
+.pillars { padding: 30px 0 68px; }
+.bento { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: stretch; }
+.bento-card {
+  display: flex; flex-direction: column; gap: 16px; padding: 26px;
+  border-radius: var(--r-card); box-shadow: var(--shadow);
+}
+.bento-card.lg { grid-column: 1; grid-row: 1 / span 2; padding: 30px; }
+.bento-card.lg .bento-cta { margin-top: auto; }
+.bento-card.green { background-image: linear-gradient(150deg, #34D06B 0%, #22C55E 50%, #15803D 100%); color: #fff; }
+.bento-card.mint  { background-image: linear-gradient(160deg, #DCFCE7 0%, #F0FDF4 100%); }
+.bento-card.paper { background: var(--surface); }
+.bento-body h3 { margin: 0 0 10px; font-size: clamp(20px, 2.3vw, 25px); font-weight: 700; letter-spacing: -.01em; }
+.bento-card.lg .bento-body h3 { font-size: clamp(24px, 3vw, 32px); }
+.bento-body p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--muted); }
+.bento-card.green .bento-body p { color: rgba(255,255,255,.9); }
+/* no white badge box — the clay icon sits straight on the card, top-left, sized
+   like the old white box (~72px), with a soft drop-shadow so it still floats. */
+.icon-badge {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: auto; height: auto; background: none; box-shadow: none;
+}
+/* icons are trimmed tight, so sizing by height makes all three read the same
+   size regardless of their shape */
+.icon-badge img {
+  height: 86px; width: auto; object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(11,18,16,.18));
+}
+.bento-cta {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
+  height: 46px; padding: 0 22px; border-radius: var(--r-pill);
+  border: 1.5px solid rgba(255,255,255,.5); color: #fff; font-weight: 600; font-size: 15px; transition: .16s;
+}
+.bento-cta:hover { background: rgba(255,255,255,.15); border-color: #fff; }
+
+/* ===================== HOW IT WORKS ===================== */
+/* green + yellow-green aura band, fading to page colour (no hard edge / clip) */
+.how {
+  position: relative; padding: 56px 0 72px;
+  background:
+    radial-gradient(900px 520px at 92% 4%, rgba(34,197,94,.16), transparent 60%),
+    radial-gradient(680px 480px at 6% 98%, rgba(163,230,53,.20), transparent 60%),
+    radial-gradient(560px 440px at 58% 104%, rgba(190,242,100,.14), transparent 64%),
+    var(--page);
+}
+.steps { margin: 0; padding: 0; list-style: none; align-items: stretch; }
+.step { position: relative; padding: 30px; overflow: hidden; }
+/* keep the copy above the decorative corner icon */
+.step-num, .step h3, .step p { position: relative; z-index: 1; }
+.step-num {
+  display: block; font-size: clamp(84px, 11vw, 150px); font-weight: 800; line-height: .9;
+  letter-spacing: -.04em; margin-bottom: 6px; font-variant-numeric: tabular-nums;
+  background: linear-gradient(184deg, #22C55E 34%, rgba(34,197,94,0) 84%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.step h3 { margin: 0 0 8px; font-size: 21px; font-weight: 700; letter-spacing: -.01em; }
+.step p { margin: 0; font-size: 16px; line-height: 1.55; color: var(--muted); }
+/* big faded clay icon jammed into the lower-right corner, bleeding off both edges
+   (extra negative offset overcomes the transparent padding baked into the webp) */
+.step-ico {
+  position: absolute; z-index: 0; right: -78px; bottom: -76px;
+  width: 330px; height: auto; object-fit: contain; opacity: .28; pointer-events: none;
+}
+
+/* ===================== IN YOUR POCKET (phones) ===================== */
+.app { position: relative; padding: 56px 0 72px; }
+/* dot texture behind the phones — clear in the centre, dots build up on the
+   left & right sides (radial mask, taller than wide so it hugs the sides) */
+.app::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(21,128,61,.22) 1.8px, transparent 2.1px);
+  background-size: 20px 20px;
+  -webkit-mask-image: radial-gradient(64% 135% at 50% 50%, transparent 44%, rgba(0,0,0,.55) 70%, #000 94%);
+          mask-image: radial-gradient(64% 135% at 50% 50%, transparent 44%, rgba(0,0,0,.55) 70%, #000 94%);
+}
+.app > .wrap { position: relative; z-index: 1; }
+.phones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 840px; margin: 40px auto 0; }
+.phone { margin: 0; text-align: center; }
+.phone.lift { transform: translateY(-18px); }
+.phone-frame {
+  position: relative; aspect-ratio: 9/19; border-radius: 34px; padding: 10px; background: var(--ink-btn);
+  box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center;
+}
+.phone-frame::before { content: ""; position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 40%; height: 7px; border-radius: 5px; background: rgba(255,255,255,.16); }
+.phone-frame span {
+  width: 100%; height: 100%; border-radius: 26px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px; font-weight: 700; font-size: 15px; color: var(--green-700);
+  background: linear-gradient(160deg, #DCFCE7, #F0FDF4);
+}
+.phone-frame small { color: var(--muted-2); font-weight: 600; font-size: 13px; }
+.phone figcaption { margin-top: 16px; font-size: 15px; color: var(--muted); font-weight: 500; }
+
+/* ===================== WHY IT'S SAFE (bg-security) ===================== */
+.safe {
+  position: relative; padding: 72px 0; min-height: 620px; display: flex; align-items: center;
+  background-image:
+    linear-gradient(90deg, var(--page) 0%, rgba(247,250,248,.88) 40%, rgba(247,250,248,.3) 60%, rgba(247,250,248,0) 74%),
+    url('backgrounds/bg-security-landing.png');
+  background-size: cover, cover;
+  background-position: center, 82% center;
+  background-repeat: no-repeat;
+}
+.safe-text { max-width: 620px; }
+.points { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 28px; }
+.point { display: flex; gap: 14px; }
+.point .pn {
+  font-size: 22px; font-weight: 800; color: var(--green); font-variant-numeric: tabular-nums; line-height: 1.1;
+}
+.point h4 { margin: 0 0 4px; font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+.point p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted); }
+
+/* ===================== PROOF PLAYGROUND ===================== */
+.pg {
+  position: relative; padding: 64px 0 84px;
+  background:
+    radial-gradient(820px 520px at 92% -8%, rgba(34,197,94,.10), transparent 58%),
+    radial-gradient(880px 580px at 4% 104%, rgba(251,191,36,.18), transparent 60%),
+    radial-gradient(640px 460px at 98% 106%, rgba(253,224,71,.15), transparent 62%),
+    var(--page);
+}
+/* halftone dots across the upper part of the section, fading down to nothing */
+.pg::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(21,128,61,.16) 1.7px, transparent 2px);
+  background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 15%, transparent 48%);
+          mask-image: linear-gradient(to bottom, #000 0%, #000 15%, transparent 48%);
+}
+.pg > .wrap { position: relative; z-index: 1; }
+.pg .section-head { max-width: 20ch; margin-bottom: 14px; }
+.pg-sub { margin: 0; font-size: clamp(16px, 1.9vw, 19px); line-height: 1.55; color: var(--muted); max-width: 54ch; }
+
+/* 7 shared row tracks; each card is a subgrid so every row (title, tags, seq,
+   status, description, button) lines up across all three cards */
+.pg-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(7, auto); gap: 20px; margin-top: 32px; }
+
+.pg-panel {
+  position: relative; overflow: hidden;
+  display: grid; grid-row: span 7; grid-template-rows: subgrid; row-gap: 14px;
+  background: #fff; border: 1px solid var(--hairline); border-radius: 22px;
+  padding: 24px 24px 26px; box-shadow: var(--shadow);
+}
+.pg-panel::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 3px; }
+.pg-panel.valid::before  { background: linear-gradient(90deg, var(--green), #86EFAC); }
+.pg-panel.attack::before { background: linear-gradient(90deg, #DC2626, #FCA5A5); }
+
+.pg-head { display: flex; align-items: center; gap: 10px; }
+.pg-ico { width: 52px; height: 52px; object-fit: contain; flex: 0 0 auto; filter: drop-shadow(0 6px 12px rgba(11,18,16,.14)); }
+.pg-tag-id { font-family: var(--mono); font-size: 12px; letter-spacing: .04em; }
+.pg-badge { margin-left: auto; }
+.pg-panel.valid  .pg-tag-id { color: var(--green-700); }
+.pg-panel.attack .pg-tag-id { color: #DC2626; }
+.pg-badge { width: 26px; height: 26px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; font-size: 13px; }
+.pg-badge.ok  { background: rgba(34,197,94,.14); color: var(--green-700); }
+.pg-badge.bad { background: rgba(220,38,38,.12); color: #DC2626; }
+
+.pg-panel h3 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.pg-tags { display: flex; flex-wrap: wrap; align-content: flex-start; align-items: flex-start; gap: 8px; }
+.pg-tags span { font-family: var(--mono); font-size: 12px; color: var(--muted); background: var(--surface); border: 1px solid var(--hairline); border-radius: 7px; padding: 5px 9px; }
+
+.pg-seq { display: flex; align-items: center; justify-content: center; padding: 14px 4px 8px; }
+.node { position: relative; flex: 0 0 auto; width: 15px; height: 15px; border-radius: 5px; border: 2px solid var(--hairline); background: #fff; transition: border-color .2s, background .2s, box-shadow .2s; }
+.node:not(:last-child) { margin-right: 20px; }
+.node:not(:last-child)::after { content: ""; position: absolute; left: calc(100% + 2px); top: 50%; width: 18px; height: 2px; transform: translateY(-50%); background: var(--hairline); transition: background .2s; }
+.node.on { border-color: var(--green); background: var(--green); box-shadow: 0 0 0 4px rgba(34,197,94,.15); }
+.node.on::after { background: var(--green); }
+.node.fail { border-color: #DC2626; background: #DC2626; box-shadow: 0 0 0 4px rgba(220,38,38,.16); }
+
+/* live status readout: idle prompt → per-node step label → final verdict badge */
+.pg-stage { display: flex; align-items: center; justify-content: center; min-height: 54px; }
+.pg-status { display: flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--mono); font-size: 13px; letter-spacing: .04em; }
+.st-idle { display: flex; align-items: center; gap: 10px; color: var(--muted-2); text-transform: uppercase; }
+.st-live { display: none; align-items: center; gap: 10px; color: var(--muted); }
+.st-live .st-txt { text-transform: uppercase; }
+.st-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(34,197,94,.15); transition: background .2s, box-shadow .2s; }
+.st-live.fail { color: #DC2626; }
+.st-live.fail .st-dot { background: #DC2626; box-shadow: 0 0 0 4px rgba(220,38,38,.16); }
+.pg-panel.running .st-idle { display: none; }
+.pg-panel.running .st-live { display: flex; }
+.pg-panel.ok .pg-status, .pg-panel.bad .pg-status { display: none; }
+.pg-result { display: flex; align-items: center; justify-content: center; }
+.pg-result .r-ok, .pg-result .r-bad { display: none; align-items: center; gap: 12px; font-family: var(--mono); font-size: 13px; letter-spacing: .05em; text-transform: uppercase; }
+.pg-panel.ok  .r-ok  { display: flex; color: var(--green-700); }
+.pg-panel.bad .r-bad { display: flex; color: #DC2626; }
+.ricon.idle { width: 30px; height: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; background: var(--surface); color: var(--muted-2); font-size: 12px; }
+.chk, .crs { width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
+.chk { background: rgba(34,197,94,.14); color: var(--green-700); }
+.chk::before { content: "\2713"; }
+.crs { background: rgba(220,38,38,.12); color: #DC2626; }
+.crs::before { content: "\2715"; }
+.pg-panel.done .pg-result { animation: pgpop .34s ease; }
+@keyframes pgpop { 0% { transform: scale(.92); opacity: .35; } 100% { transform: scale(1); opacity: 1; } }
+
+.pg-desc { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--muted); }
+.pg-desc code { font-family: var(--mono); font-size: .9em; background: var(--surface); border: 1px solid var(--hairline); border-radius: 5px; padding: 1px 5px; color: var(--ink); }
+
+.pg-run {
+  width: 100%; height: 50px; border-radius: 14px; cursor: pointer; background: #fff;
+  font-family: var(--mono); font-weight: 600; font-size: 13px; letter-spacing: .08em; text-transform: uppercase;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: .16s;
+}
+.pg-panel.valid  .pg-run { border: 1px solid rgba(34,197,94,.45); color: var(--green-700); }
+.pg-panel.valid  .pg-run:hover { background: rgba(34,197,94,.08); }
+.pg-panel.attack .pg-run { border: 1px solid rgba(220,38,38,.40); color: #DC2626; }
+.pg-panel.attack .pg-run:hover { background: rgba(220,38,38,.06); }
+.pg-run .arw { transition: transform .16s; }
+.pg-run:hover .arw { transform: translateX(3px); }
+
+.pg-foot { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--hairline); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 28px; }
+.pg-real { margin: 0; font-size: 15px; line-height: 1.5; color: var(--muted); max-width: 44ch; }
+.pg-links { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.pg-links .mono { margin: 0; font-family: var(--mono); font-size: 12.5px; color: var(--muted-2); overflow-wrap: anywhere; }
+.pg-links .mono a { color: var(--green-700); }
+.pg-links .mono a:hover { text-decoration: underline; }
+
+/* ===================== FINAL CTA (bg-cta) ===================== */
+/* match the photo's own aspect ratio (2752x1536) so the WHOLE image shows,
+   edge-to-edge, with no crop */
+.cta {
+  position: relative; aspect-ratio: 2752 / 1536; padding: 40px 0;
+  display: flex; align-items: center; text-align: center;
+  background-color: #F0FDF4;
+  background-image:
+    radial-gradient(60% 70% at 50% 50%, rgba(247,250,248,.86) 0%, rgba(247,250,248,.5) 45%, rgba(247,250,248,0) 75%),
+    url('backgrounds/bg-cta-landing.png');
+  background-size: cover, contain;
+  background-position: center, center;
+  background-repeat: no-repeat;
+}
+.cta-inner { max-width: 620px; margin: 0 auto; }
+.cta-inner h2 { margin: 0 0 12px; font-size: clamp(30px, 4.4vw, 48px); font-weight: 800; letter-spacing: -.02em; }
+.cta-inner p { margin: 0 0 28px; font-size: 18px; color: var(--muted); }
+
+/* ===================== FOOTER ===================== */
+.foot { padding: 56px 0 40px; border-top: 1px solid var(--hairline); background: var(--page); }
+.foot-grid { display: grid; grid-template-columns: 2fr 1fr 1.4fr; gap: 32px; }
+.foot-brand .brand { font-size: 19px; }
+.foot-brand p { margin: 12px 0 8px; font-size: 15px; color: var(--muted); max-width: 26ch; }
+.powered { font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--muted-2); text-transform: uppercase; }
+.foot-col { display: flex; flex-direction: column; gap: 10px; }
+.foot-head { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 4px; }
+.foot-col a { font-size: 15px; color: var(--muted); }
+.foot-col a:hover { color: var(--ink); }
+.road { margin: 0; font-size: 15px; color: var(--muted); }
+.foot-legal { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--hairline); font-size: 13px; color: var(--muted-2); }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .bento { grid-template-columns: 1fr; }
+  .bento-card.lg { grid-column: auto; grid-row: auto; }
+  .hero { padding: 24px 0 44px; }
+  .hero-card { min-height: 0; padding: 32px 24px 290px;
+    background-image: linear-gradient(180deg, rgba(240,253,244,.96) 0%, rgba(240,253,244,.72) 42%, rgba(240,253,244,0) 76%), url('backgrounds/bg-hero-landing.png');
+    background-position: center, center bottom; }
+  .hero-text { max-width: none; }
+  .hero .sub { max-width: none; }
+  .phones { grid-template-columns: 1fr; max-width: 300px; }
+  .phone.lift { transform: none; }
+  .safe { min-height: 0; padding: 48px 0 320px;
+    background-image: linear-gradient(180deg, var(--page) 0%, rgba(247,250,248,.85) 46%, rgba(247,250,248,0) 78%), url('backgrounds/bg-security-landing.png');
+    background-position: center, center bottom; }
+  .points { grid-template-columns: 1fr; }
+  .pg-grid { grid-template-columns: 1fr; grid-template-rows: none; }
+  .pg-panel { display: flex; flex-direction: column; grid-row: auto; gap: 14px; }
+  .pg-foot { flex-direction: column; align-items: flex-start; }
+  .pg-links { align-items: flex-start; }
+  .foot-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 540px) {
+  :root { --gutter: 18px; }
+  .actions { gap: 14px; }
+  .stats { flex-direction: column; }
+  .stat { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
+  .stat .l { margin-top: 0; }
+  .foot-grid { grid-template-columns: 1fr; }
+  .hero-card { padding-bottom: 250px; }
+  .safe { padding-bottom: 280px; }
+}
