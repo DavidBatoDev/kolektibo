@@ -9,6 +9,7 @@ import { shortAddr } from '../lib/identity'
 import { usdcReceiveStatus } from '../lib/poolClient'
 import { contractExplorerUrl } from '../lib/contract'
 import type { Policy } from '../lib/ai'
+import { usePayees, useAddPayee } from '../hooks/usePayees'
 
 type ProductionPolicy = Policy & { production?: { template?: string; contribution?: Record<string, unknown>; spending?: { categories?: ProductionCategory[]; expirationDays?: number; membersMayPropose?: boolean }; governance?: { approvalTiers?: ApprovalTier[]; targetApprovers?: number; creatorIsApprover?: boolean } } }
 type ProductionCategory = { name: string; description?: string; perSpendCap?: number | null; monthlyCap?: number | null; attachmentRequired?: boolean }
@@ -79,23 +80,28 @@ export function PoolMembersPage() {
 
 export function PoolPayeesPage() {
   const ctx = useContext()
-  const qc = useQueryClient()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [address, setAddress] = useState('')
   const [notes, setNotes] = useState('')
-  const payees = useQuery({ queryKey: ['payees', ctx.poolId], enabled: !!supabase, queryFn: async () => { const { data, error } = await supabase!.from('payees').select('*').eq('pool_id', ctx.poolId).order('name'); if (error) throw error; return data } })
-  const add = useMutation({
-    mutationFn: async () => {
-      if (!StrKey.isValidEd25519PublicKey(address.trim())) throw new Error('Enter a valid Stellar G… address.')
-      const status = await usdcReceiveStatus(address.trim())
-      if (status !== 'ok') throw new Error(status === 'no-account' ? 'That Stellar account is not active.' : 'That account does not have the pool USDC trustline.')
-      const { error } = await supabase!.from('payees').insert({ pool_id: ctx.poolId, name: name.trim(), stellar_address: address.trim(), notes: notes.trim() || null, verified: true })
-      if (error) throw error
-    },
-    onSuccess: () => { setOpen(false); setName(''); setAddress(''); setNotes(''); void qc.invalidateQueries({ queryKey: ['payees', ctx.poolId] }) },
-  })
-  return <PoolPage title="Payees" intro="Validate recipients before a request can become permanently pending on-chain."><div className="flex justify-end"><Button onClick={() => setOpen((value) => !value)}>{open ? 'Cancel' : 'Add payee'}</Button></div>{open && <Card className="space-y-4"><Field label="Payee name"><input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} placeholder="MVP Sports Depot" /></Field><Field label="Stellar address"><input className={inputClass} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="G…" /></Field><Field label="Notes" hint="Optional"><textarea className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} /></Field><Button disabled={!name.trim() || !address.trim()} loading={add.isPending} onClick={() => add.mutate()}>Validate and save</Button>{add.isError && <p className="text-xs text-rose-400">{String((add.error as Error).message)}</p>}</Card>}{payees.data?.length ? <div className="grid gap-3 sm:grid-cols-2">{payees.data.map((payee) => <Card key={payee.id}><div className="flex items-start justify-between"><div><p className="font-medium text-white">{payee.name}</p><p className="mt-1 font-mono text-xs text-slate-500">{shortAddr(payee.stellar_address, 8, 6)}</p></div><Badge tone={payee.verified ? 'green' : 'gold'}>{payee.verified ? 'verified' : 'check'}</Badge></div>{payee.notes && <p className="mt-3 text-xs text-slate-400">{payee.notes}</p>}</Card>)}</div> : !open && <Empty message="No saved payees yet." />}</PoolPage>
+  const payees = usePayees(ctx.poolId)
+  const add = useAddPayee(ctx.poolId)
+
+  const handleAdd = () => {
+    add.mutate(
+      { name, address, notes },
+      {
+        onSuccess: () => {
+          setOpen(false)
+          setName('')
+          setAddress('')
+          setNotes('')
+        },
+      }
+    )
+  }
+
+  return <PoolPage title="Payees" intro="Validate recipients before a request can become permanently pending on-chain."><div className="flex justify-end"><Button onClick={() => setOpen((value) => !value)}>{open ? 'Cancel' : 'Add payee'}</Button></div>{open && <Card className="space-y-4"><Field label="Payee name"><input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} placeholder="MVP Sports Depot" /></Field><Field label="Stellar address"><input className={inputClass} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="G…" /></Field><Field label="Notes" hint="Optional"><textarea className={inputClass} value={notes} onChange={(e) => setNotes(e.target.value)} /></Field><Button disabled={!name.trim() || !address.trim()} loading={add.isPending} onClick={handleAdd}>Validate and save</Button>{add.isError && <p className="text-xs text-rose-400">{String((add.error as Error).message)}</p>}</Card>}{payees.data?.length ? <div className="grid gap-3 sm:grid-cols-2">{payees.data.map((payee) => <Card key={payee.id}><div className="flex items-start justify-between"><div><p className="font-medium text-white">{payee.name}</p><p className="mt-1 font-mono text-xs text-slate-500">{shortAddr(payee.stellar_address, 8, 6)}</p></div><Badge tone={payee.verified ? 'green' : 'gold'}>{payee.verified ? 'verified' : 'check'}</Badge></div>{payee.notes && <p className="mt-3 text-xs text-slate-400">{payee.notes}</p>}</Card>)}</div> : !open && <Empty message="No saved payees yet." />}</PoolPage>
 }
 
 export function PoolGoalsPage() {
