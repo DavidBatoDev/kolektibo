@@ -27,8 +27,8 @@ export function SignUpPage() {
   return (
     <div className="mx-auto flex min-h-[70dvh] max-w-sm flex-col justify-center space-y-5 py-6">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-white">Create your account</h1>
-        <p className="mt-1 text-sm text-slate-400">Join Kolektibo</p>
+        <h1 className="text-2xl font-semibold text-ink-950">Create your account</h1>
+        <p className="mt-1 text-sm text-ink-700">Join Kolektibo</p>
       </div>
       <Card className="space-y-4">
         <Button variant="ghost" className="w-full" loading={google.isPending} onClick={() => google.mutate()}>
@@ -76,10 +76,10 @@ export function SignUpPage() {
             placeholder="••••••••"
           />
         </Field>
-        {tooShort && <p className="text-xs text-rose-400">Password must be at least 10 characters.</p>}
-        {mismatch && <p className="text-xs text-rose-400">Passwords don't match.</p>}
-        <div className="space-y-3 border-t border-white/5 pt-4 text-xs text-slate-400">
-          <label className="flex items-start gap-2"><input type="checkbox" className="mt-0.5 accent-brand-500" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} /><span>I agree to the <Link to="/legal/terms" className="text-brand-400">Terms</Link> and <Link to="/legal/privacy" className="text-brand-400">Privacy Notice</Link>.</span></label>
+        {tooShort && <p className="text-xs text-danger">Password must be at least 10 characters.</p>}
+        {mismatch && <p className="text-xs text-danger">Passwords don't match.</p>}
+        <div className="space-y-3 border-t border-ink-300 pt-4 text-xs text-ink-700">
+          <label className="flex items-start gap-2"><input type="checkbox" className="mt-0.5 accent-brand-500" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} /><span>I agree to the <Link to="/legal/terms" className="text-brand-600">Terms</Link> and <Link to="/legal/privacy" className="text-brand-600">Privacy Notice</Link>.</span></label>
           <label className="flex items-start gap-2"><input type="checkbox" className="mt-0.5 accent-brand-500" checked={ageConfirmed} onChange={(e) => setAgeConfirmed(e.target.checked)} /><span>I confirm that I am at least 18 years old.</span></label>
           <label className="flex items-start gap-2"><input type="checkbox" className="mt-0.5 accent-brand-500" checked={marketingConsent} onChange={(e) => setMarketingConsent(e.target.checked)} /><span>Send me optional product updates.</span></label>
         </div>
@@ -91,11 +91,11 @@ export function SignUpPage() {
         >
           Create account
         </Button>
-        {m.isError && <p className="text-center text-xs text-rose-400">{authErrorMessage(m.error)}</p>}
-        {google.isError && <p className="text-center text-xs text-rose-400">Could not start Google sign-up. Please try again.</p>}
-        <p className="text-center text-xs text-slate-400">
+        {m.isError && <p className="text-center text-xs text-danger">{authErrorMessage(m.error)}</p>}
+        {google.isError && <p className="text-center text-xs text-danger">Could not start Google sign-up. Please try again.</p>}
+        <p className="text-center text-xs text-ink-700">
           Already have an account?{' '}
-          <Link to="/auth/sign-in" className="text-brand-400 hover:text-brand-300">
+          <Link to="/auth/sign-in" className="text-brand-600 hover:text-brand-700">
             Sign in
           </Link>
         </p>

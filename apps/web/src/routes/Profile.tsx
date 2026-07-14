@@ -61,11 +61,11 @@ export function ProfilePage() {
       {/* Identity + avatar */}
       <Card className="flex items-center gap-4">
         <label className="relative cursor-pointer">
-          <div className="h-16 w-16 overflow-hidden rounded-full bg-ink-950 ring-1 ring-white/10">
+          <div className="h-16 w-16 overflow-hidden rounded-full bg-paper-100 ring-1 ring-ink-300">
             {avatarUrl ? (
               <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-xl text-slate-500">
+              <div className="flex h-full w-full items-center justify-center text-xl text-ink-500">
                 {(displayName || user?.email || '?').slice(0, 1).toUpperCase()}
               </div>
             )}
@@ -79,17 +79,17 @@ export function ProfilePage() {
               if (f) uploadAvatar.mutate(f)
             }}
           />
-          <span className="absolute -bottom-1 -right-1 rounded-full bg-brand-600 px-1.5 py-0.5 text-[10px] font-medium text-white">
+          <span className="absolute -bottom-1 -right-1 rounded-full bg-brand-500 px-1.5 py-0.5 text-[10px] font-medium text-white">
             {uploadAvatar.isPending ? '…' : 'edit'}
           </span>
         </label>
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-white">{displayName || 'Your profile'}</p>
-          <p className="truncate text-xs text-slate-500">{user?.email}</p>
+          <p className="truncate text-sm font-semibold text-ink-950">{displayName || 'Your profile'}</p>
+          <p className="truncate text-xs text-ink-500">{user?.email}</p>
         </div>
       </Card>
       {uploadAvatar.isError && (
-        <p className="text-xs text-rose-400">Avatar upload failed. Try a smaller image.</p>
+        <p className="text-xs text-danger">Avatar upload failed. Try a smaller image.</p>
       )}
 
       {/* Profile */}
@@ -125,8 +125,8 @@ export function ProfilePage() {
           >
             Save profile
           </Button>
-          {updateProfile.isSuccess && <p className="text-xs text-emerald-400">Saved ✓</p>}
-          {updateProfile.isError && <p className="text-xs text-rose-400">Couldn't save. Try again.</p>}
+          {updateProfile.isSuccess && <p className="text-xs text-brand-700">Saved ✓</p>}
+          {updateProfile.isError && <p className="text-xs text-danger">Couldn't save. Try again.</p>}
         </Card>
       </div>
 
@@ -153,11 +153,11 @@ export function ProfilePage() {
             </select>
           </Field>
           <div>
-            <span className="mb-1.5 block text-sm font-medium text-slate-300">Notifications</span>
+            <span className="mb-1.5 block text-sm font-medium text-ink-700">Notifications</span>
             <div className="space-y-2">
               {NOTIF_ROWS.map(([key, label]) => (
                 <label key={key} className="flex items-center justify-between">
-                  <span className="text-sm text-slate-300">{label}</span>
+                  <span className="text-sm text-ink-700">{label}</span>
                   <input
                     type="checkbox"
                     className="h-4 w-4 accent-brand-500"
@@ -176,14 +176,14 @@ export function ProfilePage() {
           >
             Save settings
           </Button>
-          {updateSettings.isSuccess && <p className="text-xs text-emerald-400">Saved ✓</p>}
-          {updateSettings.isError && <p className="text-xs text-rose-400">Couldn't save. Try again.</p>}
+          {updateSettings.isSuccess && <p className="text-xs text-brand-700">Saved ✓</p>}
+          {updateSettings.isError && <p className="text-xs text-danger">Couldn't save. Try again.</p>}
         </Card>
       </div>
 
       <button
         onClick={onSignOut}
-        className="w-full py-2 text-center text-xs text-slate-500 hover:text-slate-300"
+        className="w-full py-2 text-center text-xs text-ink-500 hover:text-ink-700"
       >
         Sign out
       </button>

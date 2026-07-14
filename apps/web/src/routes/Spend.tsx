@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { usePool, usePoolActions, usePoolBalance } from '../hooks/usePool'
 import { poolBalance } from '../lib/pool'
 import type { Spend } from '../lib/pool'
-import { Badge, Button, Card, Field, inputClass, peso, SectionLabel } from '../components/ui'
+import { Badge, Button, Card, Field, inputClass, List, Row, peso, SectionLabel } from '../components/ui'
 import { explorerTxUrl } from '../lib/stellar'
 
 export function SpendPage() {
@@ -43,10 +43,10 @@ export function SpendPage() {
     <div className="space-y-5">
       <Card className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-slate-500">Available to spend</p>
-          <p className="text-2xl font-bold text-white">{peso(balance)}</p>
+          <p className="text-xs text-ink-500">Available to spend</p>
+          <p className="text-2xl font-bold text-ink-950">{peso(balance)}</p>
         </div>
-        <Button variant="gold" onClick={() => setOpen((v) => !v)}>
+        <Button variant={open ? 'secondary' : 'primary'} onClick={() => setOpen((v) => !v)}>
           {open ? 'Cancel' : 'Request a spend'}
         </Button>
       </Card>
@@ -110,13 +110,13 @@ export function SpendPage() {
           </Field>
 
           {overLimit && (
-            <p className="text-xs text-rose-400">
+            <p className="text-xs text-danger">
               Over the {category} monthly limit ({peso(cat!.monthlyLimit!)}). The contract will
               reject this.
             </p>
           )}
           {overBalance && (
-            <p className="text-xs text-rose-400">Exceeds the pool balance.</p>
+            <p className="text-xs text-danger">Exceeds the pool balance.</p>
           )}
 
           <Button
@@ -144,7 +144,7 @@ export function SpendPage() {
           >
             Submit request
           </Button>
-          <p className="text-center text-xs text-slate-500">
+          <p className="text-center text-xs text-ink-500">
             Needs {pool.policy.approval.threshold} of {pool.policy.approval.of} officers to
             approve before any {pool.currency} moves.
           </p>
@@ -155,7 +155,7 @@ export function SpendPage() {
         <SectionLabel>Awaiting approval</SectionLabel>
         {pending.length === 0 ? (
           <Card>
-            <p className="text-sm text-slate-500">Nothing pending.</p>
+            <p className="text-sm text-ink-500">Nothing pending.</p>
           </Card>
         ) : (
           <div className="space-y-3">
@@ -168,32 +168,31 @@ export function SpendPage() {
 
       <div>
         <SectionLabel>Completed</SectionLabel>
-        <Card className="divide-y divide-white/5 p-0">
-          {done.length === 0 && <p className="p-4 text-sm text-slate-500">None yet.</p>}
+        <List>
+          {done.length === 0 && <p className="px-4 py-8 text-center text-sm text-ink-500">None yet.</p>}
           {done.map((s) => (
-            <div key={s.id} className="flex items-center justify-between p-4">
-              <div>
-                <p className="text-sm font-medium text-white">{s.recipientName}</p>
-                <p className="text-xs text-slate-500">
-                  {s.category} · {s.memo}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-white">−{peso(s.amount)}</p>
-                {s.executeTx && (
-                  <a
-                    href={explorerTxUrl(s.executeTx)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[11px] text-brand-400 hover:underline"
-                  >
-                    view release tx ↗
-                  </a>
-                )}
-              </div>
-            </div>
+            <Row
+              key={s.id}
+              title={s.recipientName}
+              subtitle={`${s.category} · ${s.memo}`}
+              trailing={
+                <div className="text-right">
+                  <p className="text-[15px] font-semibold text-ink-950">−{peso(s.amount)}</p>
+                  {s.executeTx && (
+                    <a
+                      href={explorerTxUrl(s.executeTx)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] text-brand-700 hover:underline"
+                    >
+                      view release tx ↗
+                    </a>
+                  )}
+                </div>
+              }
+            />
           ))}
-        </Card>
+        </List>
       </div>
     </div>
   )
@@ -213,10 +212,10 @@ function SpendRow({ spend }: { spend: Spend }) {
     <Card className="space-y-3">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-semibold text-white">
+          <p className="text-sm font-semibold text-ink-950">
             {peso(spend.amount)} → {spend.recipientName}
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-500">
             {spend.category} · {spend.memo} · by {spend.proposedBy}
           </p>
           {spend.requestTx && (
@@ -224,13 +223,13 @@ function SpendRow({ spend }: { spend: Spend }) {
               href={explorerTxUrl(spend.requestTx)}
               target="_blank"
               rel="noreferrer"
-              className="text-[11px] text-brand-400 hover:underline"
+              className="text-[11px] text-brand-700 hover:underline"
             >
               request tx ↗
             </a>
           )}
         </div>
-        <Badge tone={ready ? 'green' : 'gold'}>
+        <Badge tone={ready ? 'brand' : 'gold'}>
           {spend.approvals.length}/{threshold} approvals
         </Badge>
       </div>
@@ -244,10 +243,10 @@ function SpendRow({ spend }: { spend: Spend }) {
               key={o.address}
               disabled={approved}
               onClick={() => approveSpend.mutate({ id: spend.id, officerName: o.name })}
-              className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 transition ${
+              className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition ${
                 approved
-                  ? 'bg-emerald-500/15 text-emerald-400 ring-emerald-500/30'
-                  : 'bg-white/5 text-slate-300 ring-white/10 hover:bg-white/10'
+                  ? 'bg-brand-100 text-brand-700'
+                  : 'bg-paper-100 text-ink-700 hover:bg-ink-300/50'
               }`}
             >
               {approved ? '✓ ' : '+ '}
@@ -258,7 +257,7 @@ function SpendRow({ spend }: { spend: Spend }) {
       </div>
 
       <Button
-        variant="primary"
+        variant="gold"
         disabled={!canExecute}
         loading={executeSpend.isPending}
         onClick={() => executeSpend.mutate({ id: spend.id })}
@@ -267,10 +266,10 @@ function SpendRow({ spend }: { spend: Spend }) {
         {ready ? `Release ${peso(spend.amount)} in ${pool.currency}` : 'Waiting for approvals'}
       </Button>
       {executeSpend.isPending && (
-        <p className="text-center text-[11px] text-slate-500">Signing & releasing on-chain…</p>
+        <p className="text-center text-[11px] text-ink-500">Signing & releasing on-chain…</p>
       )}
       {(approveSpend.isError || executeSpend.isError) && (
-        <p className="text-center text-[11px] text-rose-400">
+        <p className="text-center text-[11px] text-danger">
           {((executeSpend.error || approveSpend.error) as Error)?.message?.slice(0, 140)}
         </p>
       )}

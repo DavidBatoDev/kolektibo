@@ -1,21 +1,108 @@
+/* Fonts must precede all other rules. Plus Jakarta Sans (geometric-humanist, to 800)
+   for UI; JetBrains Mono for Stellar addresses + tx hashes. If the ₱ glyph (U+20B1)
+   renders thin/substituted at weight 800, the font lacks it — fall back to Inter. */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+/* ============================================================
+   J0 — Design tokens (light mode: green + gold)
+   EXTEND, don't rename: brand-* teal→green, ink-* now = text + dark
+   buttons (not page bg), gold-* = coins/rewards only, paper-* = NEW light surfaces.
+   ============================================================ */
 @theme {
-  /* Kolektibo brand — trust teal + warm peso gold on deep ink */
-  --color-ink-950: #070c15;
-  --color-ink-900: #0b1220;
-  --color-ink-800: #111b2e;
-  --color-ink-700: #1b2942;
-  --color-brand-400: #2dd4bf;
-  --color-brand-500: #14b8a6;
-  --color-brand-600: #0d9488;
-  --color-brand-700: #0f766e;
-  --color-gold-400: #fbbf24;
-  --color-gold-500: #f59e0b;
+  /* --- Type families --- */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* --- Brand: vivid green --- */
+  --color-brand-50:  #F0FDF4;
+  --color-brand-100: #DCFCE7;
+  --color-brand-200: #BBF7D0;
+  --color-brand-300: #86EFAC;
+  --color-brand-400: #4ADE80;
+  --color-brand-500: #22C55E;  /* PRIMARY green: pills, accents */
+  --color-brand-600: #16A34A;  /* hover / pressed */
+  --color-brand-700: #15803D;  /* text on mint, icon strokes */
+
+  /* --- Ink: text + dark buttons --- */
+  --color-ink-950: #0B1210;  /* headings, the money number */
+  --color-ink-900: #14211C;  /* primary dark button fill */
+  --color-ink-800: #263832;
+  --color-ink-700: #5B6B65;  /* secondary text, captions */
+  --color-ink-500: #94A39D;  /* placeholder, disabled */
+  --color-ink-300: #D5DDD9;  /* hairline borders, dividers */
+
+  /* --- Paper: light surfaces (NEW) --- */
+  --color-paper-0:    #FFFFFF;
+  --color-paper-50:   #F7FAF8;
+  --color-paper-100:  #EEF3F0;
+
+  /* --- Gold: coins, rewards, payouts only --- */
+  --color-gold-300: #FCD34D;
+  --color-gold-400: #FBBF24;
+  --color-gold-500: #F59E0B;
+  --color-gold-700: #B45309;
+
+  /* --- Semantic --- */
+  --color-success: #16A34A;
+  --color-warning: #F59E0B;
+  --color-danger:  #DC2626;
+
+  /* --- Radius --- */
+  --radius-sm:   8px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+  --radius-xl:  26px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;
+
+  /* --- Spacing (4px base) --- */
+  --spacing-1:  4px;
+  --spacing-2:  8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-12: 48px;
+
+  /* --- Type --- */
+  --text-money:   40px;
+  --text-money--line-height: 1.05;
+  --text-h1:      26px;
+  --text-h2:      19px;
+  --text-body:    15px;
+  --text-label:   13px;
+  --text-caption: 11px;
+
+  --font-weight-normal:    400;
+  --font-weight-medium:    500;
+  --font-weight-semibold:  600;
+  --font-weight-bold:      700;
+  --font-weight-extrabold: 800;
+
+  --tracking-money:   -0.02em;
+  --tracking-heading: -0.01em;
+  --tracking-caption:  0.04em;
+
+  /* --- Elevation: soft + green-tinted, never gray --- */
+  --shadow-card:  0 2px 8px rgba(11,18,16,0.04),
+                  0 8px 24px rgba(11,18,16,0.06);
+  --shadow-lift:  0 4px 12px rgba(11,18,16,0.06),
+                  0 16px 40px rgba(11,18,16,0.10);
+  --shadow-green: 0 8px 24px rgba(34,197,94,0.28);
+
+  /* --- Gradients: SURFACES ONLY. never text, never borders. --- */
+  --gradient-page: linear-gradient(180deg, #ECFDF3 0%, #F7FAF8 42%, #F7FAF8 100%);
+  --gradient-hero: linear-gradient(145deg, #4ADE80 0%, #22C55E 45%, #15803D 100%);
+  --gradient-mint: linear-gradient(160deg, #DCFCE7 0%, #F0FDF4 100%);
+  --gradient-data: linear-gradient(180deg, #86EFAC 0%, #22C55E 55%, #16A34A 100%);
+  --gradient-glow: radial-gradient(circle, rgba(74,222,128,0.35) 0%, rgba(74,222,128,0) 70%);
+  --gradient-fade: linear-gradient(180deg, rgba(247,250,248,0) 0%, #F7FAF8 100%);
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -29,19 +116,29 @@ body,
   height: 100%;
 }
 
-body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color: #e2e8f0;
-  background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(13, 148, 136, 0.18), transparent 60%),
-    radial-gradient(900px 500px at 90% 10%, rgba(245, 158, 11, 0.08), transparent 55%),
-    var(--color-ink-950);
-  /* body is viewport-height while pages overflow it — without no-repeat the glows
-     tile again every viewport-height, leaving a visible seam on tall pages */
-  background-repeat: no-repeat;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+@layer base {
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background-image: var(--gradient-page);
+    background-attachment: fixed;
+    color: var(--color-ink-950);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Money must not jitter when the balance counts up: tabular figures are fixed-width. */
+  .tabular-nums,
+  .money,
+  [data-money] {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Bottom-sheet entrance (referenced by Sheet in ui.tsx). */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
 
 /* Hide scrollbars inside the phone frame but keep scrolling */
@@ -51,4 +148,115 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ============================================================
+   Surface / money utilities — so nobody writes bg-[image:var(--gradient-hero)]
+   ============================================================ */
+@utility bg-page { background-image: var(--gradient-page); }
+@utility bg-hero { background-image: var(--gradient-hero); }
+@utility bg-mint { background-image: var(--gradient-mint); }
+@utility bg-data { background-image: var(--gradient-data); }
+@utility bg-glow { background-image: var(--gradient-glow); }
+@utility bg-fade { background-image: var(--gradient-fade); }
+
+@utility money {
+  font-size: var(--text-money);
+  line-height: 1.05;
+  font-weight: var(--font-weight-extrabold);
+  letter-spacing: var(--tracking-money);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-950);
+}
+
+/* ============================================================
+   textures — the ambient layer. Texture lives on the PAGE, behind cards.
+   Never inside a card, never behind a money number. If you can clearly SEE
+   it, turn it down.
+   ============================================================ */
+
+/* 1. DOT GRID — the workhorse. Sits on the page background, under everything. */
+@utility texture-dots {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-brand-700) 9%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 12px 12px;
+}
+
+/* 2. HALFTONE FADE — dots that dissolve toward the centre; frames a header. */
+@utility texture-halftone {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-brand-700) 14%, transparent) 1.5px,
+    transparent 1.5px
+  );
+  background-size: 10px 10px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, transparent 40%, #000 100%);
+          mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, transparent 40%, #000 100%);
+}
+
+/* 3. GRAIN — a whisper of noise over a flat gradient. Keep opacity 0.03–0.05. */
+@utility texture-grain {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* 4. AURA — two soft blobs of colour behind the page. ONE aura per screen. */
+@utility texture-aura {
+  background-image:
+    radial-gradient(ellipse 60% 40% at 15% 0%,   color-mix(in srgb, var(--color-brand-400) 22%, transparent), transparent 70%),
+    radial-gradient(ellipse 50% 35% at 95% 12%,  color-mix(in srgb, var(--color-gold-400)  14%, transparent), transparent 70%),
+    var(--gradient-page);
+  background-attachment: fixed;
+}
+
+/* 5. PESO WATERMARK — a huge ₱ bleeding off the hero card corner. Hero card ONLY,
+   and only if there's no 3D object there already. One or the other, never both. */
+@utility texture-peso {
+  position: relative;
+  overflow: hidden;
+  &::before {
+    content: "₱";
+    position: absolute;
+    right: -0.12em;
+    bottom: -0.42em;
+    font-size: 13rem;
+    font-weight: 800;
+    line-height: 1;
+    color: rgb(255 255 255 / 0.09);
+    pointer-events: none;
+    user-select: none;
+  }
+}
+
+/* 6. SHINE — a single static diagonal band of light across the hero card. */
+@utility texture-shine {
+  position: relative;
+  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      rgb(255 255 255 / 0.10) 45%,
+      rgb(255 255 255 / 0.02) 58%,
+      transparent 70%
+    );
+  }
+}
+
+/* 7. FADE MASK — dissolves a scrolling list into the bottom nav. */
+@utility texture-fade-bottom {
+  -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 82%, transparent 100%);
 }

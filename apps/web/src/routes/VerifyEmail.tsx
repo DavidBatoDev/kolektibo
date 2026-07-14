@@ -47,9 +47,9 @@ export function VerifyEmailPage() {
     <div className="mx-auto flex min-h-[70dvh] max-w-sm flex-col justify-center space-y-5 py-6">
       <div className="text-center">
         <div className="text-4xl">📩</div>
-        <h1 className="text-2xl font-semibold text-white">Verify your email</h1>
-        <p className="mt-1 text-sm text-slate-400">
-          We sent a 6-digit code to <span className="text-slate-200">{user?.email}</span>.
+        <h1 className="text-2xl font-semibold text-ink-950">Verify your email</h1>
+        <p className="mt-1 text-sm text-ink-700">
+          We sent a 6-digit code to <span className="text-ink-950">{user?.email}</span>.
         </p>
       </div>
       <Card className="space-y-4">
@@ -72,14 +72,14 @@ export function VerifyEmailPage() {
           Verify
         </Button>
         {verify.isError && (
-          <p className="text-center text-xs text-rose-400">
+          <p className="text-center text-xs text-danger">
             {String((verify.error as Error)?.message || 'Invalid code')}
           </p>
         )}
         <button
           disabled={cooldown > 0 || resend.isPending || !user}
           onClick={() => resend.mutate()}
-          className="w-full text-center text-xs text-brand-400 hover:text-brand-300 disabled:text-slate-600"
+          className="w-full text-center text-xs text-brand-600 hover:text-brand-700 disabled:text-ink-500"
         >
           {cooldown > 0
             ? `Resend in ${cooldown}s`
@@ -92,7 +92,7 @@ export function VerifyEmailPage() {
       </Card>
       <button
         onClick={onSignOut}
-        className="w-full py-2 text-center text-xs text-slate-500 hover:text-slate-300"
+        className="w-full py-2 text-center text-xs text-ink-500 hover:text-ink-700"
       >
         Sign out
       </button>
