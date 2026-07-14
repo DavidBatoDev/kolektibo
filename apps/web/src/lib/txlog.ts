@@ -24,6 +24,11 @@ export function getTx(key: string): string | undefined {
   return load()[key]
 }
 
+/** Read-only access for the no-env activity feed. */
+export function getTxLog(): TxLog {
+  return load()
+}
+
 /** Best-effort extraction of the tx hash from a SentTransaction (SDK shape varies). */
 export function hashOf(sent: unknown): string {
   const s = sent as {

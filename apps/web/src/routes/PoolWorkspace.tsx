@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { StrKey } from '@stellar/stellar-sdk'
 import { Badge, Button, Card, Field, SectionLabel, inputClass, peso } from '../components/ui'
 import { useMyMembership, usePoolDetail, usePoolState, useRoster } from '../hooks/usePools'
+import { useActivityFeed, type ActivityEvent } from '../hooks/useActivityFeed'
 import { supabase } from '../lib/supabase'
 import { shortAddr } from '../lib/identity'
 import { usdcReceiveStatus } from '../lib/poolClient'
@@ -28,13 +29,43 @@ function useContext() {
   return { poolId, spendId, pool, state, roster, membership, policy, nameFor }
 }
 
-export function PoolActivityPage() {
+function LegacyPoolActivityPage() {
   const ctx = useContext()
   const rows = useMemo(() => [
     ...(ctx.state.data?.spends.map((spend) => ({ key: `spend-${spend.id}`, type: spend.executed ? 'Funds released' : 'Spend requested', detail: `${peso(spend.amount)} · ${spend.category} · ${ctx.nameFor(spend.recipient)}`, status: spend.executed ? 'paid' : `${spend.approvals.length}/${ctx.state.data?.threshold} approvals`, spendId: spend.id })) ?? []),
     ...(ctx.state.data?.members.map((member) => ({ key: `member-${member.address}`, type: 'Contribution total', detail: `${ctx.nameFor(member.address)} · ${peso(member.contributed)}`, status: 'confirmed', spendId: null })) ?? []),
   ], [ctx.state.data, ctx.roster.data])
   return <PoolPage title="Activity" intro="Current on-chain spending and contribution records for this pool.">{ctx.state.isLoading ? <Loading /> : rows.length ? <Card className="divide-y divide-white/5 p-0">{rows.map((row) => <div key={row.key} className="flex items-start justify-between gap-3 p-4"><div><p className="text-sm font-medium text-white">{row.type}</p><p className="mt-1 text-xs text-slate-500">{row.detail}</p></div><div className="text-right"><Badge tone={row.status === 'paid' || row.status === 'confirmed' ? 'green' : 'gold'}>{row.status}</Badge>{row.spendId && <Link to="/app/pools/$poolId/spends/$spendId" params={{ poolId: ctx.poolId, spendId: String(row.spendId) }} className="mt-2 block text-xs text-brand-400">Details →</Link>}</div></div>)}</Card> : <Empty message="No confirmed pool activity yet." />}</PoolPage>
+}
+
+export function PoolActivityPage() {
+  const ctx = useContext()
+  const activity = useActivityFeed(ctx.pool.data?.contract_id)
+  return <PoolPage title="Activity" intro="Confirmed on-chain activity, newest first.">
+    {activity.isLoading ? <Loading /> : activity.isError ? <Empty message="The activity feed could not be loaded. Current pool balances are still available on Stellar." /> : activity.events.length ? <>
+      <Card className="divide-y divide-white/5 p-0">{activity.events.map((event) => <ActivityRow key={event.id} event={event} nameFor={ctx.nameFor} threshold={ctx.state.data?.threshold} />)}</Card>
+      {activity.hasNextPage && <Button variant="ghost" className="w-full" loading={activity.isFetchingNextPage} onClick={() => activity.fetchNextPage()}>Load earlier activity</Button>}
+    </> : <Empty message="Confirmed contributions, requests, approvals, and releases will appear here." />}
+  </PoolPage>
+}
+
+function ActivityRow({ event, nameFor, threshold }: { event: ActivityEvent; nameFor: (address: string) => string; threshold?: number }) {
+  const payload = event.payload ?? {}
+  const amount = typeof payload.amount === 'string' || typeof payload.amount === 'number' ? Number(payload.amount) / 10_000_000 : null
+  const actorAddress = typeof payload.from === 'string' ? payload.from : typeof payload.officer === 'string' ? payload.officer : typeof payload.proposer === 'string' ? payload.proposer : null
+  const actor = actorAddress ? nameFor(actorAddress) : null
+  const category = typeof payload.category === 'string' ? payload.category : null
+  const spendId = typeof payload.id === 'number' ? payload.id : typeof payload.spend_id === 'number' ? payload.spend_id : null
+  const line = event.eventType === 'contrib' ? `${actor ?? 'A member'} contributed ${amount === null ? 'funds' : peso(amount)}` : event.eventType === 'spend_req' ? `${actor ?? 'An officer'} requested ${amount === null ? 'a spend' : peso(amount)}${category ? ` for ${category}` : ''}` : event.eventType === 'approve' ? `${actor ?? 'An officer'} approved spend #${spendId ?? ''}` : `${threshold ? `${threshold} approvals met — ` : ''}${amount === null ? 'Funds' : peso(amount)} released`
+  return <div className="flex items-start justify-between gap-3 p-4"><div className="min-w-0"><p className="text-sm font-medium text-white">{line}</p><p className="mt-1 text-xs text-slate-500">{relativeTime(event.occurredAt)}{event.ledger ? ` · ledger ${event.ledger}` : ''}</p></div><a href={`https://stellar.expert/explorer/testnet/tx/${event.txHash}`} target="_blank" rel="noreferrer" className="shrink-0 font-mono text-xs text-brand-400 hover:underline">{event.txHash.slice(0, 6)}…{event.txHash.slice(-4)}</a></div>
+}
+
+function relativeTime(value: string): string {
+  const seconds = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 1_000))
+  if (seconds < 60) return 'just now'
+  if (seconds < 3_600) return `${Math.floor(seconds / 60)}m ago`
+  if (seconds < 86_400) return `${Math.floor(seconds / 3_600)}h ago`
+  return `${Math.floor(seconds / 86_400)}d ago`
 }
 
 export function PoolContributionsPage() {
