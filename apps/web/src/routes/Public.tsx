@@ -1,68 +1,6 @@
 import { Link, useParams } from '@tanstack/react-router'
 import { Badge, Button, Card } from '../components/ui'
 
-const PRODUCT_POINTS = [
-  ['Create rules together', 'Set contribution expectations, spending categories, limits, and approval thresholds before money moves.'],
-  ['Members keep control', 'Every contribution and approval is signed by a member wallet. Kolektibo never holds the group’s keys.'],
-  ['See the whole story', 'Balances, requests, approvals, and releases stay traceable on Stellar and readable in plain language.'],
-] as const
-
-export function LandingPage() {
-  return (
-    <div className="space-y-20 pb-16 pt-10 sm:pt-20">
-      <section className="mx-auto max-w-4xl text-center">
-        <Badge tone="green">Private group treasuries · Stellar testnet beta</Badge>
-        <h1 className="mt-6 text-4xl font-bold tracking-tight text-ink-950 sm:text-6xl">
-          Pooled money your whole group can trust.
-        </h1>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-ink-700 sm:text-lg">
-          Kolektibo helps barangays, clubs, teams, projects, and co-ops collect funds and approve
-          spending together. The smart contract enforces the rules; the AI only explains them.
-        </p>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link to="/auth/sign-up">
-            <Button className="w-full sm:w-auto">Create an account</Button>
-          </Link>
-          <Link to="/demo">
-            <Button variant="ghost" className="w-full sm:w-auto">Explore the testnet demo</Button>
-          </Link>
-        </div>
-        <p className="mt-4 text-xs text-ink-500">No real funds are used in the current beta.</p>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-3">
-        {PRODUCT_POINTS.map(([title, body], index) => (
-          <Card key={title} className="h-full">
-            <span className="text-xs font-semibold text-brand-400">0{index + 1}</span>
-            <h2 className="mt-3 text-lg font-semibold text-ink-950">{title}</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-500">{body}</p>
-          </Card>
-        ))}
-      </section>
-
-      <section className="rounded-3xl bg-linear-to-br from-brand-700/30 to-ink-800/70 p-6 ring-1 ring-brand-500/20 sm:p-10">
-        <div className="grid gap-8 md:grid-cols-[1.2fr_1fr] md:items-center">
-          <div>
-            <p className="text-sm font-semibold text-gold-400">One clear approval flow</p>
-            <h2 className="mt-2 text-3xl font-bold text-ink-950">Contribute. Request. Approve. Release.</h2>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-ink-700">
-              A treasurer proposes a payment, the group’s approvers sign, and the contract releases
-              USDC only after the configured threshold is met. No administrator can bypass it.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-center text-sm">
-            {['Private invites', 'Shared approvals', 'Live activity', 'Audit exports'].map((item) => (
-              <div key={item} className="rounded-2xl bg-black/15 px-3 py-4 text-slate-200 ring-1 ring-ink-200">
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </div>
-  )
-}
-
 const INFO: Record<string, { eyebrow: string; title: string; intro: string; items: [string, string][] }> = {
   'how-it-works': {
     eyebrow: 'How it works',

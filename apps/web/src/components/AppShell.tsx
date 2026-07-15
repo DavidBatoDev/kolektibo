@@ -14,43 +14,11 @@ export function AppShell() {
   const isInvite = pathname.startsWith('/invite/') || pathname.startsWith('/join/')
   const isPublic = !isAuth && !isDemo && !isInvite && PUBLIC_PATHS.some((path) => path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`))
 
-  if (pathname === '/') return <LandingShell />
+  if (pathname === '/') return <Outlet />
   if (isPublic) return <PublicShell />
   if (isAuth || isInvite) return <FocusShell />
   if (isDemo) return <DemoShell />
   return <ProductShell />
-}
-
-/** The marketing landing page is the only deliberately wide page. */
-function LandingShell() {
-  const { user } = useAuth()
-  return (
-    <div className="min-h-dvh">
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-ink-950/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-5 px-4 py-3 sm:px-6">
-          <Brand />
-          <nav className="hidden items-center gap-5 text-sm text-ink-500 md:flex">
-            <Link to="/how-it-works" activeProps={{ className: 'text-ink-950' }} className="hover:text-ink-950">How it works</Link>
-            <Link to="/features" activeProps={{ className: 'text-ink-950' }} className="hover:text-ink-950">Features</Link>
-            <Link to="/security" activeProps={{ className: 'text-ink-950' }} className="hover:text-ink-950">Security</Link>
-            <Link to="/pricing" activeProps={{ className: 'text-ink-950' }} className="hover:text-ink-950">Pricing</Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Link to={user ? '/app' : '/auth/sign-in'} className="rounded-xl px-3 py-2 text-sm text-ink-700 hover:text-ink-950">{user ? 'Open app' : 'Sign in'}</Link>
-            {!user && <Link to="/auth/sign-up" className="hidden rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-ink-950 hover:bg-brand-500 sm:block">Get started</Link>}
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-4 sm:px-6"><Outlet /></main>
-      <footer className="border-t border-white/5">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-sm sm:grid-cols-4 sm:px-6">
-          <div className="sm:col-span-2"><Brand /><p className="mt-3 max-w-sm text-xs leading-5 text-ink-500">A non-custodial group treasury for Filipino communities. Testnet beta only.</p></div>
-          <div className="space-y-2"><p className="font-medium text-ink-950">Product</p><Link to="/about" className="block text-ink-500 hover:text-ink-700">About</Link><Link to="/help" className="block text-ink-500 hover:text-ink-700">Help</Link><Link to="/status" className="block text-ink-500 hover:text-ink-700">Status</Link></div>
-          <div className="space-y-2"><p className="font-medium text-ink-950">Legal</p><Link to="/legal/terms" className="block text-ink-500 hover:text-ink-700">Terms</Link><Link to="/legal/privacy" className="block text-ink-500 hover:text-ink-700">Privacy</Link><Link to="/legal/risk" className="block text-ink-500 hover:text-ink-700">Risk</Link></div>
-        </div>
-      </footer>
-    </div>
-  )
 }
 
 /** Public reading pages use the same phone frame as the member product. */

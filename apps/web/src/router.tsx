@@ -19,10 +19,10 @@ import { PoolSpendPage } from './routes/PoolSpend'
 import { JoinPage } from './routes/Join'
 import { requireAuth, requireProductionAuth } from './lib/authGuard'
 import { supabase } from './lib/supabase'
+import { LandingPage } from './routes/LandingPage'
 import {
   HelpArticlePage,
   HelpPage,
-  LandingPage,
   LegalPage,
   PublicInfoPage,
   StatusPage,
