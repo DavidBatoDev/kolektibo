@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import * as api from '../lib/poolsApi'
 import { readPoolState } from '../lib/poolClient'
-import { createPoolOnChain } from '../lib/backend'
+import { createAgentPoolOnChain } from '../lib/backend'
 import type { Policy } from '../lib/ai'
 
 export function usePools() {
@@ -107,8 +107,9 @@ export function useDeployPool(poolId: string) {
   return useMutation({
     mutationFn: async (input: { officerAddresses: string[]; threshold: number; policy?: Policy | null }) => {
       if (input.policy) await api.updatePoolPolicy(poolId, input.policy).catch(() => {})
-      const contractId = await createPoolOnChain(input.officerAddresses, input.threshold)
-      await api.activatePool(poolId, contractId)
+      const contractId = await createAgentPoolOnChain(poolId, input.officerAddresses, input.threshold)
+      // Agent v2 activation is performed atomically by the authenticated backend
+      // after the contract and encrypted per-pool identity are both ready.
       return contractId
     },
     onSuccess: () => {

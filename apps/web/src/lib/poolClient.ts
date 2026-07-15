@@ -14,8 +14,9 @@ import {
   Operation,
   TransactionBuilder,
 } from '@stellar/stellar-sdk'
+import { Buffer } from 'buffer'
 import { basicNodeSigner } from '@stellar/stellar-sdk/contract'
-import { Client } from '../contract/treasury/src/index'
+import { Client, type MandateAction } from '../contract/treasury/src/index'
 import { NETWORK, horizon, soroban, fundWithFriendbot } from './stellar'
 import { rawToUsd, usdToRaw, readClient } from './contract'
 import { hashOf } from './txlog'
@@ -132,6 +133,67 @@ export function prepareExecute(contractId: string, kp: Keypair, spendId: number)
   return writeClient(contractId, kp).execute({ spend_id: spendId })
 }
 
+export function prepareProposeMandate(
+  contractId: string,
+  kp: Keypair,
+  input: {
+    recipient: string
+    category: string
+    amount: number
+    notBefore: string
+    scheduleType: 'once' | 'weekly' | 'monthly'
+    expiresAt: string | null
+    maxExecutions: number
+    minBalance: number
+    conditionHash: string
+  },
+) {
+  const interval = input.scheduleType === 'weekly' ? 7 * 24 * 60 * 60
+    : input.scheduleType === 'monthly' ? 28 * 24 * 60 * 60 : 0
+  return writeClient(contractId, kp).propose_mandate({
+    proposer: kp.publicKey(),
+    recipient: input.recipient,
+    category: input.category,
+    amount: usdToRaw(input.amount),
+    not_before: BigInt(Math.floor(new Date(input.notBefore).getTime() / 1000)),
+    interval_seconds: BigInt(interval),
+    expires_at: input.expiresAt ? BigInt(Math.floor(new Date(input.expiresAt).getTime() / 1000)) : 0n,
+    max_executions: input.scheduleType === 'once' ? 1 : input.maxExecutions,
+    min_balance: usdToRaw(input.minBalance),
+    condition_hash: Buffer.from(input.conditionHash, 'hex'),
+  })
+}
+
+export function prepareApproveMandate(contractId: string, kp: Keypair, proposalId: number) {
+  return writeClient(contractId, kp).approve_mandate_proposal({ officer: kp.publicKey(), proposal_id: proposalId })
+}
+
+export function prepareFinalizeMandate(contractId: string, kp: Keypair, proposalId: number) {
+  return writeClient(contractId, kp).finalize_mandate_proposal({ proposal_id: proposalId })
+}
+
+export function preparePauseMandate(contractId: string, kp: Keypair, mandateId: number) {
+  return writeClient(contractId, kp).pause_mandate({ officer: kp.publicKey(), mandate_id: mandateId })
+}
+
+export function prepareProposeMandateAction(
+  contractId: string,
+  kp: Keypair,
+  mandateId: number,
+  action: 'resume' | 'revoke',
+) {
+  const chainAction: MandateAction = action === 'resume'
+    ? { tag: 'Resume', values: undefined }
+    : { tag: 'Revoke', values: undefined }
+  return writeClient(contractId, kp).propose_mandate_action({
+    proposer: kp.publicKey(), mandate_id: mandateId, action: chainAction,
+  })
+}
+
+export async function readMandateProposal(contractId: string, proposalId: number) {
+  return (await readClient(contractId).get_mandate_proposal({ id: proposalId })).result
+}
+
 /** Sign + submit a prepared (already-simulated) transaction; returns the tx hash. */
 export async function sendPrepared(at: {
   signAndSend: () => Promise<unknown>
@@ -152,6 +214,17 @@ const CONTRACT_ERRORS: Record<number, string> = {
   8: 'Invalid pool setup.',
   9: 'The pool balance is too low for this spend.',
   10: 'Amount must be greater than zero.',
+  11: 'This pool does not have an autonomous Agent configured.',
+  12: 'That mandate no longer exists.',
+  13: 'This mandate is paused.',
+  14: 'This mandate is not due yet.',
+  15: 'This mandate has expired.',
+  16: 'This mandate has completed all approved payments.',
+  17: 'The mandate rules are invalid.',
+  18: 'That mandate proposal no longer exists.',
+  19: 'That mandate proposal is already finalized.',
+  20: 'That governance action is invalid.',
+  21: 'This payment would cross the approved balance floor.',
 }
 
 /** Friendly message for a failed chain call (falls back to the raw message).

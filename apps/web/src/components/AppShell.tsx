@@ -127,7 +127,7 @@ function ProductShell() {
   const nav = [
     { to: '/app', label: t('nav.home'), Icon: IconHome, exact: true },
     { to: '/app/pools', label: t('nav.pools'), Icon: IconUsers, exact: false },
-    { to: '/app/activity', label: t('nav.activity'), Icon: IconActivity, exact: false },
+    { to: '/app/agent', label: t('nav.agent'), Icon: IconSpark, exact: false },
     { to: '/app/wallet', label: t('nav.wallet'), Icon: IconWallet, exact: false },
     { to: '/app/profile', label: t('nav.more'), Icon: IconMenu, exact: false },
   ] as const
@@ -156,6 +156,7 @@ function IconSend(props: IconProps) { return <SvgIcon {...props}><path d="M4 12l
 function IconGear(props: IconProps) { return <SvgIcon {...props}><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M4.9 4.9 7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1" /></SvgIcon> }
 function IconUsers(props: IconProps) { return <SvgIcon {...props}><circle cx="9" cy="8" r="3" /><path d="M3.5 19c0-3 2.4-5 5.5-5s5.5 2 5.5 5" /><circle cx="17" cy="9" r="2.5" /><path d="M16 14c2.7.3 4.5 2 4.5 5" /></SvgIcon> }
 function IconActivity(props: IconProps) { return <SvgIcon {...props}><path d="M4 17l5-5 3 3 7-8" /><path d="M15 7h4v4" /></SvgIcon> }
+function IconSpark(props: IconProps) { return <SvgIcon {...props}><path d="M12 2c.8 4.7 3.3 7.2 8 8-4.7.8-7.2 3.3-8 8-.8-4.7-3.3-7.2-8-8 4.7-.8 7.2-3.3 8-8Z" /><path d="M19 17c.3 1.7 1.3 2.7 3 3-1.7.3-2.7 1.3-3 3-.3-1.7-1.3-2.7-3-3 1.7-.3 2.7-1.3 3-3Z" /></SvgIcon> }
 function IconWallet(props: IconProps) { return <SvgIcon {...props}><path d="M4 6h14a2 2 0 0 1 2 2v10H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12" /><path d="M15 11h5v4h-5a2 2 0 0 1 0-4Z" /></SvgIcon> }
 function IconMenu(props: IconProps) { return <SvgIcon {...props}><path d="M4 7h16M4 12h16M4 17h16" /></SvgIcon> }
 function IconBell(props: IconProps) { return <SvgIcon {...props}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></SvgIcon> }

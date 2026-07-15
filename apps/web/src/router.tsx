@@ -28,6 +28,7 @@ import {
   StatusPage,
 } from './routes/Public'
 import { AppDashboardPage } from './routes/AppDashboard'
+import { AgentPage } from './routes/Agent'
 import {
   AppActivityPage,
   AppHelpPage,
@@ -111,6 +112,7 @@ const onboardingCompleteRoute = createRoute({ getParentRoute: () => rootRoute, p
 
 // Authenticated product workspace.
 const appRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app', component: AppDashboardPage, beforeLoad: requireProduct })
+const appAgentRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/agent', component: AgentPage, beforeLoad: requireProduct })
 const appActivityRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/activity', component: AppActivityPage, beforeLoad: requireProduct })
 const appNotificationsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/notifications', component: NotificationsPage, beforeLoad: requireProduct })
 const appWalletRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/wallet', component: WalletPage, beforeLoad: requireProduct })
@@ -167,7 +169,7 @@ const routeTree = rootRoute.addChildren([
   signinRoute, signupRoute, forgotRoute, resetRoute, verifyEmailRoute,
   inviteRoute, joinAliasRoute, onboardingProfileRoute, onboardingWalletRoute,
   onboardingRecoveryRoute, onboardingCompleteRoute,
-  appRoute, appActivityRoute, appNotificationsRoute, appWalletRoute, appProfileRoute,
+  appRoute, appAgentRoute, appActivityRoute, appNotificationsRoute, appWalletRoute, appProfileRoute,
   appPreferencesRoute, appSecurityRoute, appDataRoute, appHelpRoute, appPoolsRoute,
   appPoolNewRoute, appPoolRoute, appPoolActivityRoute, appPoolContributionsRoute,
   appPoolContributeRoute, appPoolSpendsRoute, appPoolSpendNewRoute, appPoolSpendDetailRoute,
