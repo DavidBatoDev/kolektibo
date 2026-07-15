@@ -33,7 +33,7 @@ docs/                 Full timestamped documentation set + QA report
 
 ## Prerequisites
 
-- **Node ≥ 20, pnpm ≥ 11** — for the web app and backend
+- **Node ≥ 22.13, pnpm ≥ 11** — for the web app and backend
 - **Rust + Stellar CLI** — for building/deploying the contract: `winget install Rustlang.Rustup Stellar.StellarCLI`
 - An **`OPENAI_API_KEY`** — for the AI treasurer (`services/ai`)
 

@@ -5,7 +5,7 @@
   "description": "AI-Governed Group Treasury on Stellar",
   "packageManager": "pnpm@11.9.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.13"
   },
   "scripts": {
     "dev": "pnpm --parallel --filter \"@kolektibo/web\" --filter \"@kolektibo/ai\" dev",
