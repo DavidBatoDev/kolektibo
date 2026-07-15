@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -1023,6 +1023,50 @@ export type Database = {
         }
         Relationships: []
       }
+      push_deliveries: {
+        Row: {
+          attempts: number
+          created_at: string
+          delivered_at: string | null
+          id: number
+          last_error: string | null
+          notification_id: number
+          status: string
+          subscription_id: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          delivered_at?: string | null
+          id?: never
+          last_error?: string | null
+          notification_id: number
+          status?: string
+          subscription_id: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          delivered_at?: string | null
+          id?: never
+          last_error?: string | null
+          notification_id?: number
+          status?: string
+          subscription_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_deliveries_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           created_at: string
@@ -1300,6 +1344,10 @@ export type Database = {
         Args: { p_contract_id: string; p_pool: string; p_wasm_hash?: string }
         Returns: undefined
       }
+      claim_push_delivery: {
+        Args: { p_notification_id: number; p_subscription_id: string }
+        Returns: boolean
+      }
       create_pool_draft: {
         Args: {
           p_description?: string
@@ -1310,6 +1358,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_my_account: { Args: never; Returns: undefined }
       get_user_id_by_email: { Args: { p_email: string }; Returns: string }
       is_pool_member: { Args: { p_pool: string }; Returns: boolean }
       is_pool_officer: { Args: { p_pool: string }; Returns: boolean }
@@ -1327,6 +1376,10 @@ export type Database = {
       redeem_invite: {
         Args: { p_address?: string; p_code: string }
         Returns: string
+      }
+      replace_pool_governance_policy: {
+        Args: { p_categories: Json; p_pool_id: string; p_tiers: Json }
+        Returns: undefined
       }
       set_my_pool_address: {
         Args: { p_address: string; p_pool: string }

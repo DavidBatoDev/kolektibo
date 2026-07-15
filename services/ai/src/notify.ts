@@ -1,8 +1,8 @@
 // Notification fan-out for indexed chain events. Resolves on-chain addresses to
 // users via pool_members.stellar_address, writes `notifications` rows (service
-// role), then pushes. Read-model only — nothing here can move money.
+// role). Supabase owns Realtime and Web Push delivery for every inserted row.
+// Read-model only — nothing here can move money.
 import { admin } from './supabaseAdmin'
-import { sendPushToUsers } from './push'
 
 const SCALE = 10_000_000 // USDC raw units → display
 
@@ -36,7 +36,7 @@ export async function fanOut(pool: PoolRef, event: IndexedEvent): Promise<void> 
     let recipients: Member[] = []
     let title = ''
     let body = ''
-    let prefKey = 'contribution'
+    let url = `/app/pools/${pool.id}/activity`
 
     switch (event.event_type) {
       case 'contrib': {
@@ -44,7 +44,6 @@ export async function fanOut(pool: PoolRef, event: IndexedEvent): Promise<void> 
         recipients = officers.filter((o) => o.user_id !== actor?.user_id)
         title = 'New contribution'
         body = `${pesos(p.amount)} contributed to ${pool.name}`
-        prefKey = 'contribution'
         break
       }
       case 'spend_req': {
@@ -56,7 +55,7 @@ export async function fanOut(pool: PoolRef, event: IndexedEvent): Promise<void> 
         recipients = officers.filter((o) => o.user_id !== proposer?.user_id)
         title = 'Approval needed'
         body = `${pesos(p.amount)} for ${p.category ?? 'a spend'} in ${pool.name}`
-        prefKey = 'approval'
+        url = `/app/pools/${pool.id}/spends/${String(p.id)}`
         break
       }
       case 'approve': {
@@ -64,14 +63,13 @@ export async function fanOut(pool: PoolRef, event: IndexedEvent): Promise<void> 
         recipients = officers.filter((o) => o.user_id !== approver?.user_id)
         title = 'Spend approved'
         body = `Spend #${p.spend_id} got another approval in ${pool.name}`
-        prefKey = 'approval'
+        url = `/app/pools/${pool.id}/spends/${String(p.spend_id)}`
         break
       }
       case 'execute': {
         recipients = members
         title = 'Funds released'
         body = `${pesos(p.amount)} released from ${pool.name}`
-        prefKey = 'release'
         break
       }
       default:
@@ -84,16 +82,10 @@ export async function fanOut(pool: PoolRef, event: IndexedEvent): Promise<void> 
       type: event.event_type,
       title,
       body,
-      payload: { pool_id: pool.id, contract_id: pool.contract_id, ...p },
+      payload: { pool_id: pool.id, contract_id: pool.contract_id, url, ...p },
     }))
     const { error } = await admin.from('notifications').insert(rows as never[])
     if (error) console.error('[notify] insert', error)
-
-    await sendPushToUsers(
-      recipients.map((r) => r.user_id),
-      { title, body, url: `/pools/${pool.id}` },
-      prefKey,
-    )
   } catch (e) {
     console.error('[notify]', e)
   }

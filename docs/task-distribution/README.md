@@ -20,7 +20,7 @@ independent, mostly-parallel workstreams — one per teammate. The goal of Phase
 | **Shello** | **Activity feed + notifications** — the Realtime in-app feed (reads `chain_events`) and Web Push ("a spend needs your approval") | [shello.md](./shello.md) |
 | **Elton James** | **Directory, invites & roster UI** — the screens for David's pools/membership backend: pool directory, invite/join, member roster, address book, DPA account deletion | [elton-james.md](./elton-james.md) |
 
-## Implementation status — updated 2026-07-13 (committed to `main`, pushed)
+## Implementation status — updated 2026-07-15
 
 A build sprint landed the load-bearing spine of this whole phase ahead of the team — commits
 `e29684f` (db), `faf527a` (api), `ceeb58d` (web), `4b33ba1` (test). It was **validated end-to-end**
@@ -32,10 +32,10 @@ indexer captured all four event types. **Gate note:** the entire new surface is 
 | Owner | Status | Left to do |
 |---|---|---|
 | **David** | ✅ **Complete** (D0–D6, E2E-verified) | — |
-| **Earl** | 🟢 Mostly done — indexer (E1), wallet endpoints (E4), fan-out (E5), **Realtime (E2)** shipped; `chain.ts` SDK backend built but unwired | **E3 cutover** (wire `USE_SDK_BACKEND` + faucet rate limits, post-Jul-15) |
-| **Elton** | 🟢 Mostly done — directory (EL1), invite (EL2), join (EL3), roster (EL4) shipped | **EL5** address book (payees), **EL6** DPA account deletion, invite **QR** |
-| **Shello** | 🟡 Backend done (`push.ts` sender + `notify.ts` triggers) | **S1–S3** activity-feed UI (reads `chain_events`), **S4–S5** client push subscribe + VAPID delivery (needs PWA SW switch) |
-| **Jasmin** | 🔲 Open — functional screens shipped on the *existing* tokens/`ui.tsx` | **All of J0–J4**; first concrete job: reskin + **i18n** the new screens (their strings are hardcoded English) |
+| **Earl** | ✅ **Complete** — SDK backend, CLI fallback, limits/CORS, indexer, wallet proof, Realtime, and fan-out | Live SDK write loop and real push path verified |
+| **Elton** | ✅ **Complete** — directory, invite/join, roster, payees, deletion, and local invite QR | — |
+| **Shello** | ✅ **Complete** — feed, Realtime/backfill, preferences, Supabase-only Web Push, and deep links | Real chain-to-service-worker Playwright test passes |
+| **Jasmin** | ✅ J0–J4 implemented | Light green/gold tokens, shared primitives, en/tl runtime across primary product screens, specs, and phone/a11y polish |
 
 > **What actually got built vs. the original plan below.** Schema-v1 (`supabase/migrations/0001_init.sql`)
 > already contained most tables (`pools`, `pool_members`, `pool_invites`, `user_wallets`, `payees`,

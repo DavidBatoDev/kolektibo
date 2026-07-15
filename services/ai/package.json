@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
-    "indexer": "tsx src/indexer-main.ts"
+    "indexer": "tsx src/indexer-main.ts",
+    "sdk:configure": "node scripts/configure-sdk-backend.mjs",
+    "secret:rotate-code-pepper": "node scripts/rotate-code-pepper.mjs"
   },
   "dependencies": {
     "@stellar/stellar-sdk": "^16.0.1",
@@ -16,7 +18,6 @@
     "express": "^5.2.1",
     "nodemailer": "^9.0.3",
     "openai": "^6.45.0",
-    "web-push": "^3.6.7",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -24,7 +25,6 @@
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",
     "@types/nodemailer": "^8.0.1",
-    "@types/web-push": "^3.6.4",
     "tsx": "^4.23.0",
     "typescript": "^7.0.2"
   }

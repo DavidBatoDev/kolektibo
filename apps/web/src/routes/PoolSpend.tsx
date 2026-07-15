@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { StrKey } from '@stellar/stellar-sdk'
-import { Button, Card, Field, SectionLabel, inputClass, peso } from '../components/ui'
+import { AppPageHero, Button, Card, Field, SectionLabel, inputClass, peso } from '../components/ui'
 import { PayeePicker } from '../components/PayeePicker'
 import { myKeypair } from '../lib/mywallet'
 import {
@@ -88,19 +88,14 @@ export function PoolSpendPage() {
 
   return (
     <div className="space-y-5 pb-4">
-      <div>
-        <Link
-          to="/app/pools/$poolId"
-          params={{ poolId }}
-          className="text-xs text-ink-500 hover:text-ink-700"
-        >
-          ← {pool.data?.name ?? 'Back'}
-        </Link>
-        <h1 className="mt-1 text-xl font-semibold text-ink-950">Request a spend</h1>
-        <p className="mt-1 text-sm text-ink-500">
-          Your request counts as the first approval. The contract enforces the rest.
-        </p>
-      </div>
+      <AppPageHero
+        eyebrow={pool.data?.name ?? 'Pool'}
+        title="Request a spend"
+        body="Your request counts as the first approval. The contract enforces the rest."
+        asset="/assets/payout.webp"
+      >
+        <Link to="/app/pools/$poolId" params={{ poolId }} className="text-xs font-semibold text-brand-700">← Pool overview</Link>
+      </AppPageHero>
 
       <Card className="space-y-4">
         <Field label="Category">

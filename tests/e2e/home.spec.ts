@@ -12,8 +12,8 @@ test('loads the production landing page', async ({ page }) => {
   await page.goto('/')
 
   await expect(page.getByRole('banner').getByRole('link', { name: 'Kolektibo' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Pooled money your whole group can trust.' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Explore the testnet demo' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Pooled money your group can trust.' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Watch the 60-sec demo' })).toBeVisible()
 })
 
 test('keeps the original treasury flow under the demo route', async ({ page }) => {
@@ -43,4 +43,26 @@ test('keeps non-landing public pages in a phone-width frame on desktop', async (
   await page.goto('/features')
   const features = await page.getByRole('main').boundingBox()
   expect(features?.width).toBeLessThanOrEqual(449)
+})
+
+test('uses the app phone shell and icon system across auth routes', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/auth/sign-in')
+
+  await expect(page.locator('.auth-shell')).toBeVisible()
+  const authShell = await page.locator('.auth-shell').boundingBox()
+  expect(authShell?.width).toBeLessThanOrEqual(449)
+  await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible()
+  await expect(page.locator('.auth-page-icon svg')).toHaveCount(1)
+  await expect(page.getByLabel('Email').locator('xpath=..').locator('svg')).toHaveCount(1)
+
+  await page.goto('/auth/sign-up')
+  await expect(page.getByRole('heading', { name: 'Start pooling together' })).toBeVisible()
+  await expect(page.getByLabel('Display name')).toBeVisible()
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/auth/forgot-password')
+  await expect(page.locator('.auth-shell')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Reset your password' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Send reset code' })).toBeVisible()
 })

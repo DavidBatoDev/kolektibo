@@ -48,3 +48,8 @@ schemas = ["public"]
 enabled = true
 # `avatars` (public) bucket + owner-folder policies are created in migration 0003.
 # `receipts` (private, signed URLs) follows in a later migration.
+
+# The database webhook authenticates inside the function with a dedicated secret.
+# Gateway JWT verification stays off because the request does not carry a user JWT.
+[functions.push]
+verify_jwt = false

@@ -7,11 +7,11 @@ Stellar. If this database is wiped, not one centavo is at risk.
 See the [production roadmap](../docs/production-roadmap_2026-07-11_0552.md) for the full plan
 and `migrations/0001_init.sql` for the schema + RLS.
 
-## ⚠️ Migrations are approval-gated
+## Migration workflow
 
-Migration files are authored as code, but **no migration is applied to any database without
-explicit per-migration approval.** The Supabase MCP is configured `--read-only`; all writes go
-through the CLI (`supabase db push`) after sign-off.
+MVP migrations are pre-authorized by the repository instructions. Author every change as an
+additive migration, review its RLS and money-authority boundary, apply it through the linked CLI or
+Management API, then regenerate the web types. Never place pooled-money authority in Postgres.
 
 ## Environment variables (never commit these)
 
@@ -36,13 +36,35 @@ supabase --version
 supabase start                 # boots Postgres/Auth/Storage locally
 supabase db reset              # applies migrations/ + seed.sql to the LOCAL db
 
-# 3) Link to the remote project, then push migrations (AFTER approval)
+# 3) Link to the remote project, then push reviewed migrations
 supabase link --project-ref "$SUPABASE_PROJECT_REF"
 supabase db push               # applies pending migrations to the REMOTE db
 
 # 4) Generate TypeScript types for the web app
 supabase gen types typescript --linked > ../apps/web/src/db/types.gen.ts
 ```
+
+## Supabase-only Web Push
+
+Web Push uses the existing `notifications` and `push_subscriptions` tables. A
+Database Webhook calls the `push` Edge Function for every notification insert;
+the AI/indexer service never holds VAPID keys or sends pushes.
+
+```bash
+# Reuses the previous local VAPID pair when present; otherwise creates one.
+# The generated file is ignored and private values are never printed.
+pnpm push:setup
+supabase secrets set --env-file supabase/.env.push.local
+supabase functions deploy push --use-api
+```
+
+The `supabase_push_notifications` migration creates the `notifications` insert
+webhook using `pg_net`. Its
+function URL and dedicated webhook secret live in Supabase Vault; the private
+value is also installed as the Edge Function's `PUSH_WEBHOOK_SECRET`. No service
+role key is stored in trigger metadata. Users then enable notifications once in
+Kolektibo. On iPhone/iPad, install Kolektibo to the Home Screen before enabling
+push.
 
 After a local reset, run the production-foundation authorization smoke test:
 
@@ -66,7 +88,15 @@ migrations/0005_multiuser_wiring.sql
 migrations/0006_production_foundation.sql
                            production profile/consent fields, normalized pool policies,
                            operational roles/signers, goals, attachments, and smart-wallet
-                           readiness fields. Authored only; apply after review and approval.
+                           readiness fields. Applied to the hosted testnet project.
+migrations/20260715084008_supabase_push_notifications.sql
+                           Vault-backed notification webhook to the Supabase push Edge Function
+migrations/20260715101500_pool_governance_policy_rpc.sql
+                           atomic, officer-only draft governance policy replacement
+migrations/20260715104500_activate_testnet_product_flags.sql
+                           enables the hosted production shell, multi-pool UI, and pool wizard
+migrations/20260715120000_harden_pool_governance_policy_rpc.sql
+                           bounds and validates atomic draft governance policy replacement
 seed.sql                   feature flags for local dev
 config.toml                auth providers (email magic-link · Google · anonymous), ports
 ```

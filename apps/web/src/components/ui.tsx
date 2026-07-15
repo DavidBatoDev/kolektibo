@@ -3,6 +3,8 @@ import {
   type ButtonHTMLAttributes, type HTMLAttributes,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
+import QRCodeGenerator from "qrcode";
 
 /* ============================================================
    ui.tsx — the kit. Nobody hand-rolls CSS. Import from here.
@@ -15,12 +17,15 @@ const cx = (...c: (string | false | undefined | null)[]) =>
 
 /* ---------- money ---------- */
 
-const pesoFmt = new Intl.NumberFormat("en-PH", {
-  style: "currency", currency: "PHP", minimumFractionDigits: 0, maximumFractionDigits: 2,
-});
-
-/** Always ₱1,200. Never 1200, never PHP 1200. */
-export const peso = (n: number) => pesoFmt.format(n);
+/** Format the app's peso-denominated display amounts in the user's selected
+ * display unit. Settlement remains USDC; this preference never changes chain data. */
+export const peso = (n: number) => {
+  const currency = typeof document === "undefined" ? "PHP" : document.documentElement.dataset.currency ?? "PHP";
+  if (currency === "USDC") return `${new Intl.NumberFormat("en-PH", { maximumFractionDigits: 2 }).format(n)} USDC`;
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency", currency, minimumFractionDigits: 0, maximumFractionDigits: 2,
+  }).format(n);
+};
 
 /** The money number. Loudest thing on the screen. */
 export function Money({
@@ -79,7 +84,7 @@ export function Button({
     <button
       disabled={disabled || loading}
       className={cx(
-        "inline-flex items-center justify-center rounded-full font-medium select-none",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-full font-medium select-none",
         "transition active:scale-[0.97] motion-reduce:active:scale-100",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper-50",
         "disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100",
@@ -112,7 +117,7 @@ export function Card({
       className={cx(
         hero
           ? "rounded-[32px] p-6 text-white bg-[image:var(--gradient-hero)] shadow-green"
-          : "rounded-[26px] p-4 bg-paper-0 shadow-card",
+          : "ui-card rounded-[26px] p-4 bg-paper-0 shadow-card",
         className,
       )}
       {...rest}
@@ -131,10 +136,34 @@ export function SectionLabel({ children }: { children: ReactNode }) {
   );
 }
 
-/** Dense lists live in ONE card with divided rows. Not a card per row. */
-export function List({ className, children }: { className?: string; children: ReactNode }) {
+/** Full-bleed illustrated heading for authenticated app routes. */
+export function AppPageHero({
+  eyebrow, title, body, asset, children, className,
+}: {
+  eyebrow?: string;
+  title: ReactNode;
+  body?: ReactNode;
+  asset?: string;
+  children?: ReactNode;
+  className?: string;
+}) {
   return (
-    <div className={cx("rounded-[26px] bg-paper-0 shadow-card overflow-hidden", className)}>
+    <header className={cx("app-page-hero", !asset && "app-page-hero-plain", className)}>
+      <div className="app-page-hero-copy">
+        {eyebrow && <p className="app-page-eyebrow">{eyebrow}</p>}
+        <h1>{title}</h1>
+        {body && <p className="app-page-summary">{body}</p>}
+        {children && <div className="app-page-actions">{children}</div>}
+      </div>
+      {asset && <img className="app-page-asset" src={asset} alt="" aria-hidden="true" />}
+    </header>
+  );
+}
+
+/** Dense lists live in ONE card with divided rows. Not a card per row. */
+export function List({ className, children, ...rest }: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={cx("ui-list rounded-[26px] bg-paper-0 shadow-card overflow-hidden", className)} {...rest}>
       <div className="divide-y divide-ink-300/60">{children}</div>
     </div>
   );
@@ -158,7 +187,7 @@ export function Row({
     >
       {leading}
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[15px] font-medium text-ink-950">{title}</div>
+        <div className="text-[15px] font-medium text-ink-950">{title}</div>
         {subtitle && <div className="truncate text-[13px] text-ink-700">{subtitle}</div>}
       </div>
       {trailing && <div className="shrink-0">{trailing}</div>}
@@ -439,6 +468,44 @@ export function CopyField({ value, label }: { value: string; label: string }) {
   );
 }
 
+/** A locally rendered QR code. The encoded value is never sent to a third party. */
+export function QRCode({
+  value, label = "QR code", size = 208, className,
+}: { value: string; label?: string; size?: number; className?: string }) {
+  const [src, setSrc] = useState("");
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setSrc("");
+    setFailed(false);
+    void QRCodeGenerator.toDataURL(value, {
+      width: size,
+      margin: 1,
+      errorCorrectionLevel: "M",
+      color: { dark: "#10231B", light: "#FFFFFF" },
+    }).then((dataUrl) => {
+      if (active) setSrc(dataUrl);
+    }).catch(() => {
+      if (active) setFailed(true);
+    });
+    return () => { active = false; };
+  }, [value, size]);
+
+  return (
+    <div
+      className={cx("mx-auto grid w-fit place-items-center rounded-[24px] bg-white p-3 shadow-card", className)}
+      style={{ minWidth: size + 24, minHeight: size + 24 }}
+    >
+      {failed
+        ? <p className="grid place-items-center text-center text-[13px] text-danger" style={{ width: size, height: size }}>Could not render QR code.</p>
+        : src
+          ? <img src={src} width={size} height={size} alt={label} className="block rounded-xl" />
+          : <Skeleton className="size-full rounded-xl" />}
+    </div>
+  );
+}
+
 /* ---------- avatar ---------- */
 
 export function Avatar({
@@ -517,6 +584,59 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
 
 /* ---------- sheet (mobile modal) ---------- */
 
+/** Centered confirmation dialog. Use Sheet for longer, mobile-first tasks. */
+export function Modal({
+  open, onClose, title, description, children,
+}: { open: boolean; onClose: () => void; title: string; description?: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+      if (event.key !== "Tab") return;
+      const focusable = ref.current?.querySelectorAll<HTMLElement>(
+        'button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable?.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    ref.current?.querySelector<HTMLElement>("button,input")?.focus();
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+      previous?.focus();
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+  return createPortal(
+    <div className="fixed inset-0 z-50 grid place-items-center p-4">
+      <div className="absolute inset-0 bg-ink-950/45" onClick={onClose} aria-hidden />
+      <div
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
+        className="relative w-full max-w-sm rounded-[28px] bg-paper-0 p-5 shadow-lift"
+      >
+        <h2 id={titleId} className="text-[19px] font-bold text-ink-950">{title}</h2>
+        {description && <p id={descriptionId} className="mt-1 text-[14px] leading-5 text-ink-700">{description}</p>}
+        <div className="mt-5">{children}</div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 export function Sheet({
   open, onClose, title, children,
 }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
@@ -545,18 +665,19 @@ export function Sheet({
   }, [open, onClose]);
 
   if (!open) return null;
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       <div className="absolute inset-0 bg-ink-950/40" onClick={onClose} aria-hidden />
       <div
         ref={ref} role="dialog" aria-modal="true" aria-label={title}
-        className="relative w-full max-w-md rounded-t-[32px] bg-paper-0 p-5 pb-8 shadow-lift animate-[slideUp_220ms_ease-out] motion-reduce:animate-none"
+        className="relative max-h-[calc(100dvh-1rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-t-[32px] bg-paper-0 p-5 pb-[calc(2rem+var(--safe-bottom))] shadow-lift animate-[slideUp_220ms_ease-out] motion-reduce:animate-none"
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-ink-300" />
         <h2 className="mb-4 text-[19px] font-bold text-ink-950">{title}</h2>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

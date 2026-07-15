@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
-import { Badge, Button, Card, Field, ProgressBar, SectionLabel, inputClass, peso } from '../components/ui'
+import { AppPageHero, Badge, Button, Card, Field, ProgressBar, SectionLabel, inputClass, peso } from '../components/ui'
 import { parseRules, type Policy } from '../lib/ai'
 import { useCreateDraft } from '../hooks/usePools'
 
@@ -177,11 +177,14 @@ export function PoolWizardPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-5 pb-10">
       <div>
-        <p className="text-xs font-medium text-brand-400">Create a private treasury</p>
-        <div className="mt-1 flex items-start justify-between gap-4">
-          <div><h1 className="text-2xl font-semibold text-ink-950">{STEPS[step]}</h1><p className="mt-1 text-sm text-ink-500">Step {step + 1} of {STEPS.length} · saved on this device</p></div>
-          {step === 0 && <Button variant="ghost" onClick={() => setShowAI((value) => !value)}>Prefill with AI</Button>}
-        </div>
+        <AppPageHero
+          eyebrow="Create a private treasury"
+          title={STEPS[step]}
+          body={`Step ${step + 1} of ${STEPS.length} · saved on this device`}
+          asset={['/assets/pool.webp', '/assets/contribute.webp', '/assets/payout.webp', '/assets/members.webp', '/assets/wallet.webp', '/assets/verified.webp'][step]}
+        >
+          {step === 0 && <Button size="sm" variant="mint" onClick={() => setShowAI((value) => !value)}>Prefill with AI</Button>}
+        </AppPageHero>
         <div className="mt-4"><ProgressBar value={step + 1} max={STEPS.length} /></div>
         <div className="mt-3 hidden grid-cols-6 gap-2 text-center text-[11px] sm:grid">
           {STEPS.map((label, index) => <button key={label} onClick={() => index < step && setStep(index)} className={index === step ? 'text-brand-400' : index < step ? 'text-ink-700' : 'text-ink-500'}>{label}</button>)}
@@ -269,7 +272,7 @@ function WalletStep({ draft }: { draft: WizardDraft }) {
 }
 
 function ReviewStep({ draft, policy }: { draft: WizardDraft; policy: ProductionPolicy }) {
-  return <div className="space-y-4"><Card className="space-y-4 bg-linear-to-br from-brand-700/20 to-ink-800/60"><div className="flex items-start justify-between gap-4"><div><p className="text-xs text-ink-500">Private {templateLabel(draft.template)}</p><h2 className="mt-1 text-xl font-semibold text-ink-950">{draft.name || 'Untitled pool'}</h2><p className="mt-2 text-sm text-ink-500">{draft.description || 'No description'}</p></div><Badge tone="gold">draft</Badge></div><p className="text-sm text-ink-700">{policy.summary}</p></Card><div className="grid gap-4 md:grid-cols-2"><ReviewCard title="Contributions" rows={[[modeLabel(draft.contributionMode), draft.contributionAmount ? peso(Number(draft.contributionAmount)) : 'Any amount'], ['Frequency', draft.contributionMode === 'voluntary' ? 'Any time' : draft.frequency], ['Grace period', `${draft.graceDays} days`], ['Target', draft.targetAmount ? peso(Number(draft.targetAmount)) : 'None']]} /><ReviewCard title="Governance" rows={[[`${draft.defaultThreshold} of ${draft.targetApprovers}`, 'default approvals'], ['Request expiry', `${draft.expirationDays} days`], ['Member proposals', draft.membersMayPropose ? 'Allowed' : 'Not allowed'], ['Creator approver', draft.creatorIsApprover ? 'Yes' : 'No']]} /></div><Card><SectionLabel>Category policy</SectionLabel><div className="space-y-3">{draft.categories.map((category) => <div key={category.id} className="flex items-start justify-between gap-4 text-sm"><div><p className="text-ink-950">{category.name}</p>{category.description && <p className="text-xs text-ink-500">{category.description}</p>}</div><div className="text-right text-xs text-ink-500"><p>{category.perSpendCap ? `${peso(Number(category.perSpendCap))} / spend` : 'No per-spend cap'}</p><p>{category.monthlyCap ? `${peso(Number(category.monthlyCap))} / month` : 'No monthly cap'}</p></div></div>)}</div></Card><Card className="ring-gold-500/20"><p className="text-xs leading-5 text-gold-400">Creating this saves a directory draft only. No contract is deployed and no money can enter until invited approvers connect verified wallets and the deployment checklist is complete.</p></Card></div>
+  return <div className="space-y-4"><Card className="space-y-4 bg-mint"><div className="flex items-start justify-between gap-4"><div><p className="text-xs text-ink-500">Private {templateLabel(draft.template)}</p><h2 className="mt-1 text-xl font-semibold text-ink-950">{draft.name || 'Untitled pool'}</h2><p className="mt-2 text-sm text-ink-500">{draft.description || 'No description'}</p></div><Badge tone="gold">draft</Badge></div><p className="text-sm text-ink-700">{policy.summary}</p></Card><div className="grid gap-4 md:grid-cols-2"><ReviewCard title="Contributions" rows={[[modeLabel(draft.contributionMode), draft.contributionAmount ? peso(Number(draft.contributionAmount)) : 'Any amount'], ['Frequency', draft.contributionMode === 'voluntary' ? 'Any time' : draft.frequency], ['Grace period', `${draft.graceDays} days`], ['Target', draft.targetAmount ? peso(Number(draft.targetAmount)) : 'None']]} /><ReviewCard title="Governance" rows={[[`${draft.defaultThreshold} of ${draft.targetApprovers}`, 'default approvals'], ['Request expiry', `${draft.expirationDays} days`], ['Member proposals', draft.membersMayPropose ? 'Allowed' : 'Not allowed'], ['Creator approver', draft.creatorIsApprover ? 'Yes' : 'No']]} /></div><Card><SectionLabel>Category policy</SectionLabel><div className="space-y-3">{draft.categories.map((category) => <div key={category.id} className="flex items-start justify-between gap-4 text-sm"><div><p className="text-ink-950">{category.name}</p>{category.description && <p className="text-xs text-ink-500">{category.description}</p>}</div><div className="text-right text-xs text-ink-500"><p>{category.perSpendCap ? `${peso(Number(category.perSpendCap))} / spend` : 'No per-spend cap'}</p><p>{category.monthlyCap ? `${peso(Number(category.monthlyCap))} / month` : 'No monthly cap'}</p></div></div>)}</div></Card><Card className="ring-gold-500/20"><p className="text-xs leading-5 text-gold-700">Creating this saves a directory draft only. No contract is deployed and no money can enter until invited approvers connect verified wallets and the deployment checklist is complete.</p></Card></div>
 }
 
 type StepProps = { draft: WizardDraft; update: <K extends keyof WizardDraft>(key: K, value: WizardDraft[K]) => void }

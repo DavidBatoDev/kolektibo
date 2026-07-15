@@ -9,22 +9,27 @@ import {
   useUploadAvatar,
 } from '../hooks/useProfile'
 import { useDeleteAccount, useOfficerPools } from '../hooks/useAccountDeletion'
-import { Button, Card, Field, inputClass, SectionLabel, Sheet } from '../components/ui'
+import { AppPageHero, Button, Card, Field, inputClass, SectionLabel, Sheet } from '../components/ui'
+import { useI18n } from '../lib/i18n'
+import { usePushNotifications } from '../hooks/usePushNotifications'
+import type { TranslationKey } from '../locales/en'
 
-const NOTIF_ROWS: [string, string][] = [
-  ['push', 'Push notifications'],
-  ['approval', 'Approval requests'],
-  ['contribution', 'Contributions'],
-  ['release', 'Fund releases'],
+const NOTIF_ROWS: [string, TranslationKey][] = [
+  ['push', 'preferences.push'],
+  ['approval', 'preferences.approval'],
+  ['contribution', 'preferences.contribution'],
+  ['release', 'preferences.release'],
 ]
 
 export function ProfilePage() {
+  const { t, setLocale: setAppLocale, setCurrency: setAppCurrency } = useI18n()
   const navigate = useNavigate()
   const { user } = useAuth()
   const profileQ = useProfile()
   const settingsQ = useSettings()
   const updateProfile = useUpdateProfile()
   const updateSettings = useUpdateSettings()
+  const push = usePushNotifications()
   const uploadAvatar = useUploadAvatar()
   const officerPools = useOfficerPools()
   const deleteAccount = useDeleteAccount()
@@ -33,7 +38,6 @@ export function ProfilePage() {
   const [phone, setPhone] = useState('')
   const [locale, setLocale] = useState('en')
   const [currency, setCurrency] = useState('PHP')
-  const [theme, setTheme] = useState('dark')
   const [notif, setNotif] = useState<Record<string, boolean>>({})
   const [deleteOpen, setDeleteOpen] = useState(false)
 
@@ -48,7 +52,6 @@ export function ProfilePage() {
   useEffect(() => {
     if (settingsQ.data) {
       setCurrency(settingsQ.data.currency_display ?? 'PHP')
-      setTheme(settingsQ.data.theme ?? 'dark')
       setNotif((settingsQ.data.notif_prefs as Record<string, boolean>) ?? {})
     }
   }, [settingsQ.data])
@@ -58,12 +61,34 @@ export function ProfilePage() {
     navigate({ to: '/auth/sign-in' })
   }
 
+  const changeNotification = async (key: string, checked: boolean) => {
+    if (key !== 'push') {
+      setNotif((current) => ({ ...current, [key]: checked }))
+      return
+    }
+    try {
+      if (checked) await push.enable()
+      else await push.disable()
+      const next = { ...notif, push: checked }
+      setNotif(next)
+      await updateSettings.mutateAsync({ notif_prefs: next })
+    } catch {
+      // The hook exposes the actionable browser/configuration error below.
+    }
+  }
+
   const avatarUrl = profileQ.data?.avatar_url
   const blockingPools = officerPools.data ?? []
   const isBlocked = blockingPools.length > 0
 
   return (
     <div className="space-y-5">
+      <AppPageHero
+        eyebrow={t('common.account')}
+        title={t('profile.title')}
+        body={t('profile.intro')}
+        asset="/assets/members.webp"
+      />
       {/* Identity + avatar */}
       <Card className="flex items-center gap-4">
         <label className="relative cursor-pointer">
@@ -86,30 +111,30 @@ export function ProfilePage() {
             }}
           />
           <span className="absolute -bottom-1 -right-1 rounded-full bg-brand-500 px-1.5 py-0.5 text-[10px] font-medium text-ink-950">
-            {uploadAvatar.isPending ? '…' : 'edit'}
+            {uploadAvatar.isPending ? '…' : t('profile.edit')}
           </span>
         </label>
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-ink-950">{displayName || 'Your profile'}</p>
+          <p className="truncate text-sm font-semibold text-ink-950">{displayName || t('profile.yours')}</p>
           <p className="truncate text-xs text-ink-500">{user?.email}</p>
         </div>
       </Card>
       {uploadAvatar.isError && (
-        <p className="text-xs text-danger">Avatar upload failed. Try a smaller image.</p>
+        <p className="text-xs text-danger">{t('profile.avatarFailed')}</p>
       )}
 
       {/* Profile */}
       <div>
-        <SectionLabel>Profile</SectionLabel>
+        <SectionLabel>{t('profile.section')}</SectionLabel>
         <Card className="space-y-4">
-          <Field label="Display name">
+          <Field label={t('profile.displayName')}>
             <input
               className={inputClass}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
             />
           </Field>
-          <Field label="Phone" hint="Optional.">
+          <Field label={t('profile.phone')} hint={t('common.optional')}>
             <input
               className={inputClass}
               value={phone}
@@ -117,10 +142,10 @@ export function ProfilePage() {
               placeholder="+63…"
             />
           </Field>
-          <Field label="Language">
-            <select className={inputClass} value={locale} onChange={(e) => setLocale(e.target.value)}>
-              <option value="en">English</option>
-              <option value="tl">Tagalog</option>
+          <Field label={t('preferences.language')}>
+            <select className={inputClass} value={locale} onChange={(e) => { setLocale(e.target.value); setAppLocale(e.target.value === 'tl' ? 'tl' : 'en') }}>
+              <option value="en">{t('language.english')}</option>
+              <option value="tl">{t('language.tagalog')}</option>
             </select>
           </Field>
           <Button
@@ -129,61 +154,56 @@ export function ProfilePage() {
               updateProfile.mutate({ display_name: displayName, phone: phone || null, locale })
             }
           >
-            Save profile
+            {t('profile.save')}
           </Button>
-          {updateProfile.isSuccess && <p className="text-xs text-brand-700">Saved ✓</p>}
-          {updateProfile.isError && <p className="text-xs text-danger">Couldn't save. Try again.</p>}
+          {updateProfile.isSuccess && <p className="text-xs text-brand-700">{t('common.saved')} ✓</p>}
+          {updateProfile.isError && <p className="text-xs text-danger">{t('profile.saveFailed')}</p>}
         </Card>
       </div>
 
       {/* Settings */}
       <div>
-        <SectionLabel>Settings</SectionLabel>
+        <SectionLabel>{t('profile.settings')}</SectionLabel>
         <Card className="space-y-4">
-          <Field label="Currency display">
+          <Field label={t('preferences.currency')}>
             <select
               className={inputClass}
               value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
+              onChange={(e) => { const next = e.target.value as 'PHP' | 'USD' | 'USDC'; setCurrency(next); setAppCurrency(next) }}
             >
-              <option value="PHP">₱ Philippine Peso (PHP)</option>
-              <option value="USD">$ US Dollar (USD)</option>
-              <option value="USDC">USDC</option>
-            </select>
-          </Field>
-          <Field label="Theme">
-            <select className={inputClass} value={theme} onChange={(e) => setTheme(e.target.value)}>
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
-              <option value="auto">Auto</option>
+              <option value="PHP">{t('currency.php')}</option>
+              <option value="USD">{t('currency.usd')}</option>
+              <option value="USDC">{t('currency.usdc')}</option>
             </select>
           </Field>
           <div>
-            <span className="mb-1.5 block text-sm font-medium text-ink-700">Notifications</span>
+            <span className="mb-1.5 block text-sm font-medium text-ink-700">{t('preferences.notifications')}</span>
             <div className="space-y-2">
               {NOTIF_ROWS.map(([key, label]) => (
                 <label key={key} className="flex items-center justify-between">
-                  <span className="text-sm text-ink-700">{label}</span>
+                  <span className="text-sm text-ink-700">{t(label)}</span>
                   <input
                     type="checkbox"
                     className="h-4 w-4 accent-brand-500"
-                    checked={!!notif[key]}
-                    onChange={(e) => setNotif((n) => ({ ...n, [key]: e.target.checked }))}
+                    checked={key === 'push' ? !!push.data?.subscribed && notif.push !== false : !!notif[key]}
+                    disabled={key === 'push' && (push.isLoading || push.isChanging || !push.data?.supported || !push.data?.configured)}
+                    onChange={(e) => void changeNotification(key, e.target.checked)}
                   />
                 </label>
               ))}
             </div>
+            {push.changeError && <p className="mt-2 text-xs text-danger">{String((push.changeError as Error).message)}</p>}
           </div>
           <Button
             loading={updateSettings.isPending}
             onClick={() =>
-              updateSettings.mutate({ currency_display: currency, theme, notif_prefs: notif })
+              updateSettings.mutate({ currency_display: currency, theme: 'light', notif_prefs: notif })
             }
           >
-            Save settings
+            {t('profile.saveSettings')}
           </Button>
-          {updateSettings.isSuccess && <p className="text-xs text-brand-700">Saved ✓</p>}
-          {updateSettings.isError && <p className="text-xs text-danger">Couldn't save. Try again.</p>}
+          {updateSettings.isSuccess && <p className="text-xs text-brand-700">{t('common.saved')} ✓</p>}
+          {updateSettings.isError && <p className="text-xs text-danger">{t('profile.saveFailed')}</p>}
         </Card>
       </div>
 
@@ -191,28 +211,27 @@ export function ProfilePage() {
         onClick={onSignOut}
         className="w-full py-2 text-center text-xs text-ink-500 hover:text-ink-700"
       >
-        Sign out
+        {t('profile.signOut')}
       </button>
 
       <div>
-        <SectionLabel>Danger Zone</SectionLabel>
+        <SectionLabel>{t('profile.danger')}</SectionLabel>
         <Card className="space-y-3">
           <p className="text-xs text-ink-600">
-            Permanently removes your account profile and personal data. Contribution and spend history
-            remain with anonymized attribution for audit purposes.
+            {t('profile.deleteBody')}
           </p>
           {isBlocked ? (
             <>
               <Button variant="danger" className="w-full" disabled>
-                Delete my account
+                {t('profile.delete')}
               </Button>
               <p className="text-xs text-danger">
-                You are an officer of {blockingPools.join(', ')}. Transfer your role before deleting.
+                {t('profile.officerBlock', { pools: blockingPools.join(', ') })}
               </p>
             </>
           ) : (
             <Button variant="danger" className="w-full" onClick={() => setDeleteOpen(true)}>
-              Delete my account
+              {t('profile.delete')}
             </Button>
           )}
           {deleteAccount.isError && (
@@ -221,11 +240,10 @@ export function ProfilePage() {
         </Card>
       </div>
 
-      <Sheet open={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete your account?">
+      <Sheet open={deleteOpen} onClose={() => setDeleteOpen(false)} title={t('profile.deleteTitle')}>
         <div className="space-y-4">
           <p className="text-sm text-ink-700">
-            This will permanently remove your profile, settings, and wallet data. Your contribution and
-            spend history will be preserved anonymously for audit purposes. This cannot be undone.
+            {t('profile.deleteConfirmBody')}
           </p>
           <div className="grid grid-cols-2 gap-2">
             <Button
@@ -234,14 +252,14 @@ export function ProfilePage() {
                 setDeleteOpen(false)
               }}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               variant="danger"
               loading={deleteAccount.isPending}
               onClick={() => deleteAccount.mutate()}
             >
-              Delete permanently
+              {t('profile.deletePermanently')}
             </Button>
           </div>
         </div>

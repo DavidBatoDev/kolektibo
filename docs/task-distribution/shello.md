@@ -15,12 +15,29 @@ in the same room.
 Realtime channel, E1/E2/E5), Jasmin (feed + settings mockups, component kit), David (`pools` for
 scoping). **Consumers:** end users.
 
-## 🟡 Status — backend done, your UI is open (2026-07-13, on `main`)
+## ✅ Status — S1–S5 implementation completed in the current `main` worktree (2026-07-15)
+
+- `useActivityFeed.ts` provides typed pagination, no-env tx-log fallback, Realtime insert prepending,
+  `(tx_hash,event_type)` de-duplication, and reconnect backfill.
+- Global and per-pool activity screens share the mobile feed UI with actor copy, peso formatting,
+  relative time, skeleton/empty/error states, and Stellar explorer proof.
+- The PWA uses an injected custom service worker for Web Push. The preferences switch persists/removes
+  owner-scoped `push_subscriptions`, and backend fan-out respects per-event settings, prunes expired
+  endpoints, and deep-links into the relevant pool/spend.
+- In-app live delivery uses Supabase Realtime exclusively.
+- The real Playwright acceptance path passes end to end: signed testnet spend request → indexer →
+  notification row → Supabase Edge Function → browser service worker → in-app notification.
+
+VAPID keys are deployment secrets and are intentionally not committed. `pnpm push:setup` prepares
+one matching pair in the ignored `supabase/.env.push.local` file. Deploy those values as Supabase
+Edge Function secrets; the web app obtains only the public key from the function.
+
+### Historical status at assignment
 
 The build sprint gave you a head start on the plumbing, but **the feed + notification UI is still your
 job**:
 
-- **Already built for you:** `chain_events` is live and populated (Earl's `indexer.ts`, verified), the **push _sender_** `services/ai/src/push.ts` (web-push + VAPID gating on `user_settings.notif_prefs`), and the fan-out trigger `services/ai/src/notify.ts` (fires per event type). `push_subscriptions` + `notifications` tables exist (`0001_init.sql`).
+- **Already built for you:** `chain_events` is live and populated (Earl's `indexer.ts`, verified), Supabase owns push delivery through `supabase/functions/push`, and `services/ai/src/notify.ts` creates notification rows for indexed events. `push_subscriptions` + `notifications` tables exist (`0001_init.sql`).
 - **S1 🔲 TODO** — `apps/web/src/hooks/useActivity.ts`: read `chain_events` for the active pool, newest first. (Today `PoolDetail.tsx` shows a per-pool "Needs approval"/"Released" view from *on-chain state*, not a `chain_events`-backed feed — that feed is yours to build.)
 - **S2 🔲 TODO** — Realtime live updates. **Blocked on Earl's E2** (the Realtime publication isn't applied yet); ship S1 as a poll first, swap to the subscription when E2 lands.
 - **S3 🔲 TODO** — the activity-feed screen/route (`apps/web/src/routes/Activity.tsx`) from Jasmin's spec: one row per event, `peso()`, relative time, tx-hash → stellar.expert.
@@ -74,7 +91,7 @@ screen reflects state.
 ### S5 — Web Push: delivery `M`
 Backend sender (in `services/ai`, coordinate with Earl's E5 trigger): on a `spend_req` → notify each
 pool officer; on `execute` → notify contributors "funds released"; on `contrib` (optional) → notify
-officers. Use `web-push` with the VAPID keys. Deep-link the notification to the relevant pool/spend.
+officers. Supabase sends standards-based Web Push with the VAPID keys. Deep-link the notification to the relevant pool/spend.
 Respect notification prefs from Jasmin's settings screen.
 **Acceptance:** a real `spend_req` on a pool delivers a push to each officer's device that deep-links
 to the pending spend; disabled prefs suppress it.

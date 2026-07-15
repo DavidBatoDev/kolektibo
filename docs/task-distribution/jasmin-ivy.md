@@ -11,7 +11,17 @@ every new Phase-1 screen so Shello and Elton build from a spec (not a blank canv
 **Effort legend:** `S` ≤2h · `M` ½–1d · `L` 1–2d · `XL` >2d. **Depends on:** nothing to start.
 **Consumers:** everyone — tokens/components (David, Earl, Shello, Elton), mockups (Shello, Elton).
 
-## 🔲 Status — open, with a concrete first target (2026-07-13)
+## ✅ Status — implementation completed in the current `main` worktree (2026-07-15)
+
+J0–J4 are implemented: the finalized light green/gold tokens and rationale are in
+[`design-notes.md`](./design-notes.md); the shared primitives (including accessible portal dialogs,
+local QR, feed states, and toast) are documented in [`component-usage.md`](./component-usage.md);
+the en/tl runtime and working Settings/Profile toggle live under `apps/web/src/lib/i18n.tsx`; and the
+state-by-state mobile handoff is [`phase1-screen-specs.md`](./phase1-screen-specs.md). The shell,
+Dashboard, Pools, Profile, Wallet, Notifications, Security, Data, Help, Activity, and Preferences
+screens now switch at runtime, including locale-aware dates and persisted currency display.
+
+### Historical status at assignment
 
 None of your workstream (J0–J4) has been done — the build sprint shipped **functional** multi-user
 screens on the *existing* tokens and `ui.tsx` primitives (no new design system, no i18n). So your job

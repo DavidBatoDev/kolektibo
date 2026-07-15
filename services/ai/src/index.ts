@@ -8,15 +8,25 @@ import { promisify } from 'node:util'
 import { authRouter } from './auth'
 import { walletRouter } from './wallet'
 import { deployPool, fundWithFriendbot, mintUsdc, sdkBackendConfigured } from './chain'
-import { allow, ipOf, HOUR } from './ratelimit'
+import { allow, HOUR, ipOf } from './ratelimit'
 
 const pExecFile = promisify(execFile)
 
 const useSdkBackend = process.env.USE_SDK_BACKEND === '1'
-const corsOrigin = process.env.CORS_ORIGIN
 
 const app = express()
-app.use(cors(corsOrigin ? { origin: corsOrigin } : undefined))
+const allowedOrigins = new Set(
+  (process.env.CORS_ORIGINS || 'http://localhost:5173,http://127.0.0.1:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+)
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin)) return callback(null, true)
+    return callback(new Error('Origin is not allowed'))
+  },
+}))
 app.use(express.json({ limit: '1mb' }))
 app.use('/auth', authRouter)
 app.use('/wallet', walletRouter)
@@ -168,25 +178,39 @@ app.get('/config', (_req, res) => {
     categories: CHAIN.categories,
     limits: CHAIN.limits,
     threshold: 2,
-    configured: Boolean(CHAIN.usdcSac && CHAIN.wasmPath),
+    chainBackend: useSdkBackend ? 'sdk' : 'cli',
+    configured: Boolean(
+      CHAIN.usdcSac
+      && (CHAIN.wasmPath || process.env.TREASURY_WASM_HASH)
+      && (!useSdkBackend || sdkBackendConfigured()),
+    ),
   })
 })
 
 // Mint test USDC to an address (the address must already trust USDC).
 app.post('/faucet', async (req, res) => {
   const address = String(req.body?.address ?? '').trim()
-  const amount = String(req.body?.amount ?? '100000000000') // 10,000 USDC (7 decimals)
+  const amount = String(req.body?.amount ?? process.env.FAUCET_DEFAULT_AMOUNT ?? '100000000000') // 10,000 USDC (7 decimals)
   if (!address.startsWith('G')) return res.status(400).send('Invalid Stellar address')
-  if (!allow(`faucet:ip:${ipOf(req)}`, 30, HOUR))
-    return res.status(429).send('Too many requests. Please try again later.')
-  if (!allow(`faucet:addr:${address}`, 10, HOUR))
-    return res.status(429).send('Too many requests. Please try again later.')
+  let amountRaw: bigint
+  let maximumRaw: bigint
+  try {
+    amountRaw = BigInt(amount)
+    maximumRaw = BigInt(process.env.FAUCET_MAX_AMOUNT ?? '100000000000')
+  } catch {
+    return res.status(400).send('Invalid faucet amount')
+  }
+  if (amountRaw <= 0n || amountRaw > maximumRaw) return res.status(400).send('Faucet amount is outside the allowed range')
+
+  const limit = Number(process.env.FAUCET_REQUESTS_PER_HOUR ?? 5)
+  if (!allow(`faucet:ip:${ipOf(req)}`, limit, HOUR) || !allow(`faucet:address:${address}`, limit, HOUR)) {
+    return res.status(429).send('Faucet rate limit exceeded. Try again later.')
+  }
   try {
     if (useSdkBackend) {
-      if (!sdkBackendConfigured())
-        return res.status(500).send('SDK backend not configured (DEPLOYER_SECRET / ISSUER_SECRET / TREASURY_WASM_PATH / USDC_SAC_ID)')
+      if (!sdkBackendConfigured()) return res.status(503).send('SDK chain backend is not configured')
       await fundWithFriendbot(address)
-      await mintUsdc(address, BigInt(amount))
+      await mintUsdc(address, amountRaw)
     } else {
       await stellar([
         'contract', 'invoke', '--id', CHAIN.usdcSac,
@@ -208,16 +232,22 @@ app.post('/pool/create', async (req, res) => {
   if (officers.length < 1 || officers.some((o) => !String(o).startsWith('G'))) {
     return res.status(400).send('Provide at least 1 officer public keys')
   }
+  if (!Number.isInteger(threshold) || threshold < 1 || threshold > officers.length) {
+    return res.status(400).send('Threshold must be between 1 and the officer count')
+  }
+  const deployLimit = Number(process.env.POOL_DEPLOYS_PER_HOUR ?? 3)
+  if (!allow(`pool-create:${ipOf(req)}`, deployLimit, HOUR)) {
+    return res.status(429).send('Pool deployment rate limit exceeded. Try again later.')
+  }
   try {
     let contractId: string
     if (useSdkBackend) {
-      if (!sdkBackendConfigured())
-        return res.status(500).send('SDK backend not configured (DEPLOYER_SECRET / ISSUER_SECRET / TREASURY_WASM_PATH / USDC_SAC_ID)')
+      if (!sdkBackendConfigured()) return res.status(503).send('SDK chain backend is not configured')
       contractId = await deployPool({
         officers,
         threshold,
         categories: CHAIN.categories,
-        limits: CHAIN.limits.map((l) => BigInt(l)),
+        limits: CHAIN.limits.map(BigInt),
       })
     } else {
       contractId = await stellar([

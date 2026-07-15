@@ -1,8 +1,13 @@
 import { useCreatePool } from '../hooks/usePool'
-import { Button, Card, ProgressBar } from './ui'
+import { Button, Card, StepList, type StepState } from './ui'
 
 export function CreatePool() {
   const create = useCreatePool()
+  const stepState = (activeFrom: number, doneAt: number): StepState => {
+    if (create.progress.pct >= doneAt) return 'done'
+    if (create.progress.pct >= activeFrom) return 'active'
+    return 'pending'
+  }
 
   return (
     <Card className="space-y-3 ring-1 ring-brand-200">
@@ -23,13 +28,12 @@ export function CreatePool() {
       </Button>
 
       {create.isPending && (
-        <div className="space-y-1.5">
-          <ProgressBar value={create.progress.pct} max={100} />
-          <p className="text-center text-xs text-brand-700">
-            {create.progress.label || 'Starting…'}
-            {create.progress.pct > 0 && <span className="text-ink-500"> · {create.progress.pct}%</span>}
-          </p>
-        </div>
+        <StepList steps={[
+          { label: 'Prepare testnet accounts', state: stepState(0, 50), detail: create.progress.pct < 50 ? create.progress.label : undefined },
+          { label: 'Deploy treasury contract', state: stepState(50, 62), detail: create.progress.pct >= 50 && create.progress.pct < 62 ? create.progress.label : undefined },
+          { label: 'Fund and seed the pool', state: stepState(62, 100), detail: create.progress.pct >= 62 && create.progress.pct < 100 ? create.progress.label : undefined },
+          { label: 'Pool confirmed', state: create.progress.pct === 100 ? 'done' : 'pending' },
+        ]} />
       )}
       {create.isError && (
         <p className="text-center text-xs text-danger">

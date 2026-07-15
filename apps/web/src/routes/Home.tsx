@@ -11,7 +11,7 @@ import {
   explorerAccountUrl,
   explorerTxUrl,
 } from '../lib/stellar'
-import { Badge, Button, Card, List, Row, peso, ProgressBar, SectionLabel, inputClass } from '../components/ui'
+import { AppPageHero, Badge, Button, Card, List, Row, peso, ProgressBar, SectionLabel, inputClass } from '../components/ui'
 import { LiveOnChain } from '../components/LiveOnChain'
 
 const SUGGESTIONS = [
@@ -28,12 +28,12 @@ export function HomePage() {
   if (!hasPool) {
     return (
       <div className="space-y-5">
-        <div className="px-1 pt-2">
-          <h1 className="text-xl font-bold text-ink-950">Pooled money your group can trust</h1>
-          <p className="mt-1 text-sm text-ink-700">
-            An AI treasurer, made honest by a smart contract. No single person can touch the fund.
-          </p>
-        </div>
+        <AppPageHero
+          eyebrow="Interactive demo"
+          title="Deploy a testnet treasury"
+          body="Create a sample pool, fund it on Stellar, and walk through the complete shared-money flow."
+          asset="/assets/pool.webp"
+        />
         <CreatePool />
         <LiveOnChain />
       </div>

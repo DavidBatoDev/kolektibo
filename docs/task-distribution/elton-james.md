@@ -19,13 +19,13 @@ book**, and the **DPA-compliant account-deletion** flow.
 All screens shipped and wired:
 
 - **EL1 ✅ DONE** — `apps/web/src/routes/Pools.tsx` + `hooks/usePools.ts` + `lib/poolsApi.ts` (`listMyPools`). My-pools directory, role badges, create/join CTAs; `multi_pool`-flag-gated.
-- **EL2 ✅ DONE (minus QR)** — `apps/web/src/routes/PoolInvite.tsx`: officer creates an invite (role + expiry), copy-link. **Left:** the **QR** render (needs Jasmin's `QRCode` primitive).
+- **EL2 ✅ DONE** — `apps/web/src/routes/PoolInvite.tsx`: officer creates an invite (role + expiry), copy-link, and a locally rendered QR that never sends the invite to a third party.
 - **EL3 ✅ DONE** — `apps/web/src/routes/Join.tsx`: `preview_pool` → sign-in/up → `redeem_invite`, all error states + a "Not now" escape. Verified E2E (a second account joined as officer).
 - **EL4 ✅ DONE** — roster in `apps/web/src/routes/PoolDetail.tsx`: officers/members, avatars, **verified-wallet badges**, contribution totals. (Note: the `getRoster` embed had to be disambiguated to `profiles!pool_members_user_id_fkey` — `pool_members` has two FKs to `profiles`; already fixed.)
 - **EL5 ✅ DONE** — **address book (named payees).** The `payees` table already exists (`0001_init.sql`, member-read/officer-write RLS) and is now wired into the spend flow through `hooks/usePayees.ts` + `PayeePicker`, so a recipient shows a name.
 - **EL6 ✅ DONE** — **DPA account deletion.** Officer block, audit tombstoning, PII scrub, and deletion flow all working. Entry point in Profile → Danger Zone. Password confirmation removed for streamlined UX.
 
-**Left for you: the invite QR.** Detail below is retained for reference.
+**No assigned implementation remains.** Detail below is retained for reference.
 
 ---
 

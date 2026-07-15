@@ -5,12 +5,14 @@ import { supabase } from './supabase'
 // cached, so a user can't be stranded on /verify-email after verifying in another tab — the
 // next navigation just re-queries. Cleared on any auth state change (see lib/auth.tsx).
 let verifiedFor: string | null = null
+const featureCache = new Map<string, { enabled: boolean; expiresAt: number }>()
 
 export function markVerified(userId: string): void {
   verifiedFor = userId
 }
 export function clearVerifiedCache(): void {
   verifiedFor = null
+  featureCache.clear()
 }
 
 /**
@@ -56,4 +58,24 @@ export async function requireProductionAuth(): Promise<void> {
     return
   }
   throw redirect({ to: '/auth/verify-email' })
+}
+
+/** Server-owned rollout gates for the authenticated product. Direct URLs obey
+ * the same flags as navigation; cached briefly to avoid a query on every tap. */
+export function requireProductionFeatures(...keys: string[]) {
+  return async (): Promise<void> => {
+    await requireProductionAuth()
+    if (!supabase) return
+    const now = Date.now()
+    const missing = keys.filter((key) => !featureCache.has(key) || featureCache.get(key)!.expiresAt < now)
+    if (missing.length) {
+      const { data, error } = await supabase.from('feature_flags').select('key, enabled').in('key', missing)
+      if (error) throw error
+      for (const key of missing) {
+        featureCache.set(key, { enabled: data?.find((row) => row.key === key)?.enabled === true, expiresAt: now + 60_000 })
+      }
+    }
+    const disabled = keys.find((key) => featureCache.get(key)?.enabled !== true)
+    if (disabled) throw redirect({ to: disabled === 'production_shell' ? '/' : '/app' })
+  }
 }

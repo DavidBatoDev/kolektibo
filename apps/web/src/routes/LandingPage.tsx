@@ -16,7 +16,7 @@ export function LandingPage() {
   return (
     <div className="landing-page">
       <div className="banner">
-        <header className="nav">
+        <header className="nav" role="banner">
           <div className="wrap">
             <a className="brand" href="#top">
               <img src="/assets/kolektibo.svg" alt="" />
@@ -35,7 +35,7 @@ export function LandingPage() {
 
         <section className="hero" id="top">
           <div className="wrap">
-            <div className="hero-card hero-anim" style={{ '--delay': 0 } as CSSProperties}>
+            <div className="hero-content hero-anim" style={{ '--delay': 0 } as CSSProperties}>
               <div className="hero-text">
                 <span className="eyebrow hero-anim" style={{ '--delay': 1 } as CSSProperties}>
                   AI treasurer · secured on Stellar
@@ -428,8 +428,8 @@ function ProofPanel({
         ))}
       </div>
       <div className="pg-seq" aria-hidden="true">
-        {nodes.map((label) => (
-          <i key={label} className="node" data-label={label} />
+        {nodes.map((label, index) => (
+          <i key={`${label}-${index}`} className="node" data-label={label} />
         ))}
       </div>
       <div className="pg-stage">
