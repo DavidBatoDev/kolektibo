@@ -7,11 +7,16 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { authRouter } from './auth'
 import { walletRouter } from './wallet'
+import { deployPool, fundWithFriendbot, mintUsdc, sdkBackendConfigured } from './chain'
+import { allow, ipOf, HOUR } from './ratelimit'
 
 const pExecFile = promisify(execFile)
 
+const useSdkBackend = process.env.USE_SDK_BACKEND === '1'
+const corsOrigin = process.env.CORS_ORIGIN
+
 const app = express()
-app.use(cors())
+app.use(cors(corsOrigin ? { origin: corsOrigin } : undefined))
 app.use(express.json({ limit: '1mb' }))
 app.use('/auth', authRouter)
 app.use('/wallet', walletRouter)
@@ -172,12 +177,23 @@ app.post('/faucet', async (req, res) => {
   const address = String(req.body?.address ?? '').trim()
   const amount = String(req.body?.amount ?? '100000000000') // 10,000 USDC (7 decimals)
   if (!address.startsWith('G')) return res.status(400).send('Invalid Stellar address')
+  if (!allow(`faucet:ip:${ipOf(req)}`, 30, HOUR))
+    return res.status(429).send('Too many requests. Please try again later.')
+  if (!allow(`faucet:addr:${address}`, 10, HOUR))
+    return res.status(429).send('Too many requests. Please try again later.')
   try {
-    await stellar([
-      'contract', 'invoke', '--id', CHAIN.usdcSac,
-      '--source', CHAIN.issuer, '--network', CHAIN.network,
-      '--', 'mint', '--to', address, '--amount', amount,
-    ])
+    if (useSdkBackend) {
+      if (!sdkBackendConfigured())
+        return res.status(500).send('SDK backend not configured (DEPLOYER_SECRET / ISSUER_SECRET / TREASURY_WASM_PATH / USDC_SAC_ID)')
+      await fundWithFriendbot(address)
+      await mintUsdc(address, BigInt(amount))
+    } else {
+      await stellar([
+        'contract', 'invoke', '--id', CHAIN.usdcSac,
+        '--source', CHAIN.issuer, '--network', CHAIN.network,
+        '--', 'mint', '--to', address, '--amount', amount,
+      ])
+    }
     res.json({ ok: true })
   } catch (e) {
     console.error('[/faucet]', chainErr(e))
@@ -193,20 +209,32 @@ app.post('/pool/create', async (req, res) => {
     return res.status(400).send('Provide at least 1 officer public keys')
   }
   try {
-    const contractId = await stellar([
-      'contract', 'deploy', '--wasm', CHAIN.wasmPath,
-      '--source', CHAIN.deployer, '--network', CHAIN.network,
-    ])
-    await stellar([
-      'contract', 'invoke', '--id', contractId,
-      '--source', CHAIN.deployer, '--network', CHAIN.network,
-      '--', 'initialize',
-      '--token', CHAIN.usdcSac,
-      '--officers', JSON.stringify(officers),
-      '--threshold', String(threshold),
-      '--categories', JSON.stringify(CHAIN.categories),
-      '--limits', JSON.stringify(CHAIN.limits),
-    ])
+    let contractId: string
+    if (useSdkBackend) {
+      if (!sdkBackendConfigured())
+        return res.status(500).send('SDK backend not configured (DEPLOYER_SECRET / ISSUER_SECRET / TREASURY_WASM_PATH / USDC_SAC_ID)')
+      contractId = await deployPool({
+        officers,
+        threshold,
+        categories: CHAIN.categories,
+        limits: CHAIN.limits.map((l) => BigInt(l)),
+      })
+    } else {
+      contractId = await stellar([
+        'contract', 'deploy', '--wasm', CHAIN.wasmPath,
+        '--source', CHAIN.deployer, '--network', CHAIN.network,
+      ])
+      await stellar([
+        'contract', 'invoke', '--id', contractId,
+        '--source', CHAIN.deployer, '--network', CHAIN.network,
+        '--', 'initialize',
+        '--token', CHAIN.usdcSac,
+        '--officers', JSON.stringify(officers),
+        '--threshold', String(threshold),
+        '--categories', JSON.stringify(CHAIN.categories),
+        '--limits', JSON.stringify(CHAIN.limits),
+      ])
+    }
     res.json({ ok: true, contractId })
   } catch (e) {
     console.error('[/pool/create]', chainErr(e))
@@ -217,4 +245,5 @@ app.post('/pool/create', async (req, res) => {
 const port = Number(process.env.PORT || 8787)
 app.listen(port, () => {
   console.log(`Kolektibo AI service → http://localhost:${port}  (model: ${model}, key: ${apiKey ? 'set' : 'MISSING'})`)
+  console.log(`chain backend: ${useSdkBackend ? 'sdk' : 'cli'}`)
 })

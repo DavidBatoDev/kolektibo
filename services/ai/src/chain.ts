@@ -1,7 +1,6 @@
 // Backend v1 chain module: stellar-sdk replacements for the CLI-shelling in
-// index.ts (deploy+initialize a treasury; mint demo USDC). UNWIRED during the
-// Jul-15 demo freeze — index.ts gains a `USE_SDK_BACKEND=1` dispatch after the
-// freeze lifts, keeping the proven CLI path as fallback.
+// index.ts (deploy+initialize a treasury; mint demo USDC). Wired behind
+// USE_SDK_BACKEND=1 in index.ts; CLI path remains the default through Jul 15.
 //
 // Env (all server-only, .env is gitignored):
 //   DEPLOYER_SECRET      S… key that deploys + initializes pools
@@ -9,7 +8,7 @@
 //   TREASURY_WASM_PATH   compiled treasury wasm (same file the CLI path uses)
 //   TREASURY_WASM_HASH   optional hex cache — skips hashing/upload checks
 //   USDC_SAC_ID          the USDC Stellar Asset Contract id
-// One-time key export from the CLI keystore: `stellar keys show kolektibo-deployer`.
+// One-time key export from the CLI keystore: `stellar keys secret kolektibo-deployer`.
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import {
@@ -154,6 +153,12 @@ export async function deployPool(input: {
   })
   await at.signAndSend()
   return contractId
+}
+
+/** Fund a new testnet account with XLM via friendbot (idempotent). */
+export async function fundWithFriendbot(publicKey: string): Promise<void> {
+  const r = await fetch(`https://friendbot.stellar.org?addr=${encodeURIComponent(publicKey)}`)
+  if (!r.ok && r.status !== 400) throw new Error(`friendbot ${r.status}`)
 }
 
 /** Mint demo USDC from the issuer (SAC admin) to `to`. Amount is raw i128 units. */
