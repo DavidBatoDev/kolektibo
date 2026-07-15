@@ -304,6 +304,7 @@ body,
   --mono: 'JetBrains Mono', ui-monospace, monospace;
   --gutter: 24px;
   --maxw: 1160px;
+  overflow-x: clip;
 }
 
 .landing-page * { box-sizing: border-box; }
@@ -319,7 +320,7 @@ body,
 .landing-page a { color: inherit; text-decoration: none; }
 .landing-page b { font-weight: 700; }
 
-.landing-page .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); width: 100%; }
+.landing-page .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); width: 100%; min-width: 0; }
 
 /* ---- shared type ---- */
 .landing-page .section-label {
@@ -410,8 +411,8 @@ body,
 }
 
 .landing-page .nav .wrap { display: flex; align-items: center; gap: 24px; height: 70px; }
-.landing-page .brand { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 19px; letter-spacing: -.02em; }
-.landing-page .brand img { width: 30px; height: 30px; }
+.landing-page .brand { display: flex; align-items: center; }
+.landing-page .brand img { width: auto; height: 40px; display: block; }
 .landing-page .nav-links { display: flex; gap: 30px; margin-left: auto; }
 .landing-page .nav-links a { font-size: 15px; font-weight: 500; color: var(--muted); }
 .landing-page .nav-links a:hover { color: var(--ink); }
@@ -426,10 +427,10 @@ body,
     linear-gradient(90deg, rgba(240,253,244,.95) 0%, rgba(240,253,244,.72) 33%, rgba(240,253,244,.18) 52%, rgba(240,253,244,0) 66%),
     linear-gradient(180deg, rgba(240,253,244,.7) 0%, rgba(240,253,244,0) 22%),
     linear-gradient(0deg,   rgba(240,253,244,.85) 0%, rgba(240,253,244,0) 24%),
-    linear-gradient(270deg, rgba(240,253,244,.55) 0%, rgba(240,253,244,0) 20%),
+    linear-gradient(270deg, rgba(240,253,244,.28) 0%, transparent 14%),
     url('/backgrounds/bg-hero-landing.png');
-  background-size: cover, cover, cover, cover, auto 130%;
-  background-position: center, center, center, center, 76% center;
+  background-size: cover, cover, cover, cover, auto 145%;
+  background-position: center, center, center, center, right center;
   background-repeat: no-repeat;
 }
 
@@ -1055,38 +1056,76 @@ body,
 
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 900px) {
-  .nav-links { display: none; }
-  .grid-3 { grid-template-columns: 1fr; }
-  .bento { grid-template-columns: 1fr; }
-  .bento-card.lg { grid-column: auto; grid-row: auto; }
-  .hero { padding: 56px 0 334px;
+  .landing-page .nav-links { display: none; }
+  .landing-page .grid-3 { grid-template-columns: 1fr; }
+  .landing-page .bento { grid-template-columns: 1fr; }
+  .landing-page .bento-card.lg { grid-column: auto; grid-row: auto; }
+  .landing-page .hero {
+    padding: 56px 0 334px;
     background-image: linear-gradient(180deg, rgba(240,253,244,.96) 0%, rgba(240,253,244,.72) 42%, rgba(240,253,244,0) 76%), url('/backgrounds/bg-hero-landing.png');
-    background-position: center, center bottom; }
-  .hero .wrap { min-height: 0; }
-  .hero-text { max-width: none; }
-  .hero .sub { max-width: none; }
-  .phones { grid-template-columns: 1fr; max-width: 300px; }
-  .phone.lift { transform: none; }
-  .safe { min-height: 0; padding: 48px 0 320px;
+    background-position: center, center bottom;
+    background-size: cover, auto 120%;
+  }
+  .landing-page .hero .wrap { min-height: 0; }
+  .landing-page .hero-text { max-width: none; }
+  .landing-page .hero .sub { max-width: none; }
+  .landing-page .section-head { max-width: none; }
+  .landing-page .phones {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    max-width: min(300px, 100%);
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .landing-page .phone.lift { transform: none; }
+  .landing-page .safe {
+    min-height: 0;
+    padding: 48px 0 320px;
     background-image: linear-gradient(180deg, var(--page) 0%, rgba(247,250,248,.85) 46%, rgba(247,250,248,0) 78%), url('/backgrounds/bg-security-landing.png');
-    background-position: center, center bottom; }
-  .points { grid-template-columns: 1fr; }
-  .pg-grid { grid-template-columns: 1fr; grid-template-rows: none; }
-  .pg-panel { display: flex; flex-direction: column; grid-row: auto; gap: 14px; }
-  .pg-foot { flex-direction: column; align-items: flex-start; }
-  .pg-links { align-items: flex-start; }
-  .foot-grid { grid-template-columns: 1fr 1fr; }
+    background-position: center, center bottom;
+  }
+  .landing-page .points { grid-template-columns: 1fr; }
+  .landing-page .pg-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    gap: 24px;
+  }
+  .landing-page .pg-panel {
+    display: flex;
+    flex-direction: column;
+    grid-row: auto;
+    grid-template-rows: none;
+    gap: 14px;
+    min-width: 0;
+  }
+  .landing-page .pg-foot { flex-direction: column; align-items: flex-start; }
+  .landing-page .pg-links { align-items: flex-start; }
+  .landing-page .foot-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 540px) {
-  :root { --gutter: 18px; }
-  .actions { gap: 14px; }
-  .stats { flex-direction: column; }
-  .stat { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
-  .stat .l { margin-top: 0; }
-  .foot-grid { grid-template-columns: 1fr; }
-  .hero { padding-bottom: 294px; }
-  .safe { padding-bottom: 280px; }
+  .landing-page { --gutter: 18px; }
+  .landing-page .actions { flex-direction: column; align-items: stretch; gap: 14px; }
+  .landing-page .actions .btn-primary,
+  .landing-page .actions .btn-ghost { justify-content: center; }
+  .landing-page .live-chip { flex-wrap: wrap; justify-content: center; text-align: center; }
+  .landing-page .powered-row { gap: 10px 24px; }
+  .landing-page .pg-head { flex-wrap: wrap; row-gap: 8px; }
+  .landing-page .pg-tag-id { font-size: 11px; overflow-wrap: anywhere; }
+  .landing-page .pg-seq {
+    overflow-x: auto;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 12px;
+  }
+  .landing-page .pg-panel h3 { font-size: 18px; }
+  .landing-page .pg-desc { font-size: 14px; }
+  .landing-page .stats { flex-direction: column; }
+  .landing-page .stat { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
+  .landing-page .stat .l { margin-top: 0; }
+  .landing-page .foot-grid { grid-template-columns: 1fr; }
+  .landing-page .hero { padding-bottom: 294px; }
+  .landing-page .safe { padding-bottom: 280px; }
 }
 
 /* ===================== ANIMATIONS & REVEALS ===================== */

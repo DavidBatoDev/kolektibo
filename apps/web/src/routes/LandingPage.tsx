@@ -19,8 +19,7 @@ export function LandingPage() {
         <header className="nav" role="banner">
           <div className="wrap">
             <a className="brand" href="#top">
-              <img src="/assets/kolektibo.svg" alt="" />
-              Kolektibo
+              <img src="/landingpage-logo.png" alt="Kolektibo" />
             </a>
             <nav className="nav-links">
               <a href="#how">How it works</a>
@@ -341,8 +340,7 @@ export function LandingPage() {
         <div className="wrap foot-grid">
           <div className="foot-brand">
             <a className="brand" href="#top">
-              <img src="/assets/kolektibo.svg" alt="" />
-              Kolektibo
+              <img src="/landingpage-logo.png" alt="Kolektibo" />
             </a>
             <p>Pooled money your group can trust.</p>
             <span className="powered">Powered by Stellar · Soroban · USDC</span>

@@ -19,11 +19,13 @@
     "agent:secrets": "pnpm --filter @kolektibo/ai agent:secrets",
     "contract:build": "cd contracts/treasury && stellar contract build",
     "contract:deploy": "bash scripts/deploy.sh",
-    "assets:optimize": "node scripts/optimize-assets.mjs"
+    "assets:optimize": "node scripts/optimize-assets.mjs",
+    "favicon:generate": "node scripts/generate-favicon.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "sharp": "^0.35.3",
+    "to-ico": "^1.1.5",
     "web-push": "^3.6.7"
   }
 }

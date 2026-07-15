@@ -36,7 +36,7 @@
 
 <br/>
 
-[**Open the demo**](#-60-second-demo-for-judges) · [**On-chain proof**](#-on-chain-proof-judges-start-here) · [**Architecture**](#-architecture) · [**Team**](#-team) · [**Run locally**](#-quick-start) · [**Full docs**](./docs/00-INDEX_2026-07-11_0146.md)
+[**Try the demo**](#-try-it-in-60-seconds) · [**On-chain proof**](#-trust-you-can-verify) · [**Architecture**](#-architecture) · [**Team**](#-team) · [**Get started**](#-quick-start) · [**Docs**](./docs/00-INDEX_2026-07-11_0146.md)
 
 </div>
 
@@ -67,19 +67,19 @@ Funds move **only** when your rules and enough officers say so. No single person
 
 ---
 
-## 🏆 For judges — why Kolektibo wins
+## Why Kolektibo
 
 > **Kolektibo** (*Tagalog: pooled capital*) replaces the notebook and the single trusted treasurer with an **AI interface** backed by a **Soroban smart contract** that holds USDC and enforces M-of-N approvals + per-category spend caps on every release.
 
-| What judges reward | What we ship |
+| What your group needs | What Kolektibo delivers |
 |---|---|
-| **Real utility, user-facing** | A treasury a barangay committee, church group, or team _pondohan_ can run from a phone — no seed phrase, no wallet extension required for the demo |
-| **Local relevance (Philippines / APAC)** | Built for Filipino pooled-money culture (barangay funds, church collections, co-ops, reunion funds); group thinks in **₱**, settles in **USDC** on Stellar |
-| **Composability on Stellar** | Soroban treasury + SAC USDC + autonomous delegated mandates; natural next hops: SEP-24 anchor (GCash), Blend yield |
-| **Trust & security** | Money authority lives **only** on-chain; Supabase is identity + read-models with **zero fund authority** — wipe the DB, not one centavo is at risk |
-| **Working product, not a slide deck** | Full loop **verified on testnet** with explorer links, Playwright QA (12/12), and 8/8 contract unit tests |
+| **Simple, from a phone** | A treasury any barangay committee, church group, or team _pondohan_ can run — no seed phrase, no wallet extension required |
+| **Built for how Filipinos pool money** | Designed for barangay funds, church collections, co-ops, and reunion funds; your group thinks in **₱**, settles in **USDC** on Stellar |
+| **Room to grow** | Soroban treasury + SAC USDC + autonomous delegated mandates — ready for GCash on-ramps and idle-fund yield |
+| **Trust without blind faith** | Money authority lives **only** on-chain; Supabase handles identity and read-models with **zero fund authority** |
+| **Real software, live today** | Full loop **running on testnet** — explorer links, 12/12 automated QA scenarios, 8/8 contract unit tests |
 
-### The moat (steps 4–6, not the AI)
+### Safety by design — the contract, not the AI
 
 The AI can't play favorites, can't be bribed, and can't drain the fund — it has **no payment tool** and **no keys**. It can only ever call a contract that enforces the group's policy:
 
@@ -89,9 +89,9 @@ The AI can't play favorites, can't be bribed, and can't drain the fund — it ha
 
 ---
 
-## ⛓ On-chain proof (judges: start here)
+## Trust you can verify
 
-Everything trust-critical is on **Stellar Testnet** and linkable in [stellar.expert](https://stellar.expert/explorer/testnet).
+Every movement of funds is on **Stellar Testnet** and publicly auditable on [stellar.expert](https://stellar.expert/explorer/testnet).
 
 | Artifact | ID / hash |
 |---|---|
@@ -100,15 +100,15 @@ Everything trust-critical is on **Stellar Testnet** and linkable in [stellar.exp
 | Test USDC (Stellar Asset Contract) | [`CDTCIZLKSZNDFDSZRQUFIHQ5P5L2OOI5DDOMSY5NH6NQQTGSOE5LK7QR`](https://stellar.expert/explorer/testnet/contract/CDTCIZLKSZNDFDSZRQUFIHQ5P5L2OOI5DDOMSY5NH6NQQTGSOE5LK7QR) |
 | **Proof: 2-of-3 USDC release** (1 approval blocked, then success) | [`127e4e3f…aa31278`](https://stellar.expert/explorer/testnet/tx/127e4e3f868798c3df9d6d8f4376d18e38d80dc9b470f961cb87420d1aa31278) |
 
-**Verified behaviors on-chain:**
+**Protections enforced on-chain:**
 
-| Attack / edge case | Result |
+| Scenario | What happens |
 |---|---|
-| `execute` with only 1 of 3 approvals | ❌ Reverted `NotEnoughApprovals` (#6) |
-| Duplicate approval from same officer | ❌ Reverted `AlreadyApproved` (#7) |
-| Spend over category cap (₱6,000 vs ₱5,000 Equipment) | ❌ Reverted `OverCategoryLimit` (#3) |
-| Non-officer proposes spend | ❌ Reverted `NotOfficer` (#2) |
-| `execute` after 2-of-3 threshold met | ✅ Real USDC `transfer` event |
+| One officer tries to release funds alone | ❌ Blocked — `NotEnoughApprovals` |
+| Same officer approves twice | ❌ Blocked — `AlreadyApproved` |
+| Spend exceeds category cap (₱6,000 vs ₱5,000 Equipment) | ❌ Blocked — `OverCategoryLimit` |
+| Non-officer proposes a spend | ❌ Blocked — `NotOfficer` |
+| 2-of-3 threshold met, then release | ✅ Real USDC `transfer` event |
 
 Full deployment record: [`DEPLOYMENT.md`](./DEPLOYMENT.md) · Proof write-up: [`docs/06-deployment-and-onchain-proof`](./docs/06-deployment-and-onchain-proof_2026-07-11_0146.md)
 
@@ -128,16 +128,16 @@ Full deployment record: [`DEPLOYMENT.md`](./DEPLOYMENT.md) · Proof write-up: [`
 
 ### Two apps, one codebase
 
-| | **Demo** (`/demo/*`) | **Production** (`/app/*`) |
+| | **Try it now** (`/demo/*`) | **Your pools** (`/app/*`) |
 |---|---|---|
-| **Purpose** | Hackathon proof — works with zero env | Multi-device product (Supabase auth, pools, feeds) |
-| Identity | 3 in-browser officer personas (`localStorage`) | Supabase account + wallet proof-of-ownership |
-| Pool | One seeded treasury contract | Many pools, invites, roster |
-| Status | ✅ **Frozen & green** for Jul 15 submission | ✅ Phase 1 complete behind `multi_pool` flag |
+| **Best for** | First look — works instantly, no setup | Day-to-day use across devices |
+| Identity | 3 in-browser officer personas | Your account + linked wallet |
+| Pool | One live treasury on testnet | Many pools, invites, full roster |
+| Status | ✅ Live and ready to explore | ✅ Multi-device product (Supabase) |
 
 ---
 
-## 🎬 60-second demo (for judges)
+## Try it in 60 seconds
 
 ```bash
 pnpm install
@@ -146,19 +146,19 @@ pnpm --filter @kolektibo/ai sdk:configure
 pnpm dev                                         # web :5173 · backend :8787
 ```
 
-Open **http://localhost:5173/demo** and run the loop:
+Open **http://localhost:5173/demo** and walk through the full experience:
 
-| Step | What happens | Why it matters |
+| Step | What you do | What you see |
 |:---:|---|---|
-| **1** | **Deploy on Stellar testnet** — fresh treasury, 3 officer personas, seeded USDC | Real contract, not a mock |
-| **2** | **Contribute** — member adds USDC (client-signed) | Funds enter the contract |
-| **3** | **Request spend** — officer proposes; auto-approval shows **1/2**; Release **disabled** | Threshold gating is visible |
-| **4** | **Approve** — second officer signs → **2/2** green badge; Release **unlocks** | Multisig is real `require_auth` |
-| **5** | **Release** — USDC moves; balance + activity update; **tx link** on stellar.expert | Money actually moved |
-| **6** | **Ask AI** — *"where did the money go?"* → grounded answer with approvers + amounts | AI has no keys; reads chain state |
-| **7** | Try **over-limit** spend → Submit disabled | Contract policy enforced in UI |
+| **1** | **Create a pool** on Stellar testnet | A real treasury contract, 3 officers, seeded USDC |
+| **2** | **Contribute** as a member | Funds land in the shared contract |
+| **3** | **Request a spend** | Auto-approval shows **1/2** — Release stays locked |
+| **4** | **Approve** as a second officer | Badge flips to **2/2** — Release unlocks |
+| **5** | **Release** the payment | USDC moves; balance updates; tx link on stellar.expert |
+| **6** | **Ask the AI** — *"where did the money go?"* | A plain-language answer grounded in on-chain history |
+| **7** | Try an **over-limit** spend | Submit stays disabled — your rules hold |
 
-Presenter script + troubleshooting: [`docs/09-how-to-run`](./docs/09-how-to-run_2026-07-11_0146.md)
+Full walkthrough + troubleshooting: [`docs/09-how-to-run`](./docs/09-how-to-run_2026-07-11_0146.md)
 
 ---
 
@@ -204,7 +204,7 @@ Deep dive: [`ARCHITECTURE.md`](./ARCHITECTURE.md) · Contract reference: [`docs/
 
 ---
 
-## 🤖 Autonomous Agent (stretch that ships)
+## 🤖 Autonomous Agent
 
 Officers can approve a **delegated mandate** on-chain — fixed recipient, category, amount, schedule, expiry, execution count, and minimum-balance floor. An isolated per-pool agent signer may then execute **only** that mandate; Soroban rechecks every limit before transferring USDC.
 
@@ -216,7 +216,7 @@ Operations guide: [`docs/autonomous-agent`](./docs/autonomous-agent_2026-07-15.m
 
 ---
 
-## ✅ Verification & quality
+## Built and tested
 
 | Layer | Evidence |
 |---|---|
@@ -293,7 +293,7 @@ pnpm dev                                     # parallel: web :5173 + ai :8787
 ```bash
 cargo test --manifest-path contracts/treasury/Cargo.toml
 pnpm contract:build
-pnpm contract:deploy    # ⚠️ mints new contract IDs — demo freeze: don't re-run before submission
+pnpm contract:deploy    # ⚠️ deploys a fresh contract instance with new IDs
 ```
 
 > **Windows:** `cargo` / `stellar` may not be on PATH in a fresh shell — run `source scripts/env.sh` first (Git Bash) or add Rust/Stellar CLI to PATH.
@@ -304,7 +304,7 @@ pnpm contract:deploy    # ⚠️ mints new contract IDs — demo freeze: don't r
 
 <div align="center">
 
-<sub><b>APAC STELLAR HACKATHON 2026</b> · Demo Day Jul 18 · Grand Finale Jul 24</sub>
+<sub><b>Built at APAC Stellar Hackathon 2026</b></sub>
 
 <br/><br/>
 
@@ -316,15 +316,13 @@ pnpm contract:deploy    # ⚠️ mints new contract IDs — demo freeze: don't r
 
 </div>
 
-| | Member | Role | What they shipped |
-|:---:|---|---|---|
-| 🟢 | **David Bato-bato** | Tech Lead & Blockchain Engineer | Auth, wallet linking, pools, invites, membership backbone |
-| ✨ | **Jasmin Ivy Fedilo** | Product Designer & UI/UX | Green + gold design system, i18n (en/tl), component library, screen specs |
-| ⚙️ | **Earl Clyde Banez** | Backend Engineer | `stellar-sdk` backend, chain indexer, Realtime, wallet proof API |
-| 🖥️ | **Elton James Donato** | Frontend Engineer | Pool directory, invite/join UI, roster, payees, DPA deletion |
-| 🖥️ | **Jan Shello Cabilin** | Frontend Engineer | Activity feed, Web Push notifications, deep links |
-
-Task distribution & Phase 1 status: [`docs/task-distribution`](./docs/task-distribution/README.md)
+| | Member | Role |
+|:---:|---|---|
+| 🟢 | **David Bato-bato** | Tech Lead & Blockchain Engineer |
+| ✨ | **Jasmin Ivy Fedilo** | Product Designer & UI/UX |
+| ⚙️ | **Earl Clyde Banez** | Backend Engineer |
+| 🖥️ | **Elton James Donato** | Frontend Engineer |
+| 🖥️ | **Jan Shello Cabilin** | Frontend Engineer |
 
 ---
 
@@ -333,16 +331,16 @@ Task distribution & Phase 1 status: [`docs/task-distribution`](./docs/task-distr
 | Doc | Contents |
 |---|---|
 | [**Index**](./docs/00-INDEX_2026-07-11_0146.md) | Full doc map + live contract IDs |
-| [**Project overview**](./docs/01-project-overview_2026-07-11_0146.md) | Vision, problem, hackathon context, judging map |
+| [**Project overview**](./docs/01-project-overview_2026-07-11_0146.md) | Vision, problem, target users, product story |
 | [**Architecture**](./docs/02-architecture_2026-07-11_0146.md) | Data flow, stack versions, security model |
 | [**Smart contract**](./docs/03-smart-contract_2026-07-11_0146.md) | Every function, error code, test, guarantee |
 | [**Backend & AI**](./docs/04-backend-and-ai_2026-07-11_0146.md) | All endpoints, OpenAI, chain-ops |
 | [**Frontend**](./docs/05-frontend_2026-07-11_0146.md) | Screens, personas, ₱-vs-USDC model |
 | [**Deployment proof**](./docs/06-deployment-and-onchain-proof_2026-07-11_0146.md) | Tx hashes, E2E verification |
-| [**How to run & demo**](./docs/09-how-to-run_2026-07-11_0146.md) | Presenter walkthrough |
+| [**How to run & demo**](./docs/09-how-to-run_2026-07-11_0146.md) | Step-by-step walkthrough |
 | [**Autonomous agent**](./docs/autonomous-agent_2026-07-15.md) | Mandates, key isolation, worker ops |
 | [**App map**](./docs/app-map_2026-07-15.md) | Whole-app orientation for new contributors |
-| [**Production roadmap**](./docs/production-roadmap_2026-07-11_0552.md) | Hackathon → real product plan |
+| [**Production roadmap**](./docs/production-roadmap_2026-07-11_0552.md) | From MVP to full product |
 
 ---
 
