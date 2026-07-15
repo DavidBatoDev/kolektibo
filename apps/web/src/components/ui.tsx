@@ -3,6 +3,7 @@ import {
   type ButtonHTMLAttributes, type HTMLAttributes,
   type ReactNode,
 } from "react";
+import { QRCodeSVG } from "qrcode.react";
 
 /* ============================================================
    ui.tsx — the kit. Nobody hand-rolls CSS. Import from here.
@@ -460,6 +461,17 @@ export function CopyField({ value, label }: { value: string; label: string }) {
         </Button>
       </div>
     </Field>
+  );
+}
+
+/* ---------- qr code ---------- */
+
+/** Standard QR code primitive for sharing URLs or addresses. */
+export function QRCode({ value, size = 120 }: { value: string; size?: number }) {
+  return (
+    <div className="inline-flex rounded-xl bg-white p-2 shadow-sm ring-1 ring-ink-300/50">
+      <QRCodeSVG value={value} size={size} fgColor="#0B1210" level="M" />
+    </div>
   );
 }
 
