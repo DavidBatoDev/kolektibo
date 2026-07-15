@@ -134,7 +134,7 @@ export function PayeePicker({
         </select>
       </Field>
       {value && !['__manual', '__new', ''].includes(value) && (
-        <p className="text-xs text-slate-500 font-mono break-all">
+        <p className="text-xs text-ink-500 font-mono break-all">
           {value}
         </p>
       )}

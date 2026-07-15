@@ -29,24 +29,24 @@ function LandingShell() {
       <header className="sticky top-0 z-20 border-b border-white/5 bg-ink-950/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-5 px-4 py-3 sm:px-6">
           <Brand />
-          <nav className="hidden items-center gap-5 text-sm text-slate-400 md:flex">
-            <Link to="/how-it-works" activeProps={{ className: 'text-white' }} className="hover:text-white">How it works</Link>
-            <Link to="/features" activeProps={{ className: 'text-white' }} className="hover:text-white">Features</Link>
-            <Link to="/security" activeProps={{ className: 'text-white' }} className="hover:text-white">Security</Link>
-            <Link to="/pricing" activeProps={{ className: 'text-white' }} className="hover:text-white">Pricing</Link>
+          <nav className="hidden items-center gap-5 text-sm text-ink-500 md:flex">
+            <Link to="/how-it-works" activeProps={{ className: 'text-ink-950' }} className="hover:text-ink-950">How it works</Link>
+            <Link to="/features" activeProps={{ className: 'text-ink-950' }} className="hover:text-ink-950">Features</Link>
+            <Link to="/security" activeProps={{ className: 'text-ink-950' }} className="hover:text-ink-950">Security</Link>
+            <Link to="/pricing" activeProps={{ className: 'text-ink-950' }} className="hover:text-ink-950">Pricing</Link>
           </nav>
           <div className="flex items-center gap-2">
-            <Link to={user ? '/app' : '/auth/sign-in'} className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:text-white">{user ? 'Open app' : 'Sign in'}</Link>
-            {!user && <Link to="/auth/sign-up" className="hidden rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-500 sm:block">Get started</Link>}
+            <Link to={user ? '/app' : '/auth/sign-in'} className="rounded-xl px-3 py-2 text-sm text-ink-700 hover:text-ink-950">{user ? 'Open app' : 'Sign in'}</Link>
+            {!user && <Link to="/auth/sign-up" className="hidden rounded-xl bg-brand-600 px-3 py-2 text-sm font-semibold text-ink-950 hover:bg-brand-500 sm:block">Get started</Link>}
           </div>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 sm:px-6"><Outlet /></main>
       <footer className="border-t border-white/5">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-sm sm:grid-cols-4 sm:px-6">
-          <div className="sm:col-span-2"><Brand /><p className="mt-3 max-w-sm text-xs leading-5 text-slate-500">A non-custodial group treasury for Filipino communities. Testnet beta only.</p></div>
-          <div className="space-y-2"><p className="font-medium text-white">Product</p><Link to="/about" className="block text-slate-500 hover:text-slate-300">About</Link><Link to="/help" className="block text-slate-500 hover:text-slate-300">Help</Link><Link to="/status" className="block text-slate-500 hover:text-slate-300">Status</Link></div>
-          <div className="space-y-2"><p className="font-medium text-white">Legal</p><Link to="/legal/terms" className="block text-slate-500 hover:text-slate-300">Terms</Link><Link to="/legal/privacy" className="block text-slate-500 hover:text-slate-300">Privacy</Link><Link to="/legal/risk" className="block text-slate-500 hover:text-slate-300">Risk</Link></div>
+          <div className="sm:col-span-2"><Brand /><p className="mt-3 max-w-sm text-xs leading-5 text-ink-500">A non-custodial group treasury for Filipino communities. Testnet beta only.</p></div>
+          <div className="space-y-2"><p className="font-medium text-ink-950">Product</p><Link to="/about" className="block text-ink-500 hover:text-ink-700">About</Link><Link to="/help" className="block text-ink-500 hover:text-ink-700">Help</Link><Link to="/status" className="block text-ink-500 hover:text-ink-700">Status</Link></div>
+          <div className="space-y-2"><p className="font-medium text-ink-950">Legal</p><Link to="/legal/terms" className="block text-ink-500 hover:text-ink-700">Terms</Link><Link to="/legal/privacy" className="block text-ink-500 hover:text-ink-700">Privacy</Link><Link to="/legal/risk" className="block text-ink-500 hover:text-ink-700">Risk</Link></div>
         </div>
       </footer>
     </div>
@@ -57,16 +57,16 @@ function LandingShell() {
 function PublicShell() {
   const { user } = useAuth()
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/50 shadow-2xl shadow-black/40 ring-1 ring-white/5">
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/50 shadow-2xl shadow-black/40 ring-1 ring-ink-200">
       <header className="sticky top-0 z-20 flex items-center justify-between border-b border-white/5 bg-ink-950/85 px-4 py-3 backdrop-blur">
         <Brand />
-        <Link to={user ? '/app' : '/auth/sign-in'} className="text-sm text-slate-300 hover:text-white">{user ? 'Open app' : 'Sign in'}</Link>
+        <Link to={user ? '/app' : '/auth/sign-in'} className="text-sm text-ink-700 hover:text-ink-950">{user ? 'Open app' : 'Sign in'}</Link>
       </header>
       <main className="flex-1 px-4"><Outlet /></main>
-      <footer className="border-t border-white/5 px-4 py-7 text-xs text-slate-500">
+      <footer className="border-t border-white/5 px-4 py-7 text-xs text-ink-500">
         <div className="grid grid-cols-2 gap-5">
-          <div className="space-y-2"><p className="font-medium text-white">Product</p><Link to="/about" className="block hover:text-slate-300">About</Link><Link to="/help" className="block hover:text-slate-300">Help</Link><Link to="/status" className="block hover:text-slate-300">Status</Link></div>
-          <div className="space-y-2"><p className="font-medium text-white">Legal</p><Link to="/legal/terms" className="block hover:text-slate-300">Terms</Link><Link to="/legal/privacy" className="block hover:text-slate-300">Privacy</Link><Link to="/legal/risk" className="block hover:text-slate-300">Risk</Link></div>
+          <div className="space-y-2"><p className="font-medium text-ink-950">Product</p><Link to="/about" className="block hover:text-ink-700">About</Link><Link to="/help" className="block hover:text-ink-700">Help</Link><Link to="/status" className="block hover:text-ink-700">Status</Link></div>
+          <div className="space-y-2"><p className="font-medium text-ink-950">Legal</p><Link to="/legal/terms" className="block hover:text-ink-700">Terms</Link><Link to="/legal/privacy" className="block hover:text-ink-700">Privacy</Link><Link to="/legal/risk" className="block hover:text-ink-700">Risk</Link></div>
         </div>
       </footer>
     </div>
@@ -75,8 +75,8 @@ function PublicShell() {
 
 function FocusShell() {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/50 shadow-2xl shadow-black/40 ring-1 ring-white/5">
-      <header className="flex items-center justify-between border-b border-white/5 px-4 py-3"><Brand /><span className="rounded-full bg-white/5 px-2 py-1 text-[10px] text-slate-500 ring-1 ring-white/10">Testnet beta</span></header>
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/50 shadow-2xl shadow-black/40 ring-1 ring-ink-200">
+      <header className="flex items-center justify-between border-b border-white/5 px-4 py-3"><Brand /><span className="rounded-full bg-paper-100 px-2 py-1 text-[10px] text-ink-500 ring-1 ring-ink-200">Testnet beta</span></header>
       <main className="flex-1 px-4 py-4"><Outlet /></main>
     </div>
   )
@@ -91,11 +91,11 @@ function DemoShell() {
     { to: '/demo/rules', label: 'Rules', Icon: IconGear },
   ] as const
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/60 shadow-2xl shadow-black/40 ring-1 ring-white/5">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/5 bg-ink-950/80 px-4 py-3 backdrop-blur"><Brand to="/demo" /><div className="flex items-center gap-2"><span className="rounded-full bg-gold-500/15 px-2 py-1 text-[10px] font-medium text-gold-400 ring-1 ring-gold-500/30">Demo</span><Link to="/" aria-label="Leave demo" className="text-xs text-slate-500 hover:text-white">Exit</Link></div></header>
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/60 shadow-2xl shadow-black/40 ring-1 ring-ink-200">
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/5 bg-ink-950/80 px-4 py-3 backdrop-blur"><Brand to="/demo" /><div className="flex items-center gap-2"><span className="rounded-full bg-gold-500/15 px-2 py-1 text-[10px] font-medium text-gold-400 ring-1 ring-gold-500/30">Demo</span><Link to="/" aria-label="Leave demo" className="text-xs text-ink-500 hover:text-ink-950">Exit</Link></div></header>
       <main className="no-scrollbar flex-1 overflow-y-auto px-4 pb-28 pt-4"><Outlet /></main>
       <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md border-t border-white/5 bg-ink-950/90 backdrop-blur" style={{ paddingBottom: 'var(--safe-bottom)' }}>
-        {tabs.map(({ to, label, Icon }) => { const active = to === '/demo' ? pathname === to : pathname.startsWith(to); return <Link key={to} to={to} className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium ${active ? 'text-brand-400' : 'text-slate-500'}`}><Icon className="h-5 w-5" />{label}</Link> })}
+        {tabs.map(({ to, label, Icon }) => { const active = to === '/demo' ? pathname === to : pathname.startsWith(to); return <Link key={to} to={to} className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium ${active ? 'text-brand-400' : 'text-ink-500'}`}><Icon className="h-5 w-5" />{label}</Link> })}
       </nav>
     </div>
   )
@@ -119,20 +119,20 @@ function ProductShell() {
   ] as const
   const active = (to: string, exact?: boolean) => exact ? pathname === to : pathname === to || pathname.startsWith(`${to}/`)
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/50 shadow-2xl shadow-black/40 ring-1 ring-white/5">
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-ink-950/85 backdrop-blur">
-        <div className="flex items-center justify-between px-4 py-3"><Brand to="/app" /><div className="flex items-center gap-3"><span className="rounded-full bg-brand-600/15 px-2 py-1 text-[10px] text-brand-400 ring-1 ring-brand-500/30">Testnet</span><Link to="/app/notifications" aria-label="Notifications" className="text-slate-400"><IconBell className="h-5 w-5" /></Link></div></div>
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50">
+      <header className="sticky top-0 z-20 border-b border-ink-300/60 bg-white/85 backdrop-blur">
+        <div className="flex items-center justify-between px-4 py-3"><Brand to="/app" theme="light" /><div className="flex items-center gap-3"><span className="rounded-full bg-brand-100 px-2 py-1 text-[10px] text-brand-700 ring-1 ring-brand-500/30">Testnet</span><Link to="/app/notifications" aria-label="Notifications" className="text-ink-500 hover:text-ink-900"><IconBell className="h-5 w-5" /></Link></div></div>
       </header>
       <main className="min-w-0 flex-1 px-4 pb-28 pt-5"><Outlet /></main>
-      <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t border-white/5 bg-ink-950/92 backdrop-blur" style={{ paddingBottom: 'var(--safe-bottom)' }}>
-        {nav.map(({ to, label, Icon, exact }) => <Link key={to} to={to} className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${active(to, exact) ? 'text-brand-400' : 'text-slate-500'}`}><Icon className="h-5 w-5" />{label}</Link>)}
+      <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t border-ink-300/60 bg-white/92 backdrop-blur" style={{ paddingBottom: 'var(--safe-bottom)' }}>
+        {nav.map(({ to, label, Icon, exact }) => <Link key={to} to={to} className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition ${active(to, exact) ? 'text-brand-600' : 'text-ink-500 hover:text-ink-700'}`}><Icon className="h-5 w-5" />{label}</Link>)}
       </nav>
     </div>
   )
 }
 
-function Brand({ to = '/' }: { to?: '/' | '/app' | '/demo' }) {
-  return <Link to={to} className="flex items-center gap-2"><img src="/kolektibo.svg" alt="" className="h-7 w-7" /><span className="text-lg font-semibold tracking-tight text-white">Kolektibo</span></Link>
+function Brand({ to = '/', theme = 'dark' }: { to?: '/' | '/app' | '/demo', theme?: 'dark' | 'light' }) {
+  return <Link to={to} className="flex items-center gap-2"><img src="/kolektibo.svg" alt="" className="h-7 w-7" /><span className={`text-lg font-semibold tracking-tight ${theme === 'light' ? 'text-ink-950' : 'text-ink-950'}`}>Kolektibo</span></Link>
 }
 
 function SvgIcon({ className, children }: IconProps & { children: React.ReactNode }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{children}</svg> }

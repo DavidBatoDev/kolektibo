@@ -34,8 +34,8 @@ export function PoolNewPage() {
   return (
     <div className="space-y-5 pb-4">
       <div>
-        <h1 className="text-xl font-semibold text-white">Create a pool</h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <h1 className="text-xl font-semibold text-ink-950">Create a pool</h1>
+        <p className="mt-1 text-sm text-ink-500">
           Starts as a draft — invite your co-officers and deploy when everyone's wallet is linked.
         </p>
       </div>
@@ -76,13 +76,13 @@ export function PoolNewPage() {
           Parse with AI
         </Button>
         {parse.isError && (
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-500">
             Couldn't reach the AI — you can still create the pool and set rules later.
           </p>
         )}
         {policy && (
           <div className="space-y-2">
-            <p className="text-sm text-slate-300">{policy.summary}</p>
+            <p className="text-sm text-ink-700">{policy.summary}</p>
             <div className="flex flex-wrap gap-1.5">
               <Badge tone="brand">
                 {policy.approval.threshold} of {policy.approval.of} officers
@@ -99,7 +99,7 @@ export function PoolNewPage() {
                 </Badge>
               ))}
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-ink-500">
               Your approval threshold is enforced on-chain. In this MVP, spending categories deploy
               with the standard set (Equipment, Venue, Refreshments) — custom categories are saved
               for reference and become on-chain in a later update.

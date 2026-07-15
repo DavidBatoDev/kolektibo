@@ -58,20 +58,20 @@ export function HomePage() {
       <Card hero>
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-[13px] text-white/80">{pool.name}</p>
-            <p className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.02em] tabular-nums text-white">
+            <p className="text-[13px] text-ink-950/80">{pool.name}</p>
+            <p className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.02em] tabular-nums text-ink-950">
               {peso(balance)}
             </p>
-            <p className="mt-1 text-[11px] text-white/70">
+            <p className="mt-1 text-[11px] text-ink-950/70">
               pooled balance · settles in {pool.currency} on Stellar
             </p>
           </div>
-          <span className="rounded-full bg-white/15 px-2.5 py-1 text-[12px] font-semibold text-white">
+          <span className="rounded-full bg-white/15 px-2.5 py-1 text-[12px] font-semibold text-ink-950">
             {pool.members.length} members
           </span>
         </div>
-        <div className="mt-4 flex items-center gap-2 text-[12px] text-white/85">
-          <span className="text-white/60">Rule:</span>
+        <div className="mt-4 flex items-center gap-2 text-[12px] text-ink-950/85">
+          <span className="text-ink-950/60">Rule:</span>
           <span className="flex-1">{pool.policy.summary}</span>
         </div>
       </Card>

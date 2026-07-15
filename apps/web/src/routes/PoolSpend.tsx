@@ -74,7 +74,7 @@ export function PoolSpendPage() {
   if (membership && membership.role !== 'officer') {
     return (
       <Card className="mt-4">
-        <p className="text-sm text-slate-300">Only officers can request spends.</p>
+        <p className="text-sm text-ink-700">Only officers can request spends.</p>
         <Link
           to="/app/pools/$poolId"
           params={{ poolId }}
@@ -92,12 +92,12 @@ export function PoolSpendPage() {
         <Link
           to="/app/pools/$poolId"
           params={{ poolId }}
-          className="text-xs text-slate-500 hover:text-slate-300"
+          className="text-xs text-ink-500 hover:text-ink-700"
         >
           ← {pool.data?.name ?? 'Back'}
         </Link>
-        <h1 className="mt-1 text-xl font-semibold text-white">Request a spend</h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <h1 className="mt-1 text-xl font-semibold text-ink-950">Request a spend</h1>
+        <p className="mt-1 text-sm text-ink-500">
           Your request counts as the first approval. The contract enforces the rest.
         </p>
       </div>
@@ -112,7 +112,7 @@ export function PoolSpendPage() {
                 className={`rounded-xl px-3 py-2 text-sm font-medium ring-1 transition ${
                   selected === c.name
                     ? 'bg-brand-600/20 text-brand-300 ring-brand-500/40'
-                    : 'bg-white/5 text-slate-400 ring-white/10 hover:bg-white/10'
+                    : 'bg-paper-100 text-ink-500 ring-ink-200 hover:bg-paper-200'
                 }`}
               >
                 {c.name}

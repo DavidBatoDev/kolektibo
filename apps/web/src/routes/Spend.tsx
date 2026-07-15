@@ -21,8 +21,8 @@ export function SpendPage() {
     return (
       <Card className="space-y-4 text-center">
         <div>
-          <p className="font-semibold text-white">No demo pool to spend from</p>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="font-semibold text-ink-950">No demo pool to spend from</p>
+          <p className="mt-1 text-sm text-ink-500">
             Deploy the sample pool before creating or approving a testnet spend.
           </p>
         </div>

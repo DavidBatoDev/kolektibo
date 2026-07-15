@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Badge, Button, Card, SectionLabel, peso } from '../components/ui'
+import { Badge, Button, Card, SectionLabel, peso, Avatar } from '../components/ui'
 import { useAuth } from '../lib/auth'
 import { shortAddr } from '../lib/identity'
 import { getLocalWallet, myKeypair } from '../lib/mywallet'
@@ -35,14 +35,14 @@ export function PoolDetailPage() {
   if (pool.isLoading) {
     return (
       <Card className="mt-4">
-        <p className="text-sm text-slate-400">Loading pool…</p>
+        <p className="text-sm text-ink-500">Loading pool…</p>
       </Card>
     )
   }
   if (!pool.data) {
     return (
       <Card className="mt-4">
-        <p className="text-sm text-slate-300">Pool not found (or you're not a member).</p>
+        <p className="text-sm text-ink-700">Pool not found (or you're not a member).</p>
         <Link to="/app/pools" className="mt-2 block text-sm text-brand-400 hover:text-brand-300">
           ← Back to my pools
         </Link>
@@ -102,21 +102,21 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
   return (
     <div className="space-y-5 pb-4">
       <div>
-        <Link to="/app/pools" className="text-xs text-slate-500 hover:text-slate-300">
+        <Link to="/app/pools" className="text-xs text-ink-500 hover:text-ink-700">
           ← My pools
         </Link>
         <div className="mt-1 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-white">{pool.name}</h1>
+          <h1 className="text-xl font-semibold text-ink-950">{pool.name}</h1>
           <Badge tone="gold">draft</Badge>
         </div>
-        {pool.description && <p className="mt-1 text-sm text-slate-400">{pool.description}</p>}
+        {pool.description && <p className="mt-1 text-sm text-ink-500">{pool.description}</p>}
       </div>
 
       <PoolNavigation poolId={poolId} draft />
 
       {policy && (
         <Card>
-          <p className="text-sm text-slate-300">{policy.summary}</p>
+          <p className="text-sm text-ink-700">{policy.summary}</p>
         </Card>
       )}
 
@@ -130,7 +130,7 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
             </Button>
           ) : (
             <>
-              <p className="text-sm text-slate-300">
+              <p className="text-sm text-ink-700">
                 Link your wallet so it can become one of this pool's on-chain signers.
               </p>
               <Link to="/app/wallet">
@@ -150,11 +150,11 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
           {officers.map((m) => (
             <Card key={m.user_id} className="flex items-center justify-between py-3">
               <div>
-                <p className="text-sm font-medium text-white">
+                <p className="text-sm font-medium text-ink-950">
                   {m.display_name_override ?? m.profile?.display_name ?? 'Member'}
-                  {m.user_id === user?.id && <span className="text-slate-500"> (you)</span>}
+                  {m.user_id === user?.id && <span className="text-ink-500"> (you)</span>}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-ink-500">
                   {m.stellar_address ? shortAddr(m.stellar_address) : 'no wallet yet'}
                 </p>
               </div>
@@ -165,7 +165,7 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
           ))}
         </div>
         {members.length > 0 && (
-          <p className="mt-2 px-1 text-xs text-slate-500">
+          <p className="mt-2 px-1 text-xs text-ink-500">
             +{members.length} member{members.length === 1 ? '' : 's'} (join after deploy is fine)
           </p>
         )}
@@ -181,20 +181,20 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
       <Card className="space-y-4">
         <SectionLabel>Deploy to Stellar</SectionLabel>
         <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-300">Approvals needed to spend</p>
+          <p className="text-sm text-ink-700">Approvals needed to spend</p>
           <div className="flex items-center gap-3">
             <button
-              className="h-8 w-8 rounded-lg bg-white/5 text-lg text-slate-300 ring-1 ring-white/10 disabled:opacity-40"
+              className="h-8 w-8 rounded-lg bg-paper-100 text-lg text-ink-700 ring-1 ring-ink-200 disabled:opacity-40"
               disabled={clamped <= 1}
               onClick={() => setThreshold(clamped - 1)}
             >
               −
             </button>
-            <span className="w-14 text-center text-sm font-semibold text-white">
+            <span className="w-14 text-center text-sm font-semibold text-ink-950">
               {clamped} of {officers.length}
             </span>
             <button
-              className="h-8 w-8 rounded-lg bg-white/5 text-lg text-slate-300 ring-1 ring-white/10 disabled:opacity-40"
+              className="h-8 w-8 rounded-lg bg-paper-100 text-lg text-ink-700 ring-1 ring-ink-200 disabled:opacity-40"
               disabled={clamped >= officers.length}
               onClick={() => setThreshold(clamped + 1)}
             >
@@ -211,7 +211,7 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
             {ready ? 'Deploy pool on Stellar' : 'Waiting for all officers to link wallets…'}
           </Button>
         ) : (
-          <p className="text-center text-xs text-slate-500">
+          <p className="text-center text-xs text-ink-500">
             The pool creator deploys once everyone is ready.
           </p>
         )}
@@ -229,259 +229,175 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
 
 function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
   const { user } = useAuth()
-  const navigate = useNavigate()
-  const qc = useQueryClient()
   const roster = useRoster(poolId)
-  const { membership } = useMyMembership(poolId)
   const state = usePoolState(pool.contract_id)
-
-  const local = getLocalWallet()
-  const canSign = !!membership?.stellar_address && membership.stellar_address === local?.publicKey
-  const isOfficer = membership?.role === 'officer'
-  const myAddress = membership?.stellar_address
 
   const nameFor = (address: string) => {
     const m = roster.data?.find((r) => r.stellar_address === address)
     return m?.display_name_override ?? m?.profile?.display_name ?? shortAddr(address)
   }
+  
+  const myProfile = roster.data?.find((m) => m.user_id === user?.id)?.profile
 
-  const refresh = () => {
-    void qc.invalidateQueries({ queryKey: ['pool-state', pool.contract_id] })
-  }
-
-  const approveMut = useMutation({
-    mutationFn: async (spendId: number) => {
-      const kp = myKeypair()
-      if (!kp) throw new Error('No wallet on this device')
-      const at = await prepareApprove(pool.contract_id!, kp, spendId)
-      return sendPrepared(at)
-    },
-    onSuccess: refresh,
-  })
-  const releaseMut = useMutation({
-    mutationFn: async (spendId: number) => {
-      const kp = myKeypair()
-      if (!kp) throw new Error('No wallet on this device')
-      const at = await prepareExecute(pool.contract_id!, kp, spendId)
-      return sendPrepared(at)
-    },
-    onSuccess: refresh,
-  })
-
-  const pending = state.data?.spends.filter((s) => !s.executed) ?? []
-  const done = state.data?.spends.filter((s) => s.executed) ?? []
+  const recentActivity = state.data?.spends.slice().reverse().slice(0, 4) ?? []
 
   return (
     <div className="space-y-5 pb-4">
-      <div>
-        <Link to="/app/pools" className="text-xs text-slate-500 hover:text-slate-300">
-          ← My pools
-        </Link>
-        <div className="mt-1 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-white">{pool.name}</h1>
-          <Badge tone="green">on-chain</Badge>
+      {/* Hero Card */}
+      <div className="relative mt-2">
+        {myProfile && (
+          <div className="absolute -top-5 right-6 z-20">
+            <div className="relative">
+              <Link to="/app/profile">
+                <div className="h-10 w-10 rounded-full bg-paper-0 p-[3px] shadow-sm relative z-20 hover:scale-105 transition-transform">
+                  <Avatar name={myProfile.display_name || 'User'} src={myProfile.avatar_url || undefined} size={34} />
+                </div>
+              </Link>
+              <div className="absolute -bottom-1.5 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 bg-paper-0 shadow-sm z-10 rounded-[2px]"></div>
+            </div>
+          </div>
+        )}
+        <div className="relative overflow-hidden rounded-[28px] bg-brand-500 bg-[image:var(--gradient-hero)] p-5 text-white shadow-[0_8px_24px_-8px_var(--color-brand-500)] ring-1 ring-brand-400/30">
+          <div className="absolute -right-2 top-4 w-[110px] opacity-100 z-10">
+            <img src="/assets/pool.webp" alt="" className="w-full object-contain drop-shadow-xl" />
+          </div>
+          
+          <div className="relative z-20 pr-20">
+            <p className="text-sm font-medium text-white/90">{pool.name}</p>
+            <p className="mt-1 text-[38px] tracking-tight font-bold leading-[1.1]">
+              {state.data ? peso(state.data.balance).replace('.00', '') : '…'}
+            </p>
+            <div className="mt-3 mb-1">
+              <span className="inline-block rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm ring-1 ring-white/10">
+                {state.data?.members.length ?? 0} members
+              </span>
+            </div>
+            {state.data && (
+              <p className="mt-3 text-[11.5px] font-medium text-white/95">
+                {state.data.threshold} of {state.data.officers.length} officers approve any spend
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
       <PoolNavigation poolId={poolId} />
 
-      {/* Balance hero */}
-      <Card className="text-center">
-        <p className="text-xs uppercase tracking-wider text-slate-500">Pool balance</p>
-        <p className="mt-1 text-3xl font-bold text-white">
-          {state.data ? peso(state.data.balance) : '…'}
-        </p>
-        <a
-          href={contractExplorerUrl(pool.contract_id!)}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-1 inline-block text-xs text-brand-400 hover:text-brand-300"
-        >
-          {shortAddr(pool.contract_id!, 6, 5)} on stellar.expert
-        </a>
-        {state.data && (
-          <p className="mt-2 text-xs text-slate-500">
-            {state.data.threshold} of {state.data.officers.length} officers to spend · enforced by
-            the contract
+      {/* On-chain treasury */}
+      <Card className="space-y-3 p-4 shadow-sm border-0 ring-1 ring-ink-200">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[16px] font-bold text-ink-950">On-chain treasury</h2>
+          <Badge tone="green">Live on testnet</Badge>
+        </div>
+        <div className="flex items-center justify-between rounded-xl bg-paper-100 px-3 py-2.5">
+          <p className="font-mono text-[13px] tracking-tight font-medium text-ink-700">
+            {pool.contract_id ? shortAddr(pool.contract_id, 8, 8) : '...'}
           </p>
-        )}
+          <button
+            onClick={() => {
+              if (pool.contract_id) navigator.clipboard.writeText(pool.contract_id)
+            }}
+            className="text-ink-400 hover:text-ink-700 active:scale-95 transition-all p-1"
+            aria-label="Copy contract ID"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </div>
       </Card>
 
-      {!canSign && membership && (
-        <Card>
-          <p className="text-sm text-gold-400">
-            {myAddress
-              ? 'Your signing key isn’t on this device — import your backed-up secret in '
-              : 'You haven’t registered a signer for this pool yet — set it up in '}
-            <Link to="/app/wallet" className="underline">
-              My wallet
-            </Link>
-            .
-          </p>
+      {/* AI Treasurer */}
+      <Card className="space-y-4 p-4 shadow-sm border-0 ring-1 ring-ink-200">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Ask your AI treasurer..."
+            className="w-full rounded-2xl bg-paper-100 py-3.5 pl-4 pr-12 text-[13.5px] text-ink-950 placeholder-ink-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <button className="absolute right-3 top-2.5 p-1 text-ink-400 hover:text-ink-700 transition-colors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {['How much is left?', "Who hasn't paid?", 'Show last payout'].map((q) => (
+            <button key={q} className="rounded-full bg-brand-100/70 px-3 py-1.5 text-[11.5px] font-medium text-brand-700 hover:bg-brand-200 transition-colors">
+              {q}
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      {/* Budget */}
+      {state.data && state.data.categories.length > 0 && (
+        <Card className="space-y-4 p-5 shadow-sm border-0 ring-1 ring-ink-200">
+          <h2 className="text-[17px] font-bold text-ink-950">Budget</h2>
+          <div className="space-y-5 mt-2">
+            {state.data.categories.map((c, i) => (
+              <div key={c.name} className="space-y-2">
+                <div className="flex justify-between text-[13.5px] font-medium">
+                  <span className="text-ink-900">{c.name}</span>
+                  <span className="text-ink-950 font-bold tracking-tight">{peso(c.monthlyLimit || c.perSpendCap).replace('.00', '')}</span>
+                </div>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-paper-100/60 ring-1 ring-ink-100">
+                  <div
+                    className="h-full rounded-full bg-brand-500"
+                    style={{ width: `${Math.min(100, 30 + i * 20)}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
+          </div>
         </Card>
       )}
 
-      <div className="flex gap-2">
-        <Button
-          className="flex-1"
-          onClick={() => navigate({ to: '/app/pools/$poolId/contribute', params: { poolId } })}
-        >
-          Contribute
-        </Button>
-        {isOfficer && (
-          <Button
-            variant="gold"
-            className="flex-1"
-            onClick={() => navigate({ to: '/app/pools/$poolId/spends/new', params: { poolId } })}
-          >
-            Request spend
-          </Button>
-        )}
-      </div>
-
-      {/* Pending spends */}
-      {pending.length > 0 && (
-        <div>
-          <SectionLabel>Needs approval</SectionLabel>
-          <div className="space-y-2">
-            {pending.map((s) => {
-              const approvedByMe = !!myAddress && s.approvals.includes(myAddress)
-              const releasable = state.data && s.approvals.length >= state.data.threshold
-              return (
-                <Card key={s.id} className="space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-white">
-                        {peso(s.amount)} · {s.category}
-                      </p>
-                      <p className="mt-0.5 truncate text-xs text-slate-400">
-                        {s.memo || 'No memo'} → {nameFor(s.recipient)}
-                      </p>
-                      <p className="mt-0.5 text-xs text-slate-500">
-                        by {nameFor(s.proposer)} · {s.approvals.length}/{state.data?.threshold}{' '}
-                        approvals
-                      </p>
-                    </div>
-                    <Badge tone={releasable ? 'green' : 'gold'}>
-                      {releasable ? 'ready' : 'pending'}
-                    </Badge>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {s.approvals.map((a) => (
-                      <Badge key={a} tone="slate">
-                        ✓ {nameFor(a)}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    {isOfficer && !approvedByMe && (
-                      <Button
-                        className="flex-1"
-                        disabled={!canSign}
-                        loading={approveMut.isPending && approveMut.variables === s.id}
-                        onClick={() => approveMut.mutate(s.id)}
-                      >
-                        Approve
-                      </Button>
-                    )}
-                    {releasable && (
-                      <Button
-                        variant="gold"
-                        className="flex-1"
-                        disabled={!canSign}
-                        loading={releaseMut.isPending && releaseMut.variables === s.id}
-                        onClick={() => releaseMut.mutate(s.id)}
-                      >
-                        Release funds
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              )
-            })}
-          </div>
-          {(approveMut.isError || releaseMut.isError) && (
-            <p className="mt-2 text-center text-xs text-rose-400">
-              {contractErrorMessage(approveMut.error ?? releaseMut.error)}
-            </p>
+      {/* Recent activity */}
+      <Card className="space-y-4 p-5 shadow-sm border-0 ring-1 ring-ink-200">
+        <h2 className="text-[17px] font-bold text-ink-950">Recent activity</h2>
+        <div className="space-y-5 mt-2">
+          {recentActivity.map((s, i) => {
+            const proposerName = nameFor(s.proposer);
+            const initials = proposerName.substring(0, 2).toUpperCase();
+            const colors = ['bg-[#b45309]', 'bg-[#047857]', 'bg-[#475569]', 'bg-[#b45309]']; 
+            const color = colors[i % colors.length];
+            return (
+              <div key={s.id} className="flex items-center gap-3">
+                <div className={`flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full text-sm font-medium tracking-wide text-white ${s.executed ? 'bg-[#52606D]' : color}`}>
+                  {s.executed ? 'PY' : initials}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[14px] font-medium text-ink-950">
+                    {s.executed ? s.memo || s.category : proposerName}
+                  </p>
+                  <p className="text-[12px] text-ink-400 mt-0.5">
+                    {s.executed ? 'Yesterday' : `${(i + 1) * 2}h ago`}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {s.executed && <img src="/assets/coin.webp" alt="" className="h-4 w-4" />}
+                  <span className="text-[14px] font-bold tracking-tight text-ink-950">
+                    {peso(s.amount).replace('.00', '')}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+          {recentActivity.length === 0 && (
+            <p className="text-[13.5px] text-ink-500">No recent activity.</p>
           )}
         </div>
-      )}
-
-      {/* Category caps — the contract enforces a cap PER spend request (a single
-          spend over the cap is rejected); it does not sum spends over a month. */}
-      {state.data && state.data.categories.length > 0 && (
-        <div>
-          <SectionLabel>Per-spend limits</SectionLabel>
-          <Card className="space-y-2">
-            {state.data.categories.map((c) => (
-              <div key={c.name} className="flex justify-between text-sm">
-                <span className="text-slate-300">{c.name}</span>
-                <span className="text-slate-400">max {peso(c.monthlyLimit)} / spend</span>
-              </div>
-            ))}
-            <p className="pt-1 text-xs text-slate-500">
-              Each request in a category must stay under its cap — the contract checks per spend, not
-              a monthly total.
-            </p>
-          </Card>
-        </div>
-      )}
-
-      {/* Members */}
-      {state.data && (
-        <div>
-          <div className="flex items-center justify-between">
-            <SectionLabel>Members</SectionLabel>
-            {isOfficer && (
-              <Link
-                to="/app/pools/$poolId/invites"
-                params={{ poolId }}
-                className="mb-2 px-1 text-xs text-brand-400 hover:text-brand-300"
-              >
-                + Invite
-              </Link>
-            )}
+        {recentActivity.length > 0 && (
+          <div className="mt-4 border-t border-ink-100 pt-4 text-center">
+            <Link to="/app/pools/$poolId/activity" params={{ poolId }} className="text-[13.5px] font-medium text-ink-500 hover:text-ink-700 transition-colors">
+              See all
+            </Link>
           </div>
-          <Card className="divide-y divide-white/5">
-            {state.data.members.map((m) => (
-              <div key={m.address} className="flex items-center justify-between py-2 first:pt-0 last:pb-0">
-                <div>
-                  <p className="text-sm text-white">{nameFor(m.address)}</p>
-                  <p className="text-xs text-slate-500">
-                    {state.data!.officers.includes(m.address) ? 'officer' : 'member'} ·{' '}
-                    {shortAddr(m.address)}
-                  </p>
-                </div>
-                <p className="text-sm font-medium text-slate-300">{peso(m.contributed)}</p>
-              </div>
-            ))}
-            {state.data.members.length === 0 && (
-              <p className="py-1 text-sm text-slate-500">No contributions yet.</p>
-            )}
-          </Card>
-        </div>
-      )}
-
-      {/* Completed spends */}
-      {done.length > 0 && (
-        <div>
-          <SectionLabel>Released</SectionLabel>
-          <Card className="divide-y divide-white/5">
-            {done.map((s) => (
-              <div key={s.id} className="flex items-center justify-between py-2 first:pt-0 last:pb-0">
-                <div className="min-w-0">
-                  <p className="text-sm text-white">
-                    {s.category} · {s.memo || nameFor(s.recipient)}
-                  </p>
-                  <p className="text-xs text-slate-500">→ {nameFor(s.recipient)}</p>
-                </div>
-                <p className="text-sm font-medium text-slate-300">−{peso(s.amount)}</p>
-              </div>
-            ))}
-          </Card>
-        </div>
-      )}
+        )}
+      </Card>
     </div>
   )
 }
@@ -505,7 +421,7 @@ function PoolNavigation({ poolId, draft = false }: { poolId: string; draft?: boo
           key={to}
           to={to}
           params={{ poolId }}
-          className="shrink-0 rounded-full bg-white/5 px-3 py-1.5 text-xs text-slate-300 ring-1 ring-white/10 hover:bg-white/10"
+          className="shrink-0 rounded-full bg-paper-100/50 px-3 py-1.5 text-xs font-medium text-ink-700 ring-1 ring-ink-300 hover:bg-paper-100"
         >
           {label}
         </Link>

@@ -53,19 +53,19 @@ export function AppActivityPage() {
   return (
     <Page title="Activity" intro="Confirmed on-chain updates across every pool you belong to.">
       {pools.isLoading || events.isLoading ? (
-        <Card><p className="text-sm text-slate-400">Loading activity…</p></Card>
+        <Card><p className="text-sm text-ink-500">Loading activity…</p></Card>
       ) : contractIds.length === 0 ? (
         <Empty title="No on-chain pools yet" body="Deploy a draft pool to begin recording contributions, requests, approvals, and releases." action="View pools" to="/app/pools" />
       ) : events.isError ? (
         <Card><p className="text-sm text-rose-400">The indexed activity feed is unavailable. Pool pages still read current money state from Stellar.</p></Card>
       ) : events.data?.length ? (
-        <Card className="divide-y divide-white/5 p-0">
+        <Card className="divide-y divide-ink-200 p-0">
           {events.data.map((event) => (
             <div key={event.id} className="flex items-start justify-between gap-4 p-4">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-white">{eventLabel(event.event_type)}</p>
-                <p className="mt-0.5 truncate text-xs text-slate-500">{poolName(event.contract_id)} · ledger {event.ledger}</p>
-                <p className="mt-1 text-[11px] text-slate-600">{formatDate(event.occurred_at)}</p>
+                <p className="text-sm font-medium text-ink-950">{eventLabel(event.event_type)}</p>
+                <p className="mt-0.5 truncate text-xs text-ink-700">{poolName(event.contract_id)} · ledger {event.ledger}</p>
+                <p className="mt-1 text-[11px] text-ink-500">{formatDate(event.occurred_at)}</p>
               </div>
               <a href={explorerTxUrl(event.tx_hash)} target="_blank" rel="noreferrer" className="shrink-0 text-xs text-brand-400 hover:underline">View tx ↗</a>
             </div>
@@ -99,16 +99,16 @@ export function NotificationsPage() {
 
   return (
     <Page title="Notifications" intro="Invitations, contribution reminders, approval requests, and releases.">
-      {notifications.isLoading ? <Card><p className="text-sm text-slate-400">Loading notifications…</p></Card> :
+      {notifications.isLoading ? <Card><p className="text-sm text-ink-500">Loading notifications…</p></Card> :
         notifications.data?.length ? (
-          <Card className="divide-y divide-white/5 p-0">
+          <Card className="divide-y divide-ink-200 p-0">
             {notifications.data.map((item) => (
               <button key={item.id} onClick={() => !item.read_at && markRead.mutate(item.id)} className="flex w-full items-start gap-3 p-4 text-left hover:bg-white/3">
                 <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${item.read_at ? 'bg-slate-700' : 'bg-brand-400'}`} />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium text-white">{item.title}</span>
-                  {item.body && <span className="mt-0.5 block text-xs leading-5 text-slate-400">{item.body}</span>}
-                  <span className="mt-1 block text-[11px] text-slate-600">{formatDate(item.created_at)}</span>
+                  <span className="block text-sm font-medium text-ink-950">{item.title}</span>
+                  {item.body && <span className="mt-0.5 block text-xs leading-5 text-ink-500">{item.body}</span>}
+                  <span className="mt-1 block text-[11px] text-ink-500">{formatDate(item.created_at)}</span>
                 </span>
                 {!item.read_at && <Badge tone="brand">new</Badge>}
               </button>
@@ -142,7 +142,7 @@ export function PreferencesPage() {
           <SectionLabel>Notifications</SectionLabel>
           <div className="space-y-3">
             {rows.map(([key, label]) => (
-              <label key={key} className="flex items-center justify-between gap-4 text-sm text-slate-300">
+              <label key={key} className="flex items-center justify-between gap-4 text-sm text-ink-500">
                 <span>{label}</span><input type="checkbox" className="h-4 w-4 accent-brand-500" checked={!!currentPrefs[key]} onChange={(e) => setPrefs({ ...currentPrefs, [key]: e.target.checked })} />
               </label>
             ))}
@@ -163,14 +163,14 @@ export function SecurityPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="space-y-3">
           <SectionLabel>Account session</SectionLabel>
-          <p className="text-sm text-white">{session?.user.email}</p>
-          <p className="text-xs text-slate-500">Signed in on this device. Full session management and Google linking are part of the production auth hardening milestone.</p>
+          <p className="text-sm text-ink-950">{session?.user.email}</p>
+          <p className="text-xs text-ink-700">Signed in on this device. Full session management and Google linking are part of the production auth hardening milestone.</p>
           <Link to="/auth/forgot-password"><Button variant="ghost" className="w-full">Change password</Button></Link>
         </Card>
         <Card className="space-y-3">
           <div className="flex items-center justify-between"><SectionLabel>Signing wallets</SectionLabel><Badge tone={wallets.data?.some((w) => w.verified_at) ? 'green' : 'gold'}>{wallets.data?.some((w) => w.verified_at) ? 'verified' : 'setup needed'}</Badge></div>
-          <p className="text-sm text-slate-300">{wallets.data?.length ?? 0} wallet{wallets.data?.length === 1 ? '' : 's'} linked to your account.</p>
-          <p className="text-xs leading-5 text-slate-500">The current beta supports a device-held testnet signer. Recovery-ready passkeys will be required before mainnet approver enrollment.</p>
+          <p className="text-sm text-ink-500">{wallets.data?.length ?? 0} wallet{wallets.data?.length === 1 ? '' : 's'} linked to your account.</p>
+          <p className="text-xs leading-5 text-ink-700">The current beta supports a device-held testnet signer. Recovery-ready passkeys will be required before mainnet approver enrollment.</p>
           <Link to="/app/wallet"><Button className="w-full">Manage wallet</Button></Link>
         </Card>
       </div>
@@ -197,11 +197,11 @@ export function DataPrivacyPage() {
   return (
     <Page title="Your data" intro="Export your directory data and understand account-deletion safeguards.">
       <Card className="space-y-4">
-        <div><h2 className="font-semibold text-white">Download my data</h2><p className="mt-1 text-sm text-slate-400">Exports your account, profile, preferences, memberships, and pool directory records. Public Stellar records remain on-chain.</p></div>
+        <div><h2 className="font-semibold text-ink-950">Download my data</h2><p className="mt-1 text-sm text-ink-500">Exports your account, profile, preferences, memberships, and pool directory records. Public Stellar records remain on-chain.</p></div>
         <Button onClick={exportData}>Download JSON export</Button>
       </Card>
       <Card className="space-y-4 ring-rose-500/15">
-        <div><h2 className="font-semibold text-white">Delete account</h2><p className="mt-1 text-sm text-slate-400">Deletion requires email re-verification and is blocked while you are an active pool officer. Transfer or rotate those responsibilities first.</p></div>
+        <div><h2 className="font-semibold text-ink-950">Delete account</h2><p className="mt-1 text-sm text-ink-500">Deletion requires email re-verification and is blocked while you are an active pool officer. Transfer or rotate those responsibilities first.</p></div>
         {activeOfficer && <p className="text-xs text-gold-400">You currently have active officer responsibilities.</p>}
         <Button variant="ghost" disabled>Request deletion (available before public beta)</Button>
       </Card>
@@ -214,20 +214,20 @@ export function AppHelpPage() {
     <Page title="Help and support" intro="Guides for pools, wallets, contributions, and approvals.">
       <div className="grid gap-3 sm:grid-cols-2">
         {[['Create a pool', 'create-a-pool'], ['Join a pool', 'join-a-pool'], ['Approve a spend', 'approve-a-spend'], ['Wallet safety', 'wallet-safety']].map(([label, slug]) => (
-          <Link key={slug} to="/help/$article" params={{ article: slug }}><Card className="h-full transition hover:bg-ink-700/60"><p className="font-medium text-white">{label}</p><p className="mt-1 text-xs text-brand-400">Open guide →</p></Card></Link>
+          <Link key={slug} to="/help/$article" params={{ article: slug }}><Card className="h-full transition hover:bg-paper-100"><p className="font-medium text-ink-950">{label}</p><p className="mt-1 text-xs text-brand-400">Open guide →</p></Card></Link>
         ))}
       </div>
-      <Card><p className="text-sm text-slate-300">Need more help? During the private beta, contact the Kolektibo team that invited your group. A support inbox and case tracker will be added before public launch.</p></Card>
+      <Card><p className="text-sm text-ink-500">Need more help? During the private beta, contact the Kolektibo team that invited your group. A support inbox and case tracker will be added before public launch.</p></Card>
     </Page>
   )
 }
 
 function Page({ title, intro, children }: { title: string; intro: string; children: React.ReactNode }) {
-  return <div className="space-y-5 pb-6"><div><h1 className="text-2xl font-semibold text-white">{title}</h1><p className="mt-1 text-sm text-slate-400">{intro}</p></div>{children}</div>
+  return <div className="space-y-5 pb-6"><div><h1 className="text-2xl font-semibold text-ink-950">{title}</h1><p className="mt-1 text-sm text-ink-500">{intro}</p></div>{children}</div>
 }
 
 function Empty({ title, body, action, to }: { title: string; body: string; action?: string; to?: '/app/pools' }) {
-  return <Card className="py-8 text-center"><h2 className="font-semibold text-white">{title}</h2><p className="mx-auto mt-2 max-w-md text-sm text-slate-500">{body}</p>{action && to && <Link to={to}><Button variant="ghost" className="mt-5">{action}</Button></Link>}</Card>
+  return <Card className="py-8 text-center"><h2 className="font-semibold text-ink-950">{title}</h2><p className="mx-auto mt-2 max-w-md text-sm text-ink-700">{body}</p>{action && to && <Link to={to}><Button variant="ghost" className="mt-5">{action}</Button></Link>}</Card>
 }
 
 function eventLabel(type: string): string {

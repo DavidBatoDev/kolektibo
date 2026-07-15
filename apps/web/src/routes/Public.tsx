@@ -12,10 +12,10 @@ export function LandingPage() {
     <div className="space-y-20 pb-16 pt-10 sm:pt-20">
       <section className="mx-auto max-w-4xl text-center">
         <Badge tone="green">Private group treasuries · Stellar testnet beta</Badge>
-        <h1 className="mt-6 text-4xl font-bold tracking-tight text-white sm:text-6xl">
+        <h1 className="mt-6 text-4xl font-bold tracking-tight text-ink-950 sm:text-6xl">
           Pooled money your whole group can trust.
         </h1>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-ink-700 sm:text-lg">
           Kolektibo helps barangays, clubs, teams, projects, and co-ops collect funds and approve
           spending together. The smart contract enforces the rules; the AI only explains them.
         </p>
@@ -27,15 +27,15 @@ export function LandingPage() {
             <Button variant="ghost" className="w-full sm:w-auto">Explore the testnet demo</Button>
           </Link>
         </div>
-        <p className="mt-4 text-xs text-slate-500">No real funds are used in the current beta.</p>
+        <p className="mt-4 text-xs text-ink-500">No real funds are used in the current beta.</p>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
         {PRODUCT_POINTS.map(([title, body], index) => (
           <Card key={title} className="h-full">
             <span className="text-xs font-semibold text-brand-400">0{index + 1}</span>
-            <h2 className="mt-3 text-lg font-semibold text-white">{title}</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-400">{body}</p>
+            <h2 className="mt-3 text-lg font-semibold text-ink-950">{title}</h2>
+            <p className="mt-2 text-sm leading-6 text-ink-500">{body}</p>
           </Card>
         ))}
       </section>
@@ -44,15 +44,15 @@ export function LandingPage() {
         <div className="grid gap-8 md:grid-cols-[1.2fr_1fr] md:items-center">
           <div>
             <p className="text-sm font-semibold text-gold-400">One clear approval flow</p>
-            <h2 className="mt-2 text-3xl font-bold text-white">Contribute. Request. Approve. Release.</h2>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
+            <h2 className="mt-2 text-3xl font-bold text-ink-950">Contribute. Request. Approve. Release.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-ink-700">
               A treasurer proposes a payment, the group’s approvers sign, and the contract releases
               USDC only after the configured threshold is met. No administrator can bypass it.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2 text-center text-sm">
             {['Private invites', 'Shared approvals', 'Live activity', 'Audit exports'].map((item) => (
-              <div key={item} className="rounded-2xl bg-black/15 px-3 py-4 text-slate-200 ring-1 ring-white/10">
+              <div key={item} className="rounded-2xl bg-black/15 px-3 py-4 text-slate-200 ring-1 ring-ink-200">
                 {item}
               </div>
             ))}
@@ -123,14 +123,14 @@ export function PublicInfoPage({ page }: { page: keyof typeof INFO }) {
     <div className="mx-auto max-w-4xl space-y-8 py-12 sm:py-20">
       <div className="max-w-2xl">
         <p className="text-sm font-semibold text-brand-400">{content.eyebrow}</p>
-        <h1 className="mt-2 text-3xl font-bold text-white sm:text-5xl">{content.title}</h1>
-        <p className="mt-4 leading-7 text-slate-300">{content.intro}</p>
+        <h1 className="mt-2 text-3xl font-bold text-ink-950 sm:text-5xl">{content.title}</h1>
+        <p className="mt-4 leading-7 text-ink-700">{content.intro}</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {content.items.map(([title, body]) => (
           <Card key={title} className="h-full">
-            <h2 className="font-semibold text-white">{title}</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-400">{body}</p>
+            <h2 className="font-semibold text-ink-950">{title}</h2>
+            <p className="mt-2 text-sm leading-6 text-ink-500">{body}</p>
           </Card>
         ))}
       </div>
@@ -149,13 +149,13 @@ export function HelpPage() {
   return (
     <div className="mx-auto max-w-4xl py-12 sm:py-20">
       <p className="text-sm font-semibold text-brand-400">Help center</p>
-      <h1 className="mt-2 text-3xl font-bold text-white">How can we help?</h1>
+      <h1 className="mt-2 text-3xl font-bold text-ink-950">How can we help?</h1>
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
         {Object.entries(HELP_ARTICLES).map(([slug, article]) => (
           <Link key={slug} to="/help/$article" params={{ article: slug }}>
-            <Card className="h-full transition hover:bg-ink-700/60">
-              <h2 className="font-semibold text-white">{article.title}</h2>
-              <p className="mt-1 text-sm text-slate-500">Read guide →</p>
+            <Card className="h-full transition hover:bg-paper-100">
+              <h2 className="font-semibold text-ink-950">{article.title}</h2>
+              <p className="mt-1 text-sm text-ink-500">Read guide →</p>
             </Card>
           </Link>
         ))}
@@ -171,8 +171,8 @@ export function HelpArticlePage() {
   return (
     <article className="mx-auto max-w-2xl py-12 sm:py-20">
       <Link to="/help" className="text-sm text-brand-400">← Help center</Link>
-      <h1 className="mt-4 text-3xl font-bold text-white">{content.title}</h1>
-      <div className="mt-6 space-y-4 text-sm leading-7 text-slate-300">
+      <h1 className="mt-4 text-3xl font-bold text-ink-950">{content.title}</h1>
+      <div className="mt-6 space-y-4 text-sm leading-7 text-ink-700">
         {content.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
     </article>
@@ -183,8 +183,8 @@ export function StatusPage() {
   return (
     <div className="mx-auto max-w-3xl py-12 sm:py-20">
       <Badge tone="green">Testnet beta operational</Badge>
-      <h1 className="mt-4 text-3xl font-bold text-white">System status</h1>
-      <p className="mt-3 text-slate-400">Live production probes will replace these beta readiness indicators before public launch.</p>
+      <h1 className="mt-4 text-3xl font-bold text-ink-950">System status</h1>
+      <p className="mt-3 text-ink-500">Live production probes will replace these beta readiness indicators before public launch.</p>
       <div className="mt-8 space-y-3">
         {['Web application', 'Stellar testnet RPC', 'AI and chain operations', 'Supabase identity and directory', 'Event indexer'].map((service, index) => (
           <Card key={service} className="flex items-center justify-between">
@@ -208,8 +208,8 @@ export function LegalPage({ document }: { document: keyof typeof LEGAL }) {
   return (
     <article className="mx-auto max-w-2xl py-12 sm:py-20">
       <p className="text-sm font-semibold text-brand-400">Legal · beta draft</p>
-      <h1 className="mt-2 text-3xl font-bold text-white">{content.title}</h1>
-      <div className="mt-6 space-y-4 text-sm leading-7 text-slate-300">
+      <h1 className="mt-2 text-3xl font-bold text-ink-950">{content.title}</h1>
+      <div className="mt-6 space-y-4 text-sm leading-7 text-ink-700">
         {content.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </div>
     </article>
@@ -219,8 +219,8 @@ export function LegalPage({ document }: { document: keyof typeof LEGAL }) {
 function PublicNotFound({ message }: { message: string }) {
   return (
     <div className="mx-auto max-w-xl py-20 text-center">
-      <h1 className="text-2xl font-semibold text-white">Page not found</h1>
-      <p className="mt-2 text-sm text-slate-400">{message}</p>
+      <h1 className="text-2xl font-semibold text-ink-950">Page not found</h1>
+      <p className="mt-2 text-sm text-ink-500">{message}</p>
       <Link to="/"><Button className="mt-6">Go home</Button></Link>
     </div>
   )

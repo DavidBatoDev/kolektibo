@@ -64,13 +64,13 @@ export function PoolContributePage() {
         <Link
           to="/app/pools/$poolId"
           params={{ poolId }}
-          className="text-xs text-slate-500 hover:text-slate-300"
+          className="text-xs text-ink-500 hover:text-ink-700"
         >
           ← {pool.data?.name ?? 'Back'}
         </Link>
-        <h1 className="mt-1 text-xl font-semibold text-white">Contribute</h1>
+        <h1 className="mt-1 text-xl font-semibold text-ink-950">Contribute</h1>
         {dues && (
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-ink-500">
             Dues: {peso(dues.amount)} {dues.period}
           </p>
         )}
@@ -79,7 +79,7 @@ export function PoolContributePage() {
       {m.isSuccess ? (
         <Card className="space-y-3 text-center">
           <p className="text-lg font-semibold text-emerald-400">Contribution sent ✓</p>
-          <p className="text-sm text-slate-300">{peso(usd)} is now in the pool treasury.</p>
+          <p className="text-sm text-ink-700">{peso(usd)} is now in the pool treasury.</p>
           {m.data && (
             <a
               href={explorerTxUrl(m.data)}
@@ -105,7 +105,7 @@ export function PoolContributePage() {
                 className={`flex-1 rounded-xl px-2 py-2.5 text-sm font-medium ring-1 transition ${
                   amount === String(q)
                     ? 'bg-brand-600/20 text-brand-300 ring-brand-500/40'
-                    : 'bg-white/5 text-slate-400 ring-white/10 hover:bg-white/10'
+                    : 'bg-paper-100 text-ink-500 ring-ink-200 hover:bg-paper-200'
                 }`}
               >
                 {peso(q)}
@@ -127,7 +127,7 @@ export function PoolContributePage() {
           {m.isError && (
             <p className="text-center text-xs text-rose-400">{contractErrorMessage(m.error)}</p>
           )}
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-500">
             Signed on this device with your key and sent straight to the pool contract.
           </p>
         </Card>

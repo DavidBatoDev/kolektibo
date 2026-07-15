@@ -36,12 +36,12 @@ export function PoolInvitePage() {
         <Link
           to="/app/pools/$poolId"
           params={{ poolId }}
-          className="text-xs text-slate-500 hover:text-slate-300"
+          className="text-xs text-ink-500 hover:text-ink-700"
         >
           ← {pool.data?.name ?? 'Back'}
         </Link>
-        <h1 className="mt-1 text-xl font-semibold text-white">Invite people</h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <h1 className="mt-1 text-xl font-semibold text-ink-950">Invite people</h1>
+        <p className="mt-1 text-sm text-ink-500">
           Share a link — invitees preview the pool before they join.
         </p>
       </div>
@@ -58,7 +58,7 @@ export function PoolInvitePage() {
                   className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-medium ring-1 transition ${
                     role === r
                       ? 'bg-brand-600/20 text-brand-300 ring-brand-500/40'
-                      : 'bg-white/5 text-slate-400 ring-white/10 hover:bg-white/10'
+                      : 'bg-paper-100 text-ink-500 ring-ink-200 hover:bg-paper-200'
                   }`}
                 >
                   {r === 'officer' ? 'Officer (signs spends)' : 'Member'}
@@ -67,7 +67,7 @@ export function PoolInvitePage() {
             </div>
           </Field>
         ) : (
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-ink-500">
             This pool is live — officers were locked in at deploy, so new invites join as members.
           </p>
         )}
@@ -80,7 +80,7 @@ export function PoolInvitePage() {
                 className={`flex-1 rounded-xl px-2 py-2 text-xs font-medium ring-1 transition ${
                   expiry === o.hours
                     ? 'bg-brand-600/20 text-brand-300 ring-brand-500/40'
-                    : 'bg-white/5 text-slate-400 ring-white/10 hover:bg-white/10'
+                    : 'bg-paper-100 text-ink-500 ring-ink-200 hover:bg-paper-200'
                 }`}
               >
                 {o.label}
@@ -119,7 +119,7 @@ export function PoolInvitePage() {
               return (
                 <Card key={inv.id} className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="font-mono text-sm tracking-widest text-white">{inv.code}</p>
+                    <p className="font-mono text-sm tracking-widest text-ink-950">{inv.code}</p>
                     <div className="flex gap-1.5">
                       <Badge tone={inv.role === 'officer' ? 'gold' : 'brand'}>{inv.role}</Badge>
                       <Badge tone={dead ? 'slate' : 'green'}>

@@ -62,8 +62,8 @@ export function WalletPage() {
   return (
     <div className="space-y-5 pb-4">
       <div>
-        <h1 className="text-xl font-semibold text-white">My wallet</h1>
-        <p className="mt-1 text-sm text-slate-400">
+        <h1 className="text-xl font-semibold text-ink-950">My wallet</h1>
+        <p className="mt-1 text-sm text-ink-500">
           Your own Stellar key on this device — it signs your contributions and approvals. No one
           else (including Kolektibo) can sign for you.
         </p>
@@ -74,12 +74,12 @@ export function WalletPage() {
         <Card className="space-y-4">
           <SectionLabel>Set up</SectionLabel>
           {linkedElsewhere ? (
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-ink-700">
               Your account already has a linked wallet ({shortAddr(linkedElsewhere.stellar_address)})
               but its key isn't on this device. Import your backed-up secret to sign here.
             </p>
           ) : (
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-ink-700">
               Create a wallet to join pools and sign with your fingerprint-of-a-key, or import one
               you backed up on another device.
             </p>
@@ -132,7 +132,7 @@ export function WalletPage() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-mono text-sm text-white">{shortAddr(local.publicKey, 8, 6)}</p>
+              <p className="font-mono text-sm text-ink-950">{shortAddr(local.publicKey, 8, 6)}</p>
               <a
                 href={explorerAccountUrl(local.publicKey)}
                 target="_blank"
@@ -143,10 +143,10 @@ export function WalletPage() {
               </a>
             </div>
             <div className="text-right">
-              <p className="text-lg font-semibold text-white">
+              <p className="text-lg font-semibold text-ink-950">
                 {usdc ? peso(Math.floor(Number(usdc))) : '₱0'}
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-ink-500">
                 {balance.data?.exists ? `${Number(balance.data.xlm).toFixed(1)} XLM` : 'Not funded yet'}
               </p>
             </div>
@@ -170,14 +170,14 @@ export function WalletPage() {
       {local && !linked && (
         <Card className="space-y-4">
           <SectionLabel>Back up, then link</SectionLabel>
-          <p className="text-sm text-slate-300">
+          <p className="text-sm text-ink-700">
             <span className="font-semibold text-gold-400">Back up your secret key first.</span>{' '}
             Officers are locked into a pool at deploy — if you lose this key there is no way to
             replace it, and your approvals stop working.
           </p>
           {revealed ? (
             <div className="space-y-2">
-              <p className="break-all rounded-xl bg-ink-950/60 p-3 font-mono text-xs text-slate-300 ring-1 ring-white/10">
+              <p className="break-all rounded-xl bg-ink-950/60 p-3 font-mono text-xs text-ink-700 ring-1 ring-ink-200">
                 {local.secret}
               </p>
               <Button variant="ghost" className="w-full" onClick={copySecret}>
@@ -189,7 +189,7 @@ export function WalletPage() {
               Reveal secret key
             </Button>
           )}
-          <label className="flex items-start gap-2 text-sm text-slate-300">
+          <label className="flex items-start gap-2 text-sm text-ink-700">
             <input
               type="checkbox"
               className="mt-0.5 accent-teal-500"
@@ -211,7 +211,7 @@ export function WalletPage() {
               {String((link.error as Error)?.message || 'Could not link wallet')}
             </p>
           )}
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-500">
             Linking funds the account on testnet, adds the USDC trustline, and proves you hold the
             key by signing a one-time challenge. Only then does it count as your verified signer.
           </p>

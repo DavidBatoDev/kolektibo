@@ -44,7 +44,7 @@ export function JoinPage() {
   if (!isSupabaseEnabled()) {
     return (
       <Card className="mt-8">
-        <p className="text-sm text-slate-300">Invites aren't available in this demo build.</p>
+        <p className="text-sm text-ink-700">Invites aren't available in this demo build.</p>
       </Card>
     )
   }
@@ -63,13 +63,13 @@ export function JoinPage() {
   return (
     <div className="mx-auto flex min-h-[70dvh] max-w-sm flex-col justify-center space-y-5 py-6">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-white">You're invited</h1>
-        <p className="mt-1 text-sm text-slate-400">Someone wants you in their pool.</p>
+        <h1 className="text-2xl font-semibold text-ink-950">You're invited</h1>
+        <p className="mt-1 text-sm text-ink-500">Someone wants you in their pool.</p>
       </div>
 
       {preview.isLoading && (
         <Card>
-          <p className="text-center text-sm text-slate-400">Checking your invite…</p>
+          <p className="text-center text-sm text-ink-500">Checking your invite…</p>
         </Card>
       )}
 
@@ -78,7 +78,7 @@ export function JoinPage() {
           <p className="text-center text-sm text-rose-400">
             This invite is invalid, expired, or already used up.
           </p>
-          <p className="text-center text-xs text-slate-500">
+          <p className="text-center text-xs text-ink-500">
             Ask an officer for a fresh invite link.
           </p>
           {user && (
@@ -92,9 +92,9 @@ export function JoinPage() {
       {preview.data && (
         <Card className="space-y-4">
           <div className="text-center">
-            <p className="text-lg font-semibold text-white">{preview.data.name}</p>
+            <p className="text-lg font-semibold text-ink-950">{preview.data.name}</p>
             {preview.data.description && (
-              <p className="mt-1 text-sm text-slate-400">{preview.data.description}</p>
+              <p className="mt-1 text-sm text-ink-500">{preview.data.description}</p>
             )}
             <div className="mt-2 flex justify-center gap-1.5">
               <Badge tone={preview.data.role === 'officer' ? 'gold' : 'brand'}>
@@ -106,7 +106,7 @@ export function JoinPage() {
             </div>
           </div>
           {preview.data.role === 'officer' && (
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-ink-500">
               Officers approve spending. You'll link a wallet after joining — your key becomes one
               of the pool's on-chain signers.
             </p>
@@ -118,7 +118,7 @@ export function JoinPage() {
               </Button>
               <button
                 onClick={dismiss}
-                className="w-full text-center text-xs text-slate-500 hover:text-slate-300"
+                className="w-full text-center text-xs text-ink-500 hover:text-ink-700"
               >
                 Not now
               </button>
@@ -132,7 +132,7 @@ export function JoinPage() {
               <Button className="w-full" onClick={() => navigate({ to: '/auth/sign-up' })}>
                 Sign up to join
               </Button>
-              <p className="text-center text-xs text-slate-400">
+              <p className="text-center text-xs text-ink-500">
                 Already have an account?{' '}
                 <Link to="/auth/sign-in" className="text-brand-400 hover:text-brand-300">
                   Sign in

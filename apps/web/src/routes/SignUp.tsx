@@ -34,8 +34,8 @@ export function SignUpPage() {
         <Button variant="ghost" className="w-full" loading={google.isPending} onClick={() => google.mutate()}>
           Continue with Google
         </Button>
-        <p className="text-center text-[11px] text-slate-600">Google accounts confirm eligibility on the next screen.</p>
-        <div className="flex items-center gap-3 text-[11px] text-slate-600"><span className="h-px flex-1 bg-white/10" />or create with email<span className="h-px flex-1 bg-white/10" /></div>
+        <p className="text-center text-[11px] text-ink-500">Google accounts confirm eligibility on the next screen.</p>
+        <div className="flex items-center gap-3 text-[11px] text-ink-500"><span className="h-px flex-1 bg-white/10" />or create with email<span className="h-px flex-1 bg-white/10" /></div>
         <Field label="Display name">
           <input
             className={inputClass}

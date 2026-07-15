@@ -28,7 +28,7 @@ export function SignInPage() {
         <Button variant="ghost" className="w-full" loading={google.isPending} onClick={() => google.mutate()}>
           Continue with Google
         </Button>
-        <div className="flex items-center gap-3 text-[11px] text-slate-600"><span className="h-px flex-1 bg-white/10" />or use email<span className="h-px flex-1 bg-white/10" /></div>
+        <div className="flex items-center gap-3 text-[11px] text-ink-500"><span className="h-px flex-1 bg-white/10" />or use email<span className="h-px flex-1 bg-white/10" /></div>
         <Field label="Email">
           <input
             type="email"

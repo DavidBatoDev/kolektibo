@@ -85,7 +85,7 @@ export function ProfilePage() {
               if (f) uploadAvatar.mutate(f)
             }}
           />
-          <span className="absolute -bottom-1 -right-1 rounded-full bg-brand-500 px-1.5 py-0.5 text-[10px] font-medium text-white">
+          <span className="absolute -bottom-1 -right-1 rounded-full bg-brand-500 px-1.5 py-0.5 text-[10px] font-medium text-ink-950">
             {uploadAvatar.isPending ? '…' : 'edit'}
           </span>
         </label>

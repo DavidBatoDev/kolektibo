@@ -17,8 +17,8 @@ export function ContributePage() {
     return (
       <Card className="space-y-4 text-center">
         <div>
-          <p className="font-semibold text-white">Create the demo pool first</p>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="font-semibold text-ink-950">Create the demo pool first</p>
+          <p className="mt-1 text-sm text-ink-500">
             Contributions appear after the sample treasury has been deployed on testnet.
           </p>
         </div>
