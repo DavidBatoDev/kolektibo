@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
-import { Badge, Button, Card, Field, ProgressBar, SectionLabel, inputClass, peso } from '../components/ui'
+import { AppPageHero, Badge, Button, Card, Field, ProgressBar, SectionLabel, inputClass, peso } from '../components/ui'
 import { parseRules, type Policy } from '../lib/ai'
 import { useCreateDraft } from '../hooks/usePools'
 
@@ -177,11 +177,14 @@ export function PoolWizardPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-5 pb-10">
       <div>
-        <p className="text-xs font-medium text-brand-400">Create a private treasury</p>
-        <div className="mt-1 flex items-start justify-between gap-4">
-          <div><h1 className="text-2xl font-semibold text-ink-950">{STEPS[step]}</h1><p className="mt-1 text-sm text-ink-500">Step {step + 1} of {STEPS.length} · saved on this device</p></div>
-          {step === 0 && <Button variant="ghost" onClick={() => setShowAI((value) => !value)}>Prefill with AI</Button>}
-        </div>
+        <AppPageHero
+          eyebrow="Create a private treasury"
+          title={STEPS[step]}
+          body={`Step ${step + 1} of ${STEPS.length} · saved on this device`}
+          asset={['/assets/pool.webp', '/assets/contribute.webp', '/assets/payout.webp', '/assets/members.webp', '/assets/wallet.webp', '/assets/verified.webp'][step]}
+        >
+          {step === 0 && <Button size="sm" variant="mint" onClick={() => setShowAI((value) => !value)}>Prefill with AI</Button>}
+        </AppPageHero>
         <div className="mt-4"><ProgressBar value={step + 1} max={STEPS.length} /></div>
         <div className="mt-3 hidden grid-cols-6 gap-2 text-center text-[11px] sm:grid">
           {STEPS.map((label, index) => <button key={label} onClick={() => index < step && setStep(index)} className={index === step ? 'text-brand-400' : index < step ? 'text-ink-700' : 'text-ink-500'}>{label}</button>)}

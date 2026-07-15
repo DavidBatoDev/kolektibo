@@ -433,6 +433,155 @@ body,
   background-repeat: no-repeat;
 }
 
+/* ============================================================
+   Authenticated product shell — the landing page's mint atmosphere, scaled
+   down for a focused, responsive workspace.
+   ============================================================ */
+.product-shell {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(520px 300px at 92% 2%, rgba(34,197,94,.18), transparent 70%),
+    radial-gradient(420px 320px at -12% 20%, rgba(134,239,172,.2), transparent 72%),
+    var(--color-paper-50);
+}
+
+.product-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .34;
+  background-image: radial-gradient(rgba(21,128,61,.16) 1px, transparent 1.2px);
+  background-size: 18px 18px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 8%, #000 45%, transparent 92%);
+          mask-image: linear-gradient(to bottom, transparent 8%, #000 45%, transparent 92%);
+}
+
+.product-header,
+.product-nav {
+  background: rgba(255,255,255,.88);
+  box-shadow: 0 8px 28px rgba(11,18,16,.04);
+}
+
+.product-header-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--color-ink-700);
+  background: var(--color-paper-100);
+  transition: color .16s ease, background .16s ease, transform .16s ease;
+}
+.product-header-icon:hover { color: var(--color-brand-700); background: var(--color-brand-100); }
+.product-header-icon:active { transform: scale(.96); }
+
+.product-main { position: relative; z-index: 1; }
+.product-shell .ui-card,
+.product-shell .ui-list {
+  border: 1px solid rgba(213,221,217,.62);
+  box-shadow: 0 2px 8px rgba(11,18,16,.035), 0 14px 36px rgba(21,128,61,.075);
+}
+
+.product-nav-item { min-width: 0; }
+.product-nav-icon {
+  display: grid;
+  min-width: 46px;
+  height: 30px;
+  place-items: center;
+  border-radius: 999px;
+  transition: color .18s ease, background .18s ease, transform .18s ease;
+}
+.product-nav-item.is-active .product-nav-icon {
+  color: var(--color-brand-700);
+  background: var(--color-brand-100);
+  box-shadow: inset 0 0 0 1px rgba(34,197,94,.14);
+}
+.product-nav-item:active .product-nav-icon { transform: scale(.94); }
+
+.app-page-hero {
+  position: relative;
+  min-height: 184px;
+  margin: -20px -16px 0;
+  padding: 28px 136px 24px 20px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(134,239,172,.42);
+  background:
+    linear-gradient(90deg, rgba(240,253,244,.98) 0%, rgba(240,253,244,.92) 54%, rgba(240,253,244,.28) 100%),
+    radial-gradient(240px 180px at 90% 35%, rgba(34,197,94,.32), transparent 72%),
+    var(--color-brand-50);
+}
+.app-page-hero::after {
+  content: "";
+  position: absolute;
+  right: -22px;
+  bottom: -34px;
+  width: 190px;
+  height: 150px;
+  opacity: .28;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(21,128,61,.32) 1.3px, transparent 1.5px);
+  background-size: 13px 13px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 72%);
+          mask-image: radial-gradient(ellipse at center, #000 20%, transparent 72%);
+}
+.app-page-hero-plain { padding-right: 20px; }
+.app-page-hero-copy { position: relative; z-index: 2; }
+.app-page-eyebrow {
+  display: inline-flex;
+  margin: 0 0 10px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: var(--color-brand-700);
+  background: rgba(220,252,231,.9);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.app-page-hero h1 {
+  margin: 0;
+  color: var(--color-ink-950);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -.025em;
+}
+.app-page-summary {
+  margin: 8px 0 0;
+  color: var(--color-ink-700);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.app-page-actions { margin-top: 18px; }
+.app-page-asset {
+  position: absolute;
+  z-index: 1;
+  right: -4px;
+  bottom: -12px;
+  width: 142px;
+  height: 142px;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 20px rgba(11,18,16,.16));
+  transform: rotate(2deg);
+}
+
+@media (max-width: 380px) {
+  .app-page-hero { padding-right: 112px; }
+  .app-page-hero-plain { padding-right: 20px; }
+  .app-page-asset { right: -14px; width: 126px; height: 126px; }
+}
+
+@media (min-width: 768px) {
+  .app-page-hero { min-height: 210px; padding: 36px 220px 32px 32px; }
+  .app-page-hero-plain { padding-right: 32px; }
+  .app-page-hero h1 { font-size: 32px; }
+  .app-page-summary { max-width: 44ch; font-size: 14px; }
+  .app-page-asset { right: 18px; bottom: -12px; width: 190px; height: 190px; }
+}
+
 .landing-page .hero .wrap { display: flex; align-items: center; min-height: 560px; }
 .landing-page .hero-content { position: relative; width: 100%; }
 

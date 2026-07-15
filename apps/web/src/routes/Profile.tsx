@@ -9,7 +9,7 @@ import {
   useUploadAvatar,
 } from '../hooks/useProfile'
 import { useDeleteAccount, useOfficerPools } from '../hooks/useAccountDeletion'
-import { Button, Card, Field, inputClass, SectionLabel, Sheet } from '../components/ui'
+import { AppPageHero, Button, Card, Field, inputClass, SectionLabel, Sheet } from '../components/ui'
 
 const NOTIF_ROWS: [string, string][] = [
   ['push', 'Push notifications'],
@@ -64,6 +64,12 @@ export function ProfilePage() {
 
   return (
     <div className="space-y-5">
+      <AppPageHero
+        eyebrow="Account"
+        title="Profile & settings"
+        body="Keep your identity, preferences, and notifications up to date."
+        asset="/assets/members.webp"
+      />
       {/* Identity + avatar */}
       <Card className="flex items-center gap-4">
         <label className="relative cursor-pointer">

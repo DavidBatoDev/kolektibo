@@ -87,20 +87,20 @@ function ProductShell() {
   ] as const
   const active = (to: string, exact?: boolean) => exact ? pathname === to : pathname === to || pathname.startsWith(`${to}/`)
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50">
-      <header className="sticky top-0 z-20 border-b border-ink-300/60 bg-white/85 backdrop-blur">
-        <div className="flex items-center justify-between px-4 py-3"><Brand to="/app" theme="light" /><div className="flex items-center gap-3"><span className="rounded-full bg-brand-100 px-2 py-1 text-[10px] text-brand-700 ring-1 ring-brand-500/30">Testnet</span><Link to="/app/notifications" aria-label="Notifications" className="text-ink-500 hover:text-ink-900"><IconBell className="h-5 w-5" /></Link></div></div>
+    <div className="product-shell mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50 sm:max-w-2xl md:max-w-3xl">
+      <header className="product-header sticky top-0 z-20 border-b border-ink-300/60 backdrop-blur">
+        <div className="flex items-center justify-between px-4 py-3"><Brand to="/app" theme="light" /><div className="flex items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-2.5 py-1 text-[10px] font-semibold text-brand-700 ring-1 ring-brand-500/25"><span className="size-1.5 rounded-full bg-brand-500" />Testnet</span><Link to="/app/notifications" aria-label="Notifications" className="product-header-icon"><IconBell className="h-5 w-5" /></Link></div></div>
       </header>
-      <main className="min-w-0 flex-1 px-4 pb-28 pt-5"><Outlet /></main>
-      <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t border-ink-300/60 bg-white/92 backdrop-blur" style={{ paddingBottom: 'var(--safe-bottom)' }}>
-        {nav.map(({ to, label, Icon, exact }) => <Link key={to} to={to} className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition ${active(to, exact) ? 'text-brand-600' : 'text-ink-500 hover:text-ink-700'}`}><Icon className="h-5 w-5" />{label}</Link>)}
+      <main className="product-main min-w-0 flex-1 px-4 pb-28 pt-5"><Outlet /></main>
+      <nav className="product-nav fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t border-ink-300/60 backdrop-blur sm:max-w-2xl md:max-w-3xl" style={{ paddingBottom: 'var(--safe-bottom)' }}>
+        {nav.map(({ to, label, Icon, exact }) => { const isActive = active(to, exact); return <Link key={to} to={to} className={`product-nav-item flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold transition ${isActive ? 'is-active text-brand-700' : 'text-ink-500 hover:text-ink-700'}`}><span className="product-nav-icon"><Icon className="h-[18px] w-[18px]" /></span>{label}</Link> })}
       </nav>
     </div>
   )
 }
 
 function Brand({ to = '/', theme = 'dark' }: { to?: '/' | '/app' | '/demo', theme?: 'dark' | 'light' }) {
-  return <Link to={to} className="flex items-center gap-2"><img src="/kolektibo.svg" alt="" className="h-7 w-7" /><span className={`text-lg font-semibold tracking-tight ${theme === 'light' ? 'text-ink-950' : 'text-ink-950'}`}>Kolektibo</span></Link>
+  return <Link to={to} className="flex items-center gap-2"><img src="/assets/kolektibo.svg" alt="" className="h-7 w-7" /><span className={`text-lg font-semibold tracking-tight ${theme === 'light' ? 'text-ink-950' : 'text-ink-950'}`}>Kolektibo</span></Link>
 }
 
 function SvgIcon({ className, children }: IconProps & { children: React.ReactNode }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{children}</svg> }

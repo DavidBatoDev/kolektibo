@@ -3,7 +3,7 @@
 // deploy); active pools invite members only.
 import { useState } from 'react'
 import { Link, useParams } from '@tanstack/react-router'
-import { Badge, Button, Card, Field, SectionLabel } from '../components/ui'
+import { AppPageHero, Badge, Button, Card, Field, SectionLabel } from '../components/ui'
 import { inviteUrl } from '../lib/poolsApi'
 import { useCreateInvite, useInvites, usePoolDetail } from '../hooks/usePools'
 
@@ -32,19 +32,14 @@ export function PoolInvitePage() {
 
   return (
     <div className="space-y-5 pb-4">
-      <div>
-        <Link
-          to="/app/pools/$poolId"
-          params={{ poolId }}
-          className="text-xs text-ink-500 hover:text-ink-700"
-        >
-          ← {pool.data?.name ?? 'Back'}
-        </Link>
-        <h1 className="mt-1 text-xl font-semibold text-ink-950">Invite people</h1>
-        <p className="mt-1 text-sm text-ink-500">
-          Share a link — invitees preview the pool before they join.
-        </p>
-      </div>
+      <AppPageHero
+        eyebrow={pool.data?.name ?? 'Pool'}
+        title="Invite people"
+        body="Share a link so invitees can preview the pool before they join."
+        asset="/assets/invite.webp"
+      >
+        <Link to="/app/pools/$poolId" params={{ poolId }} className="text-xs font-semibold text-brand-700">← Pool overview</Link>
+      </AppPageHero>
 
       <Card className="space-y-4">
         <SectionLabel>New invite</SectionLabel>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Badge, Button, Card, Field, SectionLabel, inputClass } from '../components/ui'
+import { AppPageHero, Badge, Button, Card, Field, SectionLabel, inputClass } from '../components/ui'
 import { useAuth } from '../lib/auth'
 import { subscribeManyPoolChainEvents } from '../lib/chainEventsRealtime'
 import { supabase } from '../lib/supabase'
@@ -223,7 +223,15 @@ export function AppHelpPage() {
 }
 
 function Page({ title, intro, children }: { title: string; intro: string; children: React.ReactNode }) {
-  return <div className="space-y-5 pb-6"><div><h1 className="text-2xl font-semibold text-ink-950">{title}</h1><p className="mt-1 text-sm text-ink-500">{intro}</p></div>{children}</div>
+  const asset: Record<string, string> = {
+    Activity: '/assets/cycle.webp',
+    Notifications: '/assets/pending.webp',
+    Preferences: '/assets/approvals.webp',
+    Security: '/assets/vault.webp',
+    'Your data': '/assets/verified.webp',
+    'Help and support': '/assets/invite.webp',
+  }
+  return <div className="space-y-5 pb-6"><AppPageHero eyebrow="Kolektibo" title={title} body={intro} asset={asset[title]} />{children}</div>
 }
 
 function Empty({ title, body, action, to }: { title: string; body: string; action?: string; to?: '/app/pools' }) {

@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Button, Card, Field, SectionLabel, inputClass, peso } from '../components/ui'
+import { AppPageHero, Button, Card, Field, SectionLabel, inputClass, peso } from '../components/ui'
 import { supabase } from '../lib/supabase'
 import { myKeypair } from '../lib/mywallet'
 import {
@@ -60,21 +60,14 @@ export function PoolContributePage() {
 
   return (
     <div className="space-y-5 pb-4">
-      <div>
-        <Link
-          to="/app/pools/$poolId"
-          params={{ poolId }}
-          className="text-xs text-ink-500 hover:text-ink-700"
-        >
-          ← {pool.data?.name ?? 'Back'}
-        </Link>
-        <h1 className="mt-1 text-xl font-semibold text-ink-950">Contribute</h1>
-        {dues && (
-          <p className="mt-1 text-sm text-ink-500">
-            Dues: {peso(dues.amount)} {dues.period}
-          </p>
-        )}
-      </div>
+      <AppPageHero
+        eyebrow={pool.data?.name ?? 'Pool'}
+        title="Contribute"
+        body={dues ? `Suggested dues: ${peso(dues.amount)} ${dues.period}` : 'Add funds directly to the shared on-chain treasury.'}
+        asset="/assets/contribute.webp"
+      >
+        <Link to="/app/pools/$poolId" params={{ poolId }} className="text-xs font-semibold text-brand-700">← Pool overview</Link>
+      </AppPageHero>
 
       {m.isSuccess ? (
         <Card className="space-y-3 text-center">

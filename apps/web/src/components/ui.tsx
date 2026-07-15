@@ -112,7 +112,7 @@ export function Card({
       className={cx(
         hero
           ? "rounded-[32px] p-6 text-white bg-[image:var(--gradient-hero)] shadow-green"
-          : "rounded-[26px] p-4 bg-paper-0 shadow-card",
+          : "ui-card rounded-[26px] p-4 bg-paper-0 shadow-card",
         className,
       )}
       {...rest}
@@ -131,10 +131,34 @@ export function SectionLabel({ children }: { children: ReactNode }) {
   );
 }
 
+/** Full-bleed illustrated heading for authenticated app routes. */
+export function AppPageHero({
+  eyebrow, title, body, asset, children, className,
+}: {
+  eyebrow?: string;
+  title: ReactNode;
+  body?: ReactNode;
+  asset?: string;
+  children?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <header className={cx("app-page-hero", !asset && "app-page-hero-plain", className)}>
+      <div className="app-page-hero-copy">
+        {eyebrow && <p className="app-page-eyebrow">{eyebrow}</p>}
+        <h1>{title}</h1>
+        {body && <p className="app-page-summary">{body}</p>}
+        {children && <div className="app-page-actions">{children}</div>}
+      </div>
+      {asset && <img className="app-page-asset" src={asset} alt="" aria-hidden="true" />}
+    </header>
+  );
+}
+
 /** Dense lists live in ONE card with divided rows. Not a card per row. */
 export function List({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={cx("rounded-[26px] bg-paper-0 shadow-card overflow-hidden", className)}>
+    <div className={cx("ui-list rounded-[26px] bg-paper-0 shadow-card overflow-hidden", className)}>
       <div className="divide-y divide-ink-300/60">{children}</div>
     </div>
   );

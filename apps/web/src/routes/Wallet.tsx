@@ -4,7 +4,7 @@
 // rotated out), then link it with a signed proof-of-ownership challenge.
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Badge, Button, Card, Field, SectionLabel, inputClass, peso } from '../components/ui'
+import { AppPageHero, Badge, Button, Card, Field, SectionLabel, inputClass, peso } from '../components/ui'
 import { getLocalWallet, createLocalWallet, importLocalWallet } from '../lib/mywallet'
 import { getAccountSummary, explorerAccountUrl } from '../lib/stellar'
 import { shortAddr } from '../lib/identity'
@@ -61,13 +61,12 @@ export function WalletPage() {
 
   return (
     <div className="space-y-5 pb-4">
-      <div>
-        <h1 className="text-xl font-semibold text-ink-950">My wallet</h1>
-        <p className="mt-1 text-sm text-ink-500">
-          Your own Stellar key on this device — it signs your contributions and approvals. No one
-          else (including Kolektibo) can sign for you.
-        </p>
-      </div>
+      <AppPageHero
+        eyebrow="Your signer"
+        title="My wallet"
+        body="Your Stellar key signs contributions and approvals on this device. Only you can use it."
+        asset="/assets/wallet.webp"
+      />
 
       {/* No wallet on this device yet */}
       {!local && (

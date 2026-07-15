@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useParams } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { StrKey } from '@stellar/stellar-sdk'
-import { Badge, Button, Card, Field, SectionLabel, inputClass, peso } from '../components/ui'
+import { AppPageHero, Badge, Button, Card, Field, SectionLabel, inputClass, peso } from '../components/ui'
 import { useMyMembership, usePoolDetail, usePoolState, useRoster } from '../hooks/usePools'
 import { supabase } from '../lib/supabase'
 import { shortAddr } from '../lib/identity'
@@ -145,7 +145,12 @@ export function PoolSettingsPage({ section }: { section: 'general' | 'contributi
 function PoolPage({ title, intro, children }: { title: string; intro: string; children: React.ReactNode }) {
   const { poolId = '' } = useParams({ strict: false }) as { poolId?: string }
   const pool = usePoolDetail(poolId)
-  return <div className="space-y-5 pb-8"><div><Link to="/app/pools/$poolId" params={{ poolId }} className="text-xs text-brand-400">← {pool.data?.name ?? 'Pool'}</Link><h1 className="mt-2 text-2xl font-semibold text-ink-950">{title}</h1><p className="mt-1 text-sm text-ink-500">{intro}</p></div>{children}</div>
+  const asset: Record<string, string> = {
+    Activity: '/assets/cycle.webp', Contributions: '/assets/contribute.webp', Spending: '/assets/payout.webp',
+    'Spend request': '/assets/pending.webp', Approvals: '/assets/approvals.webp', Members: '/assets/members.webp',
+    Payees: '/assets/wallet.webp', Goals: '/assets/coins.webp', Rules: '/assets/verified.webp', Reports: '/assets/coin.webp', Settings: '/assets/vault.webp',
+  }
+  return <div className="space-y-5 pb-8"><AppPageHero eyebrow={pool.data?.name ?? 'Pool'} title={title} body={intro} asset={asset[title] ?? '/assets/pool.webp'}><Link to="/app/pools/$poolId" params={{ poolId }} className="inline-flex text-xs font-semibold text-brand-700">← Pool overview</Link></AppPageHero>{children}</div>
 }
 
 function SpendList({ title, rows, ctx }: { title: string; rows: NonNullable<ReturnType<typeof usePoolState>['data']>['spends']; ctx: ReturnType<typeof useContext> }) {

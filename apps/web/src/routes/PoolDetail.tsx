@@ -4,9 +4,9 @@
 //   active → live treasury: balance, members, spends with approve / release,
 //            every action signed by the user's own device wallet.
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from '@tanstack/react-router'
+import { Link, useNavigate, useParams, useRouterState } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Badge, Button, Card, SectionLabel, peso, Avatar } from '../components/ui'
+import { AppPageHero, Badge, Button, Card, SectionLabel, peso, Avatar } from '../components/ui'
 import { useAuth } from '../lib/auth'
 import { shortAddr } from '../lib/identity'
 import { getLocalWallet, myKeypair } from '../lib/mywallet'
@@ -101,16 +101,14 @@ function DraftChecklist({ poolId, pool }: { poolId: string; pool: PoolRow }) {
 
   return (
     <div className="space-y-5 pb-4">
-      <div>
-        <Link to="/app/pools" className="text-xs text-ink-500 hover:text-ink-700">
-          ← My pools
-        </Link>
-        <div className="mt-1 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-ink-950">{pool.name}</h1>
-          <Badge tone="gold">draft</Badge>
-        </div>
-        {pool.description && <p className="mt-1 text-sm text-ink-500">{pool.description}</p>}
-      </div>
+      <AppPageHero
+        eyebrow="Draft pool"
+        title={pool.name}
+        body={pool.description || 'Invite your people, link officer wallets, and review the rules before deployment.'}
+        asset="/assets/pending.webp"
+      >
+        <div className="flex items-center gap-3"><Badge tone="gold">draft</Badge><Link to="/app/pools" className="text-xs font-semibold text-brand-700">← My pools</Link></div>
+      </AppPageHero>
 
       <PoolNavigation poolId={poolId} draft />
 
@@ -341,7 +339,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
               <div key={c.name} className="space-y-2">
                 <div className="flex justify-between text-[13.5px] font-medium">
                   <span className="text-ink-900">{c.name}</span>
-                  <span className="text-ink-950 font-bold tracking-tight">{peso(c.monthlyLimit || c.perSpendCap).replace('.00', '')}</span>
+                  <span className="text-ink-950 font-bold tracking-tight">{peso(c.monthlyLimit ?? 0).replace('.00', '')}</span>
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-paper-100/60 shadow-sm">
                   <div
@@ -403,29 +401,34 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
 }
 
 function PoolNavigation({ poolId, draft = false }: { poolId: string; draft?: boolean }) {
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
   const items = [
-        ['Activity', '/app/pools/$poolId/activity'],
-        ['Contributions', '/app/pools/$poolId/contributions'],
-        ['Spending', '/app/pools/$poolId/spends'],
-        ['Approvals', '/app/pools/$poolId/approvals'],
-        ['People', '/app/pools/$poolId/members'],
-        ['Payees', '/app/pools/$poolId/payees'],
-        ['Rules', '/app/pools/$poolId/rules'],
-        ['Reports', '/app/pools/$poolId/reports'],
-        ['Settings', '/app/pools/$poolId/settings/general'],
+        ['Activity', '/app/pools/$poolId/activity', '/assets/cycle.webp'],
+        ['Contributions', '/app/pools/$poolId/contributions', '/assets/contribute.webp'],
+        ['Spending', '/app/pools/$poolId/spends', '/assets/payout.webp'],
+        ['Approvals', '/app/pools/$poolId/approvals', '/assets/approvals.webp'],
+        ['People', '/app/pools/$poolId/members', '/assets/members.webp'],
+        ['Payees', '/app/pools/$poolId/payees', '/assets/wallet.webp'],
+        ['Rules', '/app/pools/$poolId/rules', '/assets/verified.webp'],
+        ['Reports', '/app/pools/$poolId/reports', '/assets/coin.webp'],
+        ['Settings', '/app/pools/$poolId/settings/general', '/assets/vault.webp'],
       ] as const
   return (
     <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pt-1 pb-1">
-      {items.map(([label, to]) => (
+      {items.map(([label, to, asset]) => {
+        const resolved = to.replace('$poolId', poolId)
+        const selected = pathname === resolved || (label === 'Settings' && pathname.includes(`/app/pools/${poolId}/settings/`))
+        return (
         <Link
           key={to}
           to={to}
           params={{ poolId }}
-          className="shrink-0 rounded-full bg-paper-100/50 px-3 py-1.5 text-xs font-medium text-ink-700 ring-1 ring-ink-300 hover:bg-paper-100"
+          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 transition ${selected ? 'bg-ink-900 text-white ring-ink-900 shadow-card' : 'bg-paper-0/85 text-ink-700 ring-ink-300 hover:bg-brand-50'}`}
         >
+          <img src={asset} alt="" className="size-5 object-contain" />
           {label}
         </Link>
-      ))}
+      )})}
     </div>
   )
 }
