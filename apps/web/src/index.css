@@ -419,16 +419,9 @@ body,
 /* ===================== HERO ===================== */
 .landing-page .hero {
   position: relative; padding: 36px 0 80px;
-  background: transparent;
-}
-
-.landing-page .hero-card {
-  position: relative; overflow: hidden; display: flex; align-items: center;
-  border-radius: var(--r-card); box-shadow: var(--shadow-lg);
-  min-height: 560px; padding: clamp(32px, 5vw, 72px);
   background-color: #F0FDF4;
-  /* left legibility wash + top/bottom/right edge fades so the clay scene melts
-     into the mint card instead of being hard-clipped by the rounded rectangle */
+  /* The clay scene is the hero section itself, so it flows edge-to-edge instead
+     of sitting inside a rounded, elevated card. */
   background-image:
     linear-gradient(90deg, rgba(240,253,244,.95) 0%, rgba(240,253,244,.72) 33%, rgba(240,253,244,.18) 52%, rgba(240,253,244,0) 66%),
     linear-gradient(180deg, rgba(240,253,244,.7) 0%, rgba(240,253,244,0) 22%),
@@ -439,6 +432,9 @@ body,
   background-position: center, center, center, center, 76% center;
   background-repeat: no-repeat;
 }
+
+.landing-page .hero .wrap { display: flex; align-items: center; min-height: 560px; }
+.landing-page .hero-content { position: relative; width: 100%; }
 
 .landing-page .hero-text { max-width: 540px; }
 .landing-page .eyebrow {
@@ -751,10 +747,10 @@ body,
   .grid-3 { grid-template-columns: 1fr; }
   .bento { grid-template-columns: 1fr; }
   .bento-card.lg { grid-column: auto; grid-row: auto; }
-  .hero { padding: 24px 0 44px; }
-  .hero-card { min-height: 0; padding: 32px 24px 290px;
+  .hero { padding: 56px 0 334px;
     background-image: linear-gradient(180deg, rgba(240,253,244,.96) 0%, rgba(240,253,244,.72) 42%, rgba(240,253,244,0) 76%), url('/backgrounds/bg-hero-landing.png');
     background-position: center, center bottom; }
+  .hero .wrap { min-height: 0; }
   .hero-text { max-width: none; }
   .hero .sub { max-width: none; }
   .phones { grid-template-columns: 1fr; max-width: 300px; }
@@ -777,7 +773,7 @@ body,
   .stat { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
   .stat .l { margin-top: 0; }
   .foot-grid { grid-template-columns: 1fr; }
-  .hero-card { padding-bottom: 250px; }
+  .hero { padding-bottom: 294px; }
   .safe { padding-bottom: 280px; }
 }
 

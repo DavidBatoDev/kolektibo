@@ -35,7 +35,7 @@ export function LandingPage() {
 
         <section className="hero" id="top">
           <div className="wrap">
-            <div className="hero-card hero-anim" style={{ '--delay': 0 } as CSSProperties}>
+            <div className="hero-content hero-anim" style={{ '--delay': 0 } as CSSProperties}>
               <div className="hero-text">
                 <span className="eyebrow hero-anim" style={{ '--delay': 1 } as CSSProperties}>
                   AI treasurer · secured on Stellar

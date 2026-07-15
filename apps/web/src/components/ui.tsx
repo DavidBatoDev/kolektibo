@@ -79,7 +79,7 @@ export function Button({
     <button
       disabled={disabled || loading}
       className={cx(
-        "inline-flex items-center justify-center rounded-full font-medium select-none",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-full font-medium select-none",
         "transition active:scale-[0.97] motion-reduce:active:scale-100",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-paper-50",
         "disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100",
