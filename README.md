@@ -19,7 +19,7 @@
 [![Stellar](https://img.shields.io/badge/Stellar-Testnet-7D00FF?style=flat-square&logo=stellar&logoColor=white)](https://stellar.org)
 [![Soroban](https://img.shields.io/badge/Soroban-Smart_Contracts-22C55E?style=flat-square)](https://soroban.stellar.org)
 [![USDC](https://img.shields.io/badge/USDC-SAC_Settlement-2775CA?style=flat-square&logo=circle&logoColor=white)](https://www.circle.com/en/usdc)
-[![Rust](https://img.shields.io/badge/Rust-1.97-soroban--sdk_26-000000?style=flat-square&logo=rust&logoColor=white)](./contracts/treasury)
+[![Rust](https://img.shields.io/badge/Rust-1.97_soroban_sdk_26-000000?style=flat-square&logo=rust&logoColor=white)](./contracts/treasury)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](./apps/web)
 [![TypeScript](https://img.shields.io/badge/TypeScript-7-3178C6?style=flat-square&logo=typescript&logoColor=white)](./apps/web)
 [![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white)](./apps/web)
