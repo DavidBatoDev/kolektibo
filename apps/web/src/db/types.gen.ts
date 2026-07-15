@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -14,6 +14,329 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_executions: {
+        Row: {
+          attempts: number
+          claim_token: string
+          claimed_at: string
+          due_at: string
+          error: string | null
+          id: string
+          mandate_id: string
+          run_id: string | null
+          status: string
+          tx_hash: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          claim_token: string
+          claimed_at?: string
+          due_at: string
+          error?: string | null
+          id?: string
+          mandate_id: string
+          run_id?: string | null
+          status?: string
+          tx_hash?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          claim_token?: string
+          claimed_at?: string
+          due_at?: string
+          error?: string | null
+          id?: string
+          mandate_id?: string
+          run_id?: string | null
+          status?: string
+          tx_hash?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_executions_mandate_id_fkey"
+            columns: ["mandate_id"]
+            isOneToOne: false
+            referencedRelation: "agent_mandates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_executions_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "agent_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_identities: {
+        Row: {
+          created_at: string
+          encrypted_secret: string
+          encryption_iv: string
+          encryption_tag: string
+          key_version: number
+          pool_id: string
+          public_address: string
+          revoked_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          encrypted_secret: string
+          encryption_iv: string
+          encryption_tag: string
+          key_version?: number
+          pool_id: string
+          public_address: string
+          revoked_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          encrypted_secret?: string
+          encryption_iv?: string
+          encryption_tag?: string
+          key_version?: number
+          pool_id?: string
+          public_address?: string
+          revoked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_identities_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: true
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_mandates: {
+        Row: {
+          action_proposal_id: number | null
+          amount: number
+          category: string
+          condition_hash: string
+          conditions: Json
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          execution_count: number
+          expires_at: string | null
+          id: string
+          mandate_id: number | null
+          max_executions: number
+          min_balance: number
+          next_due_at: string | null
+          not_before: string
+          payee_name: string | null
+          pending_action: string | null
+          pool_id: string
+          proposal_id: number | null
+          recipient: string
+          schedule: Json
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          action_proposal_id?: number | null
+          amount: number
+          category: string
+          condition_hash: string
+          conditions?: Json
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          execution_count?: number
+          expires_at?: string | null
+          id?: string
+          mandate_id?: number | null
+          max_executions?: number
+          min_balance?: number
+          next_due_at?: string | null
+          not_before: string
+          payee_name?: string | null
+          pending_action?: string | null
+          pool_id: string
+          proposal_id?: number | null
+          recipient: string
+          schedule?: Json
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          action_proposal_id?: number | null
+          amount?: number
+          category?: string
+          condition_hash?: string
+          conditions?: Json
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          execution_count?: number
+          expires_at?: string | null
+          id?: string
+          mandate_id?: number | null
+          max_executions?: number
+          min_balance?: number
+          next_due_at?: string | null
+          not_before?: string
+          payee_name?: string | null
+          pending_action?: string | null
+          pool_id?: string
+          proposal_id?: number | null
+          recipient?: string
+          schedule?: Json
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_mandates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_mandates_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_run_steps: {
+        Row: {
+          created_at: string
+          id: number
+          input: Json | null
+          kind: string
+          output: Json | null
+          pool_id: string | null
+          run_id: string
+          sequence: number
+          status: string
+          title: string
+          tool_name: string | null
+          tx_hash: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          input?: Json | null
+          kind: string
+          output?: Json | null
+          pool_id?: string | null
+          run_id: string
+          sequence: number
+          status?: string
+          title: string
+          tool_name?: string | null
+          tx_hash?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          input?: Json | null
+          kind?: string
+          output?: Json | null
+          pool_id?: string | null
+          run_id?: string
+          sequence?: number
+          status?: string
+          title?: string
+          tool_name?: string | null
+          tx_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_run_steps_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_run_steps_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "agent_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_runs: {
+        Row: {
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          input_tokens: number
+          output_tokens: number
+          pool_id: string | null
+          prompt: string | null
+          response: string | null
+          started_at: string | null
+          status: string
+          trigger: string
+          user_id: string | null
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          input_tokens?: number
+          output_tokens?: number
+          pool_id?: string | null
+          prompt?: string | null
+          response?: string | null
+          started_at?: string | null
+          status?: string
+          trigger: string
+          user_id?: string | null
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          input_tokens?: number
+          output_tokens?: number
+          pool_id?: string | null
+          prompt?: string | null
+          response?: string | null
+          started_at?: string | null
+          status?: string
+          trigger?: string
+          user_id?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_runs_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_runs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_usage: {
         Row: {
           created_at: string
@@ -496,6 +819,54 @@ export type Database = {
           },
         ]
       }
+      pool_agent_upgrades: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          last_error: string | null
+          new_contract_id: string
+          old_contract_id: string
+          pool_id: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          last_error?: string | null
+          new_contract_id: string
+          old_contract_id: string
+          pool_id: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          last_error?: string | null
+          new_contract_id?: string
+          old_contract_id?: string
+          pool_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_agent_upgrades_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_agent_upgrades_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: true
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pool_approval_tiers: {
         Row: {
           id: string
@@ -620,6 +991,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "pool_categories_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pool_contracts: {
+        Row: {
+          activated_at: string | null
+          contract_id: string
+          created_at: string
+          id: string
+          pool_id: string
+          retired_at: string | null
+          status: string
+          version: number
+        }
+        Insert: {
+          activated_at?: string | null
+          contract_id: string
+          created_at?: string
+          id?: string
+          pool_id: string
+          retired_at?: string | null
+          status?: string
+          version: number
+        }
+        Update: {
+          activated_at?: string | null
+          contract_id?: string
+          created_at?: string
+          id?: string
+          pool_id?: string
+          retired_at?: string | null
+          status?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_contracts_pool_id_fkey"
             columns: ["pool_id"]
             isOneToOne: false
             referencedRelation: "pools"
@@ -1344,6 +1756,15 @@ export type Database = {
         Args: { p_contract_id: string; p_pool: string; p_wasm_hash?: string }
         Returns: undefined
       }
+      claim_due_agent_execution: {
+        Args: { p_claim_token: string }
+        Returns: {
+          due_at: string
+          execution_id: string
+          mandate_uuid: string
+          pool_uuid: string
+        }[]
+      }
       claim_push_delivery: {
         Args: { p_notification_id: number; p_subscription_id: string }
         Returns: boolean
@@ -1359,6 +1780,10 @@ export type Database = {
         Returns: string
       }
       delete_my_account: { Args: never; Returns: undefined }
+      finalize_pool_agent_upgrade: {
+        Args: { p_pool_id: string; p_wasm_hash: string }
+        Returns: string
+      }
       get_user_id_by_email: { Args: { p_email: string }; Returns: string }
       is_pool_member: { Args: { p_pool: string }; Returns: boolean }
       is_pool_officer: { Args: { p_pool: string }; Returns: boolean }
