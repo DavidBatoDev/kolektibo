@@ -322,33 +322,94 @@ function MandateBadge({ status }: { status: AgentMandate['status'] }) {
 function RunCard({ run, poolName, locale }: { run: AgentRunWithSteps; poolName?: string; locale: 'en' | 'tl' }) {
   const [open, setOpen] = useState(run.status === 'running')
   const date = new Intl.DateTimeFormat(locale === 'tl' ? 'fil-PH' : 'en-PH', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(run.created_at))
-  return <Card className="p-0">
-    <button className="flex w-full items-start gap-3 p-4 text-left" onClick={() => setOpen(!open)}>
-      <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${run.status === 'completed' ? 'bg-brand-500' : run.status === 'failed' ? 'bg-rose-500' : 'animate-pulse bg-gold-400'}`} />
-      <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-ink-950">{run.prompt ?? (run.trigger === 'schedule' ? 'Scheduled mandate check' : 'Agent run')}</span><span className="mt-0.5 block text-xs text-ink-500">{poolName ?? 'Across your pools'} · {date}</span></span>
-      <span className="text-sm text-ink-500">{open ? '−' : '+'}</span>
+  const visibleSteps = run.steps.filter((step) => step.kind !== 'answer')
+  const statusLabel = run.status === 'completed' ? 'Complete' : run.status === 'failed' ? 'Needs attention' : run.status === 'cancelled' ? 'Cancelled' : 'Working'
+  const statusClass = run.status === 'completed'
+    ? 'bg-brand-50 text-brand-700 ring-brand-500/20'
+    : run.status === 'failed'
+      ? 'bg-rose-50 text-danger ring-rose-200'
+      : 'bg-gold-300/20 text-gold-700 ring-gold-400/25'
+
+  return <Card className="overflow-hidden p-0">
+    <button
+      className="flex w-full items-start gap-3.5 p-4 text-left transition hover:bg-brand-50/50"
+      onClick={() => setOpen(!open)}
+      aria-expanded={open}
+    >
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-brand-50 text-brand-700 ring-1 ring-brand-500/15">
+        <AgentSparkIcon className="h-5 w-5" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[10px] font-bold uppercase tracking-[0.08em] text-ink-500">You asked</span>
+        <span className="mt-1 block text-sm font-semibold leading-5 text-ink-950">{run.prompt ?? (run.trigger === 'schedule' ? 'Scheduled mandate check' : 'Agent run')}</span>
+        <span className="mt-1.5 block text-[11px] text-ink-500">{poolName ?? 'Across your pools'} · {date}</span>
+      </span>
+      <span className="flex shrink-0 items-center gap-2">
+        <span className={`hidden rounded-full px-2.5 py-1 text-[10px] font-semibold ring-1 sm:inline-flex ${statusClass}`}>{statusLabel}</span>
+        <ChevronIcon className={`h-5 w-5 text-ink-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </span>
     </button>
-    {open && <div className="border-t border-ink-200 px-3 pb-3 pt-3">
-      <div className="space-y-2">{run.steps.map((step) => <ToolStep key={step.id} step={step} />)}</div>
-      {run.response && <div className="mt-3 rounded-2xl bg-brand-50 p-3 text-sm leading-6 text-ink-900">{run.response}</div>}
-      {run.error && <div className="mt-3 rounded-2xl bg-rose-50 p-3 text-xs text-danger">{run.error}</div>}
+    {open && <div className="border-t border-ink-300/60 bg-paper-50/65 p-4">
+      {visibleSteps.length > 0 && <div>
+        <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.08em] text-ink-500">What the Agent checked</p>
+        <div>{visibleSteps.map((step, index) => <ToolStep key={step.id} step={step} last={index === visibleSteps.length - 1} />)}</div>
+      </div>}
+      {run.response && <div className={`${visibleSteps.length ? 'mt-4' : ''} rounded-[22px] border border-brand-200/70 bg-linear-to-br from-brand-50 to-paper-0 p-4 shadow-[0_12px_30px_-22px_rgba(21,128,61,.55)]`}>
+        <div className="flex items-center gap-2 text-brand-700">
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-brand-100"><AgentSparkIcon className="h-4 w-4" /></span>
+          <p className="text-[11px] font-bold uppercase tracking-[0.07em]">Kolektibo Agent</p>
+        </div>
+        <p className="mt-3 whitespace-pre-wrap break-words text-[14px] leading-6 text-ink-950">{run.response}</p>
+      </div>}
+      {run.error && <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3.5"><p className="text-[10px] font-bold uppercase tracking-[0.07em] text-danger">The Agent hit a problem</p><p className="mt-1.5 text-xs leading-5 text-danger">{run.error}</p></div>}
     </div>}
   </Card>
 }
 
-function ToolStep({ step }: { step: AgentRunStep }) {
-  const status = step.status === 'completed' ? '✓' : step.status === 'failed' ? '!' : step.status === 'blocked' ? '–' : '…'
-  return <div className="rounded-2xl bg-paper-100 p-3 ring-1 ring-ink-200/70">
-    <div className="flex items-center gap-2"><span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${step.status === 'completed' ? 'bg-brand-100 text-brand-700' : step.status === 'failed' ? 'bg-rose-100 text-danger' : 'bg-gold-300/30 text-gold-700'}`}>{status}</span><div className="min-w-0 flex-1"><p className="text-xs font-semibold capitalize text-ink-950">{step.title}</p>{step.tool_name && <p className="font-mono text-[10px] text-ink-500">{step.tool_name}</p>}</div></div>
-    {step.output && <p className="mt-2 line-clamp-3 text-[11px] leading-4 text-ink-700">{describeOutput(step.output)}</p>}
-    {step.tx_hash && <a className="mt-2 inline-block text-[11px] font-semibold text-brand-700" href={explorerTxUrl(step.tx_hash)} target="_blank" rel="noreferrer">View on Stellar ↗</a>}
+function ToolStep({ step, last }: { step: AgentRunStep; last: boolean }) {
+  const iconClass = step.status === 'completed'
+    ? 'bg-brand-100 text-brand-700 ring-brand-500/15'
+    : step.status === 'failed'
+      ? 'bg-rose-100 text-danger ring-rose-200'
+      : step.status === 'blocked'
+        ? 'bg-paper-100 text-ink-500 ring-ink-300/70'
+        : 'bg-gold-300/25 text-gold-700 ring-gold-400/25'
+  return <div className="flex gap-3">
+    <div className="relative flex shrink-0 flex-col items-center">
+      <span className={`relative z-10 grid h-7 w-7 place-items-center rounded-full ring-1 ${iconClass}`}>
+        <ToolStatusIcon status={step.status} />
+      </span>
+      {!last && <span className="min-h-4 w-px flex-1 bg-ink-300/70" />}
+    </div>
+    <div className={`min-w-0 flex-1 ${last ? 'pb-0' : 'pb-3'}`}>
+      <div className="rounded-2xl border border-ink-300/60 bg-paper-0 px-3.5 py-3 shadow-[0_8px_22px_-20px_rgba(11,18,16,.45)]">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-xs font-semibold leading-5 text-ink-950">{friendlyStepTitle(step)}</p>
+          {step.tool_name && <span className="rounded-full bg-paper-100 px-2 py-0.5 font-mono text-[9px] text-ink-500">{step.tool_name.replaceAll('_', ' ')}</span>}
+        </div>
+        {step.output && <p className="mt-1 text-[11px] leading-5 text-ink-700">{describeOutput(step.output)}</p>}
+        {step.tx_hash && <a className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-brand-700" href={explorerTxUrl(step.tx_hash)} target="_blank" rel="noreferrer">View confirmed transaction <span aria-hidden>↗</span></a>}
+      </div>
+    </div>
   </div>
+}
+
+function friendlyStepTitle(step: AgentRunStep): string {
+  if (typeof step.output?.memory_count === 'number') return 'Loaded private conversation context'
+  if (typeof step.output?.pool_count === 'number') return 'Checked accessible pools'
+  const title = step.title.trim()
+  return title ? `${title.charAt(0).toUpperCase()}${title.slice(1)}` : 'Completed a check'
 }
 
 function describeOutput(output: Record<string, unknown>): string {
   if (typeof output.text === 'string') return output.text
   if (typeof output.error === 'string') return output.error
-  if (typeof output.pool_count === 'number') return `${output.pool_count} accessible pools loaded.`
+  if (typeof output.memory_count === 'number') {
+    const profile = output.profile_name_available === true ? 'Profile identity is available.' : 'No profile name is saved.'
+    const chats = output.memory_count === 1 ? '1 recent private chat is available.' : `${output.memory_count} recent private chats are available.`
+    return `${profile} ${chats}`
+  }
+  if (typeof output.pool_count === 'number') return output.pool_count === 1 ? '1 accessible pool is available.' : `${output.pool_count} accessible pools are available.`
   if (typeof output.amount !== 'undefined' && typeof output.recipient === 'string') return `${peso(Number(output.amount))} to ${shortAddress(output.recipient)}`
   if (output.eligible === true) return 'All structured conditions and on-chain limits passed.'
   if (typeof output.reason === 'string') return output.reason
@@ -357,4 +418,19 @@ function describeOutput(output: Record<string, unknown>): string {
 
 function shortAddress(address: string): string {
   return address.length > 14 ? `${address.slice(0, 6)}…${address.slice(-5)}` : address
+}
+
+function AgentSparkIcon({ className }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="m12 3 1.2 4.2a5 5 0 0 0 3.5 3.5L21 12l-4.3 1.3a5 5 0 0 0-3.5 3.5L12 21l-1.3-4.2a5 5 0 0 0-3.5-3.5L3 12l4.2-1.3a5 5 0 0 0 3.5-3.5L12 3Z" /></svg>
+}
+
+function ChevronIcon({ className }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="m6 9 6 6 6-6" /></svg>
+}
+
+function ToolStatusIcon({ status }: { status: AgentRunStep['status'] }) {
+  if (status === 'completed') return <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="m3 8 3 3 7-7" /></svg>
+  if (status === 'failed') return <span className="text-xs font-bold" aria-hidden>!</span>
+  if (status === 'blocked') return <span className="h-0.5 w-2.5 rounded-full bg-current" aria-hidden />
+  return <span className="h-2 w-2 animate-pulse rounded-full bg-current" aria-hidden />
 }

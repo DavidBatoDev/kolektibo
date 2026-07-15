@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
+    "test": "tsx --test src/agentMemory.test.ts",
+    "typecheck": "tsc --noEmit",
     "indexer": "tsx src/indexer-main.ts",
     "sdk:configure": "node scripts/configure-sdk-backend.mjs",
     "secret:rotate-code-pepper": "node scripts/rotate-code-pepper.mjs",
