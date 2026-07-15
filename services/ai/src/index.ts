@@ -9,8 +9,18 @@ import { authRouter } from './auth'
 import { walletRouter } from './wallet'
 import { deployPool, mintUsdc, sdkBackendConfigured } from './chain'
 import { allow, HOUR, ipOf } from './ratelimit'
+import { agentRouter, startAgentWorker } from './agent'
+import { agentKeyEncryptionConfigured, getOrCreateAgentIdentity } from './agentCrypto'
+import { admin, requireUser } from './supabaseAdmin'
 
 const pExecFile = promisify(execFile)
+
+function tokenAmountToRaw(value: unknown): bigint {
+  const amount = Number(value)
+  if (!Number.isFinite(amount) || amount < 0) throw new Error('Invalid category cap')
+  const [whole, fraction = ''] = amount.toFixed(7).split('.')
+  return BigInt(`${whole}${fraction}`)
+}
 
 const app = express()
 const allowedOrigins = new Set(
@@ -28,6 +38,7 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }))
 app.use('/auth', authRouter)
 app.use('/wallet', walletRouter)
+app.use('/agent', agentRouter)
 
 const apiKey = process.env.OPENAI_API_KEY
 const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
@@ -178,6 +189,12 @@ app.get('/config', (_req, res) => {
     limits: CHAIN.limits,
     threshold: 2,
     chainBackend: useSdkBackend ? 'sdk' : 'cli',
+    agent: {
+      enabled: Boolean(admin && agentKeyEncryptionConfigured()),
+      autonomyEnabled: process.env.AGENT_WORKER_ENABLED === '1' && process.env.AGENT_AUTONOMY_ENABLED !== '0',
+      v2Configured: useSdkBackend && sdkBackendConfigured(2),
+      network: CHAIN.network,
+    },
     configured: Boolean(
       CHAIN.usdcSac
       && (CHAIN.wasmPath || process.env.TREASURY_WASM_HASH)
@@ -227,27 +244,92 @@ app.post('/faucet', async (req, res) => {
 app.post('/pool/create', async (req, res) => {
   const officers: string[] = Array.isArray(req.body?.officers) ? req.body.officers : []
   const threshold = Number(req.body?.threshold ?? 2)
+  const version = Number(req.body?.version ?? 1)
+  const poolId = String(req.body?.poolId ?? '')
   if (officers.length < 1 || officers.some((o) => !String(o).startsWith('G'))) {
     return res.status(400).send('Provide at least 1 officer public keys')
   }
   if (!Number.isInteger(threshold) || threshold < 1 || threshold > officers.length) {
     return res.status(400).send('Threshold must be between 1 and the officer count')
   }
+  if (version !== 1 && version !== 2) return res.status(400).send('Unsupported treasury version')
+  if (version === 2 && !poolId) return res.status(400).send('poolId is required for an agent treasury')
   const deployLimit = Number(process.env.POOL_DEPLOYS_PER_HOUR ?? 3)
   if (!allow(`pool-create:${ipOf(req)}`, deployLimit, HOUR)) {
     return res.status(429).send('Pool deployment rate limit exceeded. Try again later.')
   }
   try {
+    let agentAddress: string | undefined
+    let actorUserId: string | undefined
+    let stagedContractId: string | undefined
+    let deploymentCategories = CHAIN.categories
+    let deploymentLimits = CHAIN.limits.map(BigInt)
+    if (version === 2) {
+      if (!admin) return res.status(503).send('Supabase admin client is not configured')
+      const user = await requireUser(req)
+      if (!user) return res.status(401).send('Sign in required')
+      actorUserId = user.id
+      const { data: pool, error: poolError } = await admin
+        .from('pools')
+        .select('id,status,contract_id,contract_version')
+        .eq('id', poolId)
+        .maybeSingle()
+      if (poolError || !pool) return res.status(404).send('Pool not found')
+      const { data: roster, error: rosterError } = await admin
+        .from('pool_members')
+        .select('user_id,role,stellar_address')
+        .eq('pool_id', poolId)
+      if (rosterError) throw rosterError
+      if (!roster?.some((member) => member.user_id === user.id && ['owner', 'officer'].includes(member.role))) {
+        return res.status(403).send('Only a pool officer can deploy an agent treasury')
+      }
+      if (pool.status === 'active' && pool.contract_version === 2 && pool.contract_id) {
+        return res.json({ ok: true, contractId: pool.contract_id, version: 2, existing: true })
+      }
+      if (pool.status !== 'draft' || pool.contract_id) return res.status(409).send('Pool is not a deployable draft')
+      const expected = roster
+        .filter((member) => ['owner', 'officer'].includes(member.role))
+        .map((member) => member.stellar_address)
+        .filter((address): address is string => Boolean(address))
+        .sort()
+      const supplied = [...officers].sort()
+      if (expected.length !== supplied.length || expected.some((address, index) => address !== supplied[index])) {
+        return res.status(400).send('Officer addresses do not match the verified pool roster')
+      }
+      if (!sdkBackendConfigured(2)) return res.status(503).send('Treasury v2 SDK backend is not configured')
+      if (!agentKeyEncryptionConfigured()) return res.status(503).send('Agent key encryption is not configured')
+      const { data: configuredCategories, error: categoriesError } = await admin
+        .from('pool_categories')
+        .select('name,per_transaction_cap')
+        .eq('pool_id', poolId)
+        .order('sort_order')
+      if (categoriesError) throw categoriesError
+      if (configuredCategories?.length) {
+        deploymentCategories = configuredCategories.map((category) => category.name)
+        deploymentLimits = configuredCategories.map((category) => category.per_transaction_cap == null
+          ? 0n
+          : tokenAmountToRaw(category.per_transaction_cap))
+      }
+      agentAddress = (await getOrCreateAgentIdentity(poolId)).publicKey()
+      const { data: staged } = await admin.from('pool_contracts').select('contract_id')
+        .eq('pool_id', poolId).eq('version', 2).eq('status', 'staging')
+        .order('created_at', { ascending: false }).limit(1).maybeSingle()
+      stagedContractId = staged?.contract_id
+    }
     let contractId: string
-    if (useSdkBackend) {
-      if (!sdkBackendConfigured()) return res.status(503).send('SDK chain backend is not configured')
+    if (stagedContractId) {
+      contractId = stagedContractId
+    } else if (useSdkBackend) {
+      if (!sdkBackendConfigured(version === 2 ? 2 : 1)) return res.status(503).send('SDK chain backend is not configured')
       contractId = await deployPool({
         officers,
         threshold,
-        categories: CHAIN.categories,
-        limits: CHAIN.limits.map(BigInt),
+        categories: deploymentCategories,
+        limits: deploymentLimits,
+        agentAddress,
       })
     } else {
+      if (version === 2) return res.status(503).send('Agent treasuries require the SDK chain backend')
       contractId = await stellar([
         'contract', 'deploy', '--wasm', CHAIN.wasmPath,
         '--source', CHAIN.deployer, '--network', CHAIN.network,
@@ -263,7 +345,42 @@ app.post('/pool/create', async (req, res) => {
         '--limits', JSON.stringify(CHAIN.limits),
       ])
     }
-    res.json({ ok: true, contractId })
+    if (version === 2) {
+      const contractWrite = stagedContractId
+        ? admin!.from('pool_contracts').update({ status: 'active', activated_at: new Date().toISOString() }).eq('contract_id', contractId).eq('status', 'staging')
+        : admin!.from('pool_contracts').insert({
+            pool_id: poolId,
+            contract_id: contractId,
+            version: 2,
+            status: 'active',
+            activated_at: new Date().toISOString(),
+          } as never)
+      const { error: contractError } = await contractWrite
+      if (contractError) throw contractError
+      const { data: activated, error: activationError } = await admin!
+        .from('pools')
+        .update({
+          contract_id: contractId,
+          contract_version: 2,
+          wasm_hash: process.env.TREASURY_V2_WASM_HASH ?? null,
+          status: 'active',
+          deployed_at: new Date().toISOString(),
+        })
+        .eq('id', poolId)
+        .eq('status', 'draft')
+        .select('id')
+      if (activationError || !activated?.length) {
+        await admin!.from('pool_contracts').update({ status: 'staging', activated_at: null }).eq('contract_id', contractId)
+        throw activationError ?? new Error('Pool changed while the v2 contract was deploying')
+      }
+      await admin!.from('audit_log').insert({
+        actor_user_id: actorUserId,
+        action: 'agent.pool_v2_deployed',
+        target: poolId,
+        meta: { contract_id: contractId, agent_address: agentAddress },
+      } as never)
+    }
+    res.json({ ok: true, contractId, version })
   } catch (e) {
     console.error('[/pool/create]', chainErr(e))
     res.status(500).send(chainErr(e))
@@ -272,5 +389,6 @@ app.post('/pool/create', async (req, res) => {
 
 const port = Number(process.env.PORT || 8787)
 app.listen(port, () => {
+  startAgentWorker()
   console.log(`Kolektibo AI service → http://localhost:${port}  (model: ${model}, key: ${apiKey ? 'set' : 'MISSING'})`)
 })

@@ -70,6 +70,8 @@ function preferenceKey(type: string): 'approval' | 'contribution' | 'release' | 
   if (type === 'contrib') return 'contribution'
   if (type === 'spend_req' || type === 'approve') return 'approval'
   if (type === 'execute') return 'release'
+  if (type === 'agent_execute') return 'release'
+  if (type === 'agent_failed') return 'approval'
   return null
 }
 

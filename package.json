@@ -16,6 +16,7 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
     "push:setup": "node scripts/configure-supabase-push.mjs",
+    "agent:secrets": "pnpm --filter @kolektibo/ai agent:secrets",
     "contract:build": "cd contracts/treasury && stellar contract build",
     "contract:deploy": "bash scripts/deploy.sh",
     "assets:optimize": "node scripts/optimize-assets.mjs"

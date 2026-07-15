@@ -28,7 +28,7 @@ export async function fanOut(pool: PoolRef, event: IndexedEvent): Promise<void> 
       .eq('pool_id', pool.id)
     if (!members?.length) return
 
-    const officers = members.filter((m) => m.role === 'officer')
+    const officers = members.filter((m) => m.role === 'officer' || m.role === 'owner')
     const byAddress = (addr: unknown): Member | undefined =>
       members.find((m) => m.stellar_address === addr)
     const p = event.payload ?? {}
@@ -70,6 +70,42 @@ export async function fanOut(pool: PoolRef, event: IndexedEvent): Promise<void> 
         recipients = members
         title = 'Funds released'
         body = `${pesos(p.amount)} released from ${pool.name}`
+        break
+      }
+      case 'mand_prop': {
+        recipients = officers
+        title = 'Agent mandate needs approval'
+        body = `A new autonomous payment rule was proposed in ${pool.name}`
+        url = '/app/agent'
+        break
+      }
+      case 'mand_appr': {
+        const approver = byAddress(p.officer)
+        recipients = officers.filter((o) => o.user_id !== approver?.user_id)
+        title = 'Agent mandate approved'
+        body = `Mandate proposal #${p.proposal_id} received an approval in ${pool.name}`
+        url = '/app/agent'
+        break
+      }
+      case 'mand_act': {
+        recipients = members
+        title = 'Agent mandate active'
+        body = `Autonomous mandate #${p.mandate_id} is now active in ${pool.name}`
+        url = '/app/agent'
+        break
+      }
+      case 'mand_paus': {
+        recipients = members
+        title = 'Agent mandate paused'
+        body = `Mandate #${p.mandate_id} was paused in ${pool.name}`
+        url = '/app/agent'
+        break
+      }
+      case 'mand_pay': {
+        recipients = members
+        title = 'Agent payment completed'
+        body = `${pesos(p.amount)} paid automatically from ${pool.name}`
+        url = '/app/agent'
         break
       }
       default:

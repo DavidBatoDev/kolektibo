@@ -8,7 +8,8 @@
     "start": "tsx src/index.ts",
     "indexer": "tsx src/indexer-main.ts",
     "sdk:configure": "node scripts/configure-sdk-backend.mjs",
-    "secret:rotate-code-pepper": "node scripts/rotate-code-pepper.mjs"
+    "secret:rotate-code-pepper": "node scripts/rotate-code-pepper.mjs",
+    "agent:secrets": "node scripts/generate-agent-secrets.mjs"
   },
   "dependencies": {
     "@stellar/stellar-sdk": "^16.0.1",

@@ -84,7 +84,7 @@ async function getSpend(contractId: string, spendId: number): Promise<Record<str
 /** Normalize one RPC event into a chain_events row (with enrichment). */
 async function toRow(contractId: string, ev: rpc.Api.EventResponse): Promise<EventRow | null> {
   const eventType = String(scValToNative(ev.topic[0]!))
-  if (!['contrib', 'spend_req', 'approve', 'execute'].includes(eventType)) return null
+  if (!['contrib', 'spend_req', 'approve', 'execute', 'mand_prop', 'mand_appr', 'mand_act', 'mand_paus', 'mand_pay'].includes(eventType)) return null
   const value = scValToNative(ev.value) as unknown
 
   let payload: Record<string, unknown> | null = null
@@ -109,6 +109,21 @@ async function toRow(contractId: string, ev: rpc.Api.EventResponse): Promise<Eve
       memo: spend?.memo,
       approvals: spend?.approvals,
     }
+  } else if (eventType === 'mand_prop') {
+    const [proposalId, mandateId] = value as [number, number]
+    payload = { proposal_id: Number(proposalId), mandate_id: Number(mandateId) }
+  } else if (eventType === 'mand_appr') {
+    const [proposalId, officer] = value as [number, string]
+    payload = { proposal_id: Number(proposalId), officer }
+  } else if (eventType === 'mand_act') {
+    const [proposalId, mandateId] = value as [number, number]
+    payload = { proposal_id: Number(proposalId), mandate_id: Number(mandateId) }
+  } else if (eventType === 'mand_paus') {
+    const [mandateId, officer] = value as [number, string]
+    payload = { mandate_id: Number(mandateId), officer }
+  } else if (eventType === 'mand_pay') {
+    const [mandateId, amount, recipient, memo] = value as [number, bigint, string, string]
+    payload = { mandate_id: Number(mandateId), amount, recipient, memo }
   }
 
   return {
@@ -225,16 +240,19 @@ export async function indexPool(pool: PoolRef): Promise<void> {
 
 export async function tick(): Promise<void> {
   if (!admin) return
-  const { data: pools, error } = await admin
-    .from('pools')
-    .select('id, name, contract_id')
-    .eq('status', 'active')
-    .not('contract_id', 'is', null)
+  const { data: contracts, error } = await admin
+    .from('pool_contracts')
+    .select('contract_id, pool:pools!inner(id,name)')
+    .in('status', ['active', 'legacy'])
   if (error) {
-    console.error('[indexer] pools query', error)
+    console.error('[indexer] pool contracts query', error)
     return
   }
-  for (const pool of (pools ?? []) as PoolRef[]) {
+  const pools = (contracts ?? []).flatMap((row) => {
+    const pool = row.pool as unknown as { id: string; name: string } | null
+    return pool ? [{ ...pool, contract_id: row.contract_id as string }] : []
+  })
+  for (const pool of pools as PoolRef[]) {
     try {
       await indexPool(pool)
     } catch (e) {
