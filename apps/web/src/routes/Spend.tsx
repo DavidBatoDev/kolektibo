@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { usePool, usePoolActions, usePoolBalance } from '../hooks/usePool'
 import { poolBalance } from '../lib/pool'
 import type { Spend } from '../lib/pool'
-import { Badge, Button, Card, Field, inputClass, List, Row, peso, SectionLabel } from '../components/ui'
+import { AppPageHero, Badge, Button, Card, Field, inputClass, List, Row, peso, SectionLabel } from '../components/ui'
 import { explorerTxUrl } from '../lib/stellar'
 
 export function SpendPage() {
@@ -19,17 +19,25 @@ export function SpendPage() {
 
   if (!pool) {
     return (
-      <Card className="space-y-4 text-center">
-        <div>
-          <p className="font-semibold text-ink-950">No demo pool to spend from</p>
-          <p className="mt-1 text-sm text-ink-500">
-            Deploy the sample pool before creating or approving a testnet spend.
-          </p>
-        </div>
-        <Link to="/demo">
-          <Button>Return to demo setup</Button>
-        </Link>
-      </Card>
+      <div className="space-y-5">
+        <AppPageHero
+          eyebrow="Interactive demo"
+          title="Request and approve a spend"
+          body="Watch group rules and officer approvals control every release."
+          asset="/assets/payout.webp"
+        />
+        <Card className="space-y-4 text-center">
+          <div>
+            <p className="font-semibold text-ink-950">No demo pool to spend from</p>
+            <p className="mt-1 text-sm text-ink-500">
+              Deploy the sample pool before creating or approving a testnet spend.
+            </p>
+          </div>
+          <Link to="/demo">
+            <Button>Return to demo setup</Button>
+          </Link>
+        </Card>
+      </div>
     )
   }
   const cat = pool.policy.categories.find((c) => c.name === category)
@@ -41,6 +49,12 @@ export function SpendPage() {
 
   return (
     <div className="space-y-5">
+      <AppPageHero
+        eyebrow="Interactive demo"
+        title="Request and approve a spend"
+        body="Submit a payment, collect officer approvals, and release it on-chain."
+        asset="/assets/payout.webp"
+      />
       <Card className="flex items-center justify-between">
         <div>
           <p className="text-xs text-ink-500">Available to spend</p>

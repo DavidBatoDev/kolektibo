@@ -33,7 +33,6 @@ export function ProfilePage() {
   const [phone, setPhone] = useState('')
   const [locale, setLocale] = useState('en')
   const [currency, setCurrency] = useState('PHP')
-  const [theme, setTheme] = useState('dark')
   const [notif, setNotif] = useState<Record<string, boolean>>({})
   const [deleteOpen, setDeleteOpen] = useState(false)
 
@@ -48,7 +47,6 @@ export function ProfilePage() {
   useEffect(() => {
     if (settingsQ.data) {
       setCurrency(settingsQ.data.currency_display ?? 'PHP')
-      setTheme(settingsQ.data.theme ?? 'dark')
       setNotif((settingsQ.data.notif_prefs as Record<string, boolean>) ?? {})
     }
   }, [settingsQ.data])
@@ -157,13 +155,6 @@ export function ProfilePage() {
               <option value="USDC">USDC</option>
             </select>
           </Field>
-          <Field label="Theme">
-            <select className={inputClass} value={theme} onChange={(e) => setTheme(e.target.value)}>
-              <option value="dark">Dark</option>
-              <option value="light">Light</option>
-              <option value="auto">Auto</option>
-            </select>
-          </Field>
           <div>
             <span className="mb-1.5 block text-sm font-medium text-ink-700">Notifications</span>
             <div className="space-y-2">
@@ -183,7 +174,7 @@ export function ProfilePage() {
           <Button
             loading={updateSettings.isPending}
             onClick={() =>
-              updateSettings.mutate({ currency_display: currency, theme, notif_prefs: notif })
+              updateSettings.mutate({ currency_display: currency, theme: 'light', notif_prefs: notif })
             }
           >
             Save settings

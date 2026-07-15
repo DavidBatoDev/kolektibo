@@ -51,7 +51,6 @@ import {
   SpendDetailPage,
 } from './routes/PoolWorkspace'
 import {
-  OAuthCallbackPage,
   OnboardingCompletePage,
   OnboardingProfilePage,
   OnboardingRecoveryPage,
@@ -85,11 +84,6 @@ const signinRoute = createRoute({ getParentRoute: () => rootRoute, path: '/auth/
 const signupRoute = createRoute({ getParentRoute: () => rootRoute, path: '/auth/sign-up', component: SignUpPage })
 const forgotRoute = createRoute({ getParentRoute: () => rootRoute, path: '/auth/forgot-password', component: ForgotPasswordPage })
 const resetRoute = createRoute({ getParentRoute: () => rootRoute, path: '/auth/reset-password', component: ResetPasswordPage })
-const callbackRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/auth/callback',
-  component: OAuthCallbackPage,
-})
 const verifyEmailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/auth/verify-email',
@@ -167,7 +161,7 @@ const routeTree = rootRoute.addChildren([
   landingRoute, howRoute, featuresRoute, publicSecurityRoute, pricingRoute, aboutRoute, helpRoute,
   helpArticleRoute, statusRoute, termsRoute, privacyRoute, riskRoute,
   demoRoute, demoContributeRoute, demoSpendRoute, demoRulesRoute,
-  signinRoute, signupRoute, forgotRoute, resetRoute, callbackRoute, verifyEmailRoute,
+  signinRoute, signupRoute, forgotRoute, resetRoute, verifyEmailRoute,
   inviteRoute, joinAliasRoute, onboardingProfileRoute, onboardingWalletRoute,
   onboardingRecoveryRoute, onboardingCompleteRoute,
   appRoute, appActivityRoute, appNotificationsRoute, appWalletRoute, appProfileRoute,

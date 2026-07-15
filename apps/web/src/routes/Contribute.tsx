@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { usePool, usePoolActions } from '../hooks/usePool'
 import { getPersonas } from '../lib/wallet'
-import { Button, Card, Field, inputClass, List, Row, peso, SectionLabel } from '../components/ui'
+import { AppPageHero, Button, Card, Field, inputClass, List, Row, peso, SectionLabel } from '../components/ui'
 import { shortAddr } from '../lib/identity'
 import { explorerTxUrl } from '../lib/stellar'
 
@@ -15,22 +15,36 @@ export function ContributePage() {
 
   if (!pool) {
     return (
-      <Card className="space-y-4 text-center">
-        <div>
-          <p className="font-semibold text-ink-950">Create the demo pool first</p>
-          <p className="mt-1 text-sm text-ink-500">
-            Contributions appear after the sample treasury has been deployed on testnet.
-          </p>
-        </div>
-        <Link to="/demo">
-          <Button>Return to demo setup</Button>
-        </Link>
-      </Card>
+      <div className="space-y-5">
+        <AppPageHero
+          eyebrow="Interactive demo"
+          title="Contribute to the pool"
+          body="See how every member contribution settles into one transparent treasury."
+          asset="/assets/contribute.webp"
+        />
+        <Card className="space-y-4 text-center">
+          <div>
+            <p className="font-semibold text-ink-950">Create the demo pool first</p>
+            <p className="mt-1 text-sm text-ink-500">
+              Contributions appear after the sample treasury has been deployed on testnet.
+            </p>
+          </div>
+          <Link to="/demo">
+            <Button>Return to demo setup</Button>
+          </Link>
+        </Card>
+      </div>
     )
   }
 
   return (
     <div className="space-y-5">
+      <AppPageHero
+        eyebrow="Interactive demo"
+        title="Contribute to the pool"
+        body="Choose a member and add testnet funds to the shared treasury."
+        asset="/assets/contribute.webp"
+      />
       <Card className="space-y-4">
         <div>
           <p className="text-sm font-semibold text-ink-950">Add to the pool</p>

@@ -123,11 +123,9 @@ export function PreferencesPage() {
   const settings = useSettings()
   const update = useUpdateSettings()
   const [currency, setCurrency] = useState<string | null>(null)
-  const [theme, setTheme] = useState<string | null>(null)
   const [prefs, setPrefs] = useState<Record<string, boolean> | null>(null)
   const currentPrefs = prefs ?? (settings.data?.notif_prefs as Record<string, boolean> | null) ?? {}
   const currentCurrency = currency ?? settings.data?.currency_display ?? 'PHP'
-  const currentTheme = theme ?? settings.data?.theme ?? 'dark'
   const rows = [
     ['push', 'Push notifications'], ['email', 'Email notifications'], ['approval', 'Approval requests'],
     ['contribution', 'Contributions'], ['release', 'Fund releases'], ['reminder', 'Dues reminders'],
@@ -137,7 +135,6 @@ export function PreferencesPage() {
     <Page title="Preferences" intro="Choose how Kolektibo displays money and keeps you informed.">
       <Card className="space-y-5">
         <Field label="Currency display"><select className={inputClass} value={currentCurrency} onChange={(e) => setCurrency(e.target.value)}><option value="PHP">₱ Philippine Peso</option><option value="USD">$ US Dollar</option><option value="USDC">USDC</option></select></Field>
-        <Field label="Theme"><select className={inputClass} value={currentTheme} onChange={(e) => setTheme(e.target.value)}><option value="dark">Dark</option><option value="light">Light</option><option value="auto">Use device setting</option></select></Field>
         <div>
           <SectionLabel>Notifications</SectionLabel>
           <div className="space-y-3">
@@ -148,7 +145,7 @@ export function PreferencesPage() {
             ))}
           </div>
         </div>
-        <Button loading={update.isPending} onClick={() => update.mutate({ currency_display: currentCurrency, theme: currentTheme, notif_prefs: currentPrefs })}>Save preferences</Button>
+        <Button loading={update.isPending} onClick={() => update.mutate({ currency_display: currentCurrency, theme: 'light', notif_prefs: currentPrefs })}>Save preferences</Button>
         {update.isSuccess && <p className="text-xs text-emerald-400">Preferences saved ✓</p>}
       </Card>
     </Page>
