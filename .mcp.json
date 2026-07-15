@@ -16,17 +16,12 @@
       ]
     },
     "supabase": {
-      "command": "cmd",
+      "command": "powershell",
       "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@supabase/mcp-server-supabase@latest",
-        "--project-ref=protxmboekwtzxpwmplt"
-      ],
-      "env": {
-        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
-      }
+        "-NoProfile",
+        "-Command",
+        "$line = Get-Content 'services/ai/.env' | Where-Object { $_ -match '^SP_ACCESS_TOKEN=' } | Select-Object -First 1; if (-not $line) { throw 'SP_ACCESS_TOKEN is missing from services/ai/.env' }; $env:SUPABASE_ACCESS_TOKEN = ($line -replace '^SP_ACCESS_TOKEN=', '').Trim().Trim('\"'); & npx -y @supabase/mcp-server-supabase@latest --project-ref=protxmboekwtzxpwmplt"
+      ]
     }
   }
 }
