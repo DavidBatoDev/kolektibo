@@ -1055,10 +1055,10 @@ body,
 
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 900px) {
-  .nav-links { display: none; }
+  .landing-page .nav-links { display: none; }
   .grid-3 { grid-template-columns: 1fr; }
-  .bento { grid-template-columns: 1fr; }
-  .bento-card.lg { grid-column: auto; grid-row: auto; }
+  .landing-page .bento { grid-template-columns: minmax(0, 1fr); }
+  .landing-page .bento-card.lg { grid-column: auto; grid-row: auto; }
   .hero { padding: 56px 0 334px;
     background-image: linear-gradient(180deg, rgba(240,253,244,.96) 0%, rgba(240,253,244,.72) 42%, rgba(240,253,244,0) 76%), url('/backgrounds/bg-hero-landing.png');
     background-position: center, center bottom; }
@@ -1079,7 +1079,24 @@ body,
 }
 
 @media (max-width: 540px) {
-  :root { --gutter: 18px; }
+  .landing-page { --gutter: 16px; }
+  .landing-page .nav .wrap { height: 58px; gap: 12px; }
+  .landing-page .brand { gap: 7px; font-size: 17px; }
+  .landing-page .brand img { width: 28px; height: 28px; }
+  .landing-page .nav .btn-primary.sm { margin-left: auto; height: 38px; padding: 0 15px; font-size: 13px; }
+  .landing-page section.powered { padding: 32px 0 56px; }
+  .landing-page section.powered .wrap { gap: 14px; }
+  .landing-page .powered-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 10px; }
+  .landing-page .logo-word {
+    display: grid; min-height: 52px; place-items: center; padding: 8px;
+    border: 1px solid rgba(213,221,217,.75); border-radius: 16px;
+    background: rgba(255,255,255,.66); font-size: 16px; text-align: center;
+  }
+  .landing-page .pillars { padding: 24px 0 52px; }
+  .landing-page .bento { gap: 14px; }
+  .landing-page .bento-card,
+  .landing-page .bento-card.lg { padding: 22px; }
+  .landing-page .icon-badge img { height: 72px; }
   .actions { gap: 14px; }
   .stats { flex-direction: column; }
   .stat { display: flex; align-items: baseline; justify-content: center; gap: 8px; }
