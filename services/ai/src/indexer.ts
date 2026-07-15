@@ -11,8 +11,8 @@
 //   gap — feed holes are cosmetic, money truth stays in the contract views.
 // • i128 amounts are stored as STRINGS in the jsonb payload (never JS numbers).
 import { Networks, rpc, scValToNative, contract } from '@stellar/stellar-sdk'
-import { admin } from './supabaseAdmin'
-import { fanOut } from './notify'
+import { admin } from './supabaseAdmin.js'
+import { fanOut } from './notify.js'
 
 const RPC_URL = process.env.SOROBAN_RPC_URL || 'https://soroban-testnet.stellar.org'
 const PASSPHRASE = process.env.STELLAR_NETWORK_PASSPHRASE || Networks.TESTNET

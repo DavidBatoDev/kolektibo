@@ -6,8 +6,8 @@
 import { Router } from 'express'
 import { Keypair, StrKey } from '@stellar/stellar-sdk'
 import crypto from 'node:crypto'
-import { admin, requireUser } from './supabaseAdmin'
-import { allow, ipOf, HOUR } from './ratelimit'
+import { admin, requireUser } from './supabaseAdmin.js'
+import { allow, ipOf, HOUR } from './ratelimit.js'
 
 const CHALLENGE_TTL_MS = 10 * 60 * 1000
 

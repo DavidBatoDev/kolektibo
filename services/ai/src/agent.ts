@@ -1,12 +1,13 @@
 import { Router, type Request, type Response } from 'express'
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
-import OpenAI from 'openai'
+import { OpenAI } from 'openai'
 import { StrKey } from '@stellar/stellar-sdk'
 import { z } from 'zod'
-import { admin, requireUser } from './supabaseAdmin'
-import { allow, HOUR } from './ratelimit'
-import { deployPool, executeAgentMandate, executeApprovedSpend, readAgentMandate, readAgentMandateProposal, readPoolBalanceRaw, readPoolConfiguration, readTotalContributionsRaw, sdkBackendConfigured } from './chain'
-import { agentKeyEncryptionConfigured, getOrCreateAgentIdentity, loadAgentIdentity } from './agentCrypto'
+import { admin, requireUser } from './supabaseAdmin.js'
+import { allow, HOUR } from './ratelimit.js'
+import { deployPool, executeAgentMandate, executeApprovedSpend, readAgentMandate, readAgentMandateProposal, readPoolBalanceRaw, readPoolConfiguration, readTotalContributionsRaw, sdkBackendConfigured } from './chain.js'
+import { agentKeyEncryptionConfigured, getOrCreateAgentIdentity, loadAgentIdentity } from './agentCrypto.js'
+import { defer } from './defer.js'
 
 const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini'
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null
@@ -377,20 +378,29 @@ async function runAgent(userId: string, runId: string, question: string): Promis
 
 export const agentRouter = Router()
 
-agentRouter.post('/worker/tick', async (req, res) => {
-  const configured = process.env.AGENT_WORKER_SECRET ?? ''
+function workerAuthorized(req: Request): boolean {
+  const workerSecret = process.env.AGENT_WORKER_SECRET ?? ''
+  const cronSecret = process.env.CRON_SECRET ?? ''
+  const authorization = String(req.headers.authorization ?? '')
   const supplied = String(req.headers['x-agent-worker-secret'] ?? '')
+  const configured = authorization.startsWith('Bearer ') ? cronSecret : workerSecret
+  const candidate = authorization.startsWith('Bearer ') ? authorization.slice(7) : supplied
   const left = Buffer.from(configured)
-  const right = Buffer.from(supplied)
-  if (!configured || left.length !== right.length || !timingSafeEqual(left, right)) {
-    return res.status(401).send('Invalid worker credential')
-  }
+  const right = Buffer.from(candidate)
+  return Boolean(configured && left.length === right.length && timingSafeEqual(left, right))
+}
+
+async function handleWorkerTick(req: Request, res: Response) {
+  if (!workerAuthorized(req)) return res.status(401).send('Invalid worker credential')
   try {
     res.json({ processed: await tickAgentWorker() })
   } catch (error) {
     res.status(500).send(error instanceof Error ? error.message : String(error))
   }
-})
+}
+
+agentRouter.get('/worker/tick', handleWorkerTick)
+agentRouter.post('/worker/tick', handleWorkerTick)
 
 agentRouter.get('/overview', async (req, res) => {
   const user = await authenticated(req, res)
@@ -502,7 +512,7 @@ agentRouter.post('/runs', async (req, res) => {
   if (error || !data) return res.status(500).send(error?.message ?? 'Could not start Agent')
   const runId = String(data.id)
   res.status(202).json({ runId })
-  void runAgent(user.id, runId, question)
+  defer(runAgent(user.id, runId, question))
 })
 
 agentRouter.get('/runs/:id', async (req, res) => {

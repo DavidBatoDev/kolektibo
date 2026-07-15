@@ -1,17 +1,18 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import OpenAI from 'openai'
+import { OpenAI } from 'openai'
 import { z } from 'zod'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
-import { authRouter } from './auth'
-import { walletRouter } from './wallet'
-import { deployPool, mintUsdc, sdkBackendConfigured } from './chain'
-import { allow, HOUR, ipOf } from './ratelimit'
-import { agentRouter, startAgentWorker } from './agent'
-import { agentKeyEncryptionConfigured, getOrCreateAgentIdentity } from './agentCrypto'
-import { admin, requireUser } from './supabaseAdmin'
+import { authRouter } from './auth.js'
+import { walletRouter } from './wallet.js'
+import { deployPool, mintUsdc, sdkBackendConfigured } from './chain.js'
+import { allow, HOUR, ipOf } from './ratelimit.js'
+import { agentRouter, startAgentWorker } from './agent.js'
+import { agentKeyEncryptionConfigured, getOrCreateAgentIdentity } from './agentCrypto.js'
+import { admin, requireUser } from './supabaseAdmin.js'
+import { tick as tickIndexer } from './indexer.js'
 
 const pExecFile = promisify(execFile)
 
@@ -127,6 +128,18 @@ If the state doesn't contain the answer, say so honestly and suggest what's need
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true, model, hasKey: Boolean(apiKey) })
+})
+
+app.get('/internal/indexer/tick', async (req, res) => {
+  const expected = process.env.CRON_SECRET ?? ''
+  const supplied = String(req.headers.authorization ?? '').replace(/^Bearer\s+/i, '')
+  if (!expected || supplied !== expected) return res.status(401).send('Invalid cron credential')
+  try {
+    await tickIndexer()
+    res.json({ ok: true })
+  } catch (error) {
+    res.status(500).send(error instanceof Error ? error.message : String(error))
+  }
 })
 
 app.post('/rules', async (req, res) => {
@@ -388,7 +401,9 @@ app.post('/pool/create', async (req, res) => {
 })
 
 const port = Number(process.env.PORT || 8787)
-app.listen(port, () => {
+if (!process.env.VERCEL) app.listen(port, () => {
   startAgentWorker()
   console.log(`Kolektibo AI service → http://localhost:${port}  (model: ${model}, key: ${apiKey ? 'set' : 'MISSING'})`)
 })
+
+export default app

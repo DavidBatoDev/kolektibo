@@ -6,7 +6,8 @@ import { Router, type Request, type Response } from 'express'
 import { createClient } from '@supabase/supabase-js'
 import nodemailer from 'nodemailer'
 import crypto from 'node:crypto'
-import { allow, HOUR, ipOf } from './ratelimit'
+import { allow, HOUR, ipOf } from './ratelimit.js'
+import { defer } from './defer.js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -171,7 +172,7 @@ authRouter.post('/send-code', (req, res) => {
 
   // Anti-enumeration + anti-timing-oracle: answer immediately; do lookup/insert/send async.
   res.json({ ok: true })
-  void (async () => {
+  defer((async () => {
     try {
       const uid = await userIdByEmail(email)
       if (!uid) return
@@ -200,7 +201,7 @@ authRouter.post('/send-code', (req, res) => {
     } catch (e) {
       console.error('[/auth/send-code]', e)
     }
-  })()
+  })())
 })
 
 // ── POST /auth/verify-code {email, code} ─────────────────────────────────────

@@ -2,7 +2,7 @@
 // users via pool_members.stellar_address, writes `notifications` rows (service
 // role). Supabase owns Realtime and Web Push delivery for every inserted row.
 // Read-model only — nothing here can move money.
-import { admin } from './supabaseAdmin'
+import { admin } from './supabaseAdmin.js'
 
 const SCALE = 10_000_000 // USDC raw units → display
 

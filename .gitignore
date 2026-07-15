@@ -20,6 +20,7 @@ target/
 **/.env
 *.pem
 .stellar/identity/*.toml
+**/.vercel/
 
 # Editor / OS
 .DS_Store

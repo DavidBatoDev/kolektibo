@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
 import { Keypair } from '@stellar/stellar-sdk'
-import { admin } from './supabaseAdmin'
+import { admin } from './supabaseAdmin.js'
 
 type IdentityRow = {
   pool_id: string
