@@ -107,6 +107,7 @@ async function toRow(contractId: string, ev: rpc.Api.EventResponse): Promise<Eve
       recipient: spend?.recipient,
       category: spend?.category,
       memo: spend?.memo,
+      approvals: spend?.approvals,
     }
   }
 
@@ -121,7 +122,7 @@ async function toRow(contractId: string, ev: rpc.Api.EventResponse): Promise<Eve
 
 type PoolRef = { id: string; name: string; contract_id: string }
 
-async function indexPool(pool: PoolRef): Promise<void> {
+export async function indexPool(pool: PoolRef): Promise<void> {
   if (!admin) return
   const cid = pool.contract_id
 
@@ -179,21 +180,25 @@ async function indexPool(pool: PoolRef): Promise<void> {
     ).filter((r): r is EventRow => r !== null)
 
     if (rows.length > 0) {
-      // ignoreDuplicates + select → returns ONLY newly inserted rows, so
-      // notifications never re-fire for events re-read after a restart.
-      const { data: inserted, error } = await admin
-        .from('chain_events')
-        .upsert(rows as never[], {
-          onConflict: 'contract_id,ledger,tx_index,op_index,event_index',
-          ignoreDuplicates: true,
-        })
-        .select('event_type, payload')
-      if (error) {
-        console.error('[indexer] upsert', error)
-        return // don't advance the cursor past a failed write
+      // Treat only a successful insert as notification-worthy. PostgREST can
+      // omit representations from ignore-duplicates upserts, so insert each
+      // event and interpret a unique violation as an already-indexed event.
+      const inserted: Array<Pick<EventRow, 'event_type' | 'payload'>> = []
+      for (const row of rows) {
+        const { data, error } = await admin
+          .from('chain_events')
+          .insert(row as never)
+          .select('event_type, payload')
+          .single()
+        if (error?.code === '23505') continue
+        if (error) {
+          console.error('[indexer] insert', error)
+          return // don't advance the cursor past a failed write
+        }
+        if (data) inserted.push(data as Pick<EventRow, 'event_type' | 'payload'>)
       }
       if (!isBackfill) {
-        for (const row of inserted ?? []) {
+        for (const row of inserted) {
           await fanOut(pool, {
             event_type: row.event_type,
             payload: row.payload as Record<string, unknown> | null,

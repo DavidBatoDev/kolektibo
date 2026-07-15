@@ -15,12 +15,14 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
+    "push:setup": "node scripts/configure-supabase-push.mjs",
     "contract:build": "cd contracts/treasury && stellar contract build",
     "contract:deploy": "bash scripts/deploy.sh",
     "assets:optimize": "node scripts/optimize-assets.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "web-push": "^3.6.7"
   }
 }

@@ -9,8 +9,10 @@ import { getLocalWallet, createLocalWallet, importLocalWallet } from '../lib/myw
 import { getAccountSummary, explorerAccountUrl } from '../lib/stellar'
 import { shortAddr } from '../lib/identity'
 import { useLinkWallet, useMyWallets, useWalletFaucet } from '../hooks/useWallet'
+import { useI18n } from '../lib/i18n'
 
 export function WalletPage() {
+  const { t } = useI18n()
   const [local, setLocal] = useState(getLocalWallet)
   const [revealed, setRevealed] = useState(false)
   const [backedUp, setBackedUp] = useState(false)
@@ -55,42 +57,40 @@ export function WalletPage() {
       setImportSecret('')
       setBackedUp(true) // an imported secret is by definition already held elsewhere
     } catch {
-      setImportError('That does not look like a valid S… secret key.')
+      setImportError(t('wallet.invalidSecret'))
     }
   }
 
   return (
     <div className="space-y-5 pb-4">
       <AppPageHero
-        eyebrow="Your signer"
-        title="My wallet"
-        body="Your Stellar key signs contributions and approvals on this device. Only you can use it."
+        eyebrow={t('wallet.eyebrow')}
+        title={t('wallet.title')}
+        body={t('wallet.intro')}
         asset="/assets/wallet.webp"
       />
 
       {/* No wallet on this device yet */}
       {!local && (
         <Card className="space-y-4">
-          <SectionLabel>Set up</SectionLabel>
+          <SectionLabel>{t('wallet.setup')}</SectionLabel>
           {linkedElsewhere ? (
             <p className="text-sm text-ink-700">
-              Your account already has a linked wallet ({shortAddr(linkedElsewhere.stellar_address)})
-              but its key isn't on this device. Import your backed-up secret to sign here.
+              {t('wallet.linkedElsewhere', { address: shortAddr(linkedElsewhere.stellar_address) })}
             </p>
           ) : (
             <p className="text-sm text-ink-700">
-              Create a wallet to join pools and sign with your fingerprint-of-a-key, or import one
-              you backed up on another device.
+              {t('wallet.setupBody')}
             </p>
           )}
           <div className="flex gap-2">
             {!linkedElsewhere && (
               <Button className="flex-1" onClick={() => setLocal(createLocalWallet())}>
-                Create wallet
+                {t('wallet.create')}
               </Button>
             )}
             <Button variant="ghost" className="flex-1" onClick={() => setImporting(true)}>
-              Import secret
+              {t('wallet.importSecret')}
             </Button>
           </div>
         </Card>
@@ -99,8 +99,8 @@ export function WalletPage() {
       {/* Import flow */}
       {importing && (
         <Card className="space-y-3">
-          <SectionLabel>Import wallet</SectionLabel>
-          <Field label="Secret key" hint="Starts with S. It never leaves this device.">
+          <SectionLabel>{t('wallet.importTitle')}</SectionLabel>
+          <Field label={t('wallet.secretKey')} hint={t('wallet.secretHint')}>
             <input
               className={inputClass}
               value={importSecret}
@@ -113,10 +113,10 @@ export function WalletPage() {
           {importError && <p className="text-xs text-rose-400">{importError}</p>}
           <div className="flex gap-2">
             <Button className="flex-1" disabled={!importSecret.trim()} onClick={doImport}>
-              Import
+              {t('wallet.import')}
             </Button>
             <Button variant="ghost" onClick={() => setImporting(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
           </div>
         </Card>
@@ -126,8 +126,8 @@ export function WalletPage() {
       {local && (
         <Card className="space-y-3">
           <div className="flex items-center justify-between">
-            <SectionLabel>This device</SectionLabel>
-            {linked ? <Badge tone="green">Linked ✓</Badge> : <Badge tone="gold">Not linked</Badge>}
+            <SectionLabel>{t('wallet.thisDevice')}</SectionLabel>
+            {linked ? <Badge tone="green">{t('wallet.linked')}</Badge> : <Badge tone="gold">{t('wallet.notLinked')}</Badge>}
           </div>
           <div className="flex items-center justify-between">
             <div>
@@ -138,7 +138,7 @@ export function WalletPage() {
                 rel="noreferrer"
                 className="text-xs text-brand-400 hover:text-brand-300"
               >
-                View on stellar.expert
+                {t('wallet.viewExplorer')}
               </a>
             </div>
             <div className="text-right">
@@ -146,18 +146,18 @@ export function WalletPage() {
                 {usdc ? peso(Math.floor(Number(usdc))) : '₱0'}
               </p>
               <p className="text-xs text-ink-500">
-                {balance.data?.exists ? `${Number(balance.data.xlm).toFixed(1)} XLM` : 'Not funded yet'}
+                {balance.data?.exists ? `${Number(balance.data.xlm).toFixed(1)} XLM` : t('wallet.notFunded')}
               </p>
             </div>
           </div>
           {linked && (
             <>
               <Button variant="ghost" className="w-full" loading={mint.isPending} onClick={() => mint.mutate()}>
-                Get test USDC
+                {t('wallet.getTestUsdc')}
               </Button>
               {mint.isError && (
                 <p className="text-center text-xs text-rose-400">
-                  {String((mint.error as Error)?.message || "Couldn't mint test USDC — try again.")}
+                  {String((mint.error as Error)?.message || t('wallet.mintFailed'))}
                 </p>
               )}
             </>
@@ -168,11 +168,10 @@ export function WalletPage() {
       {/* Backup + link flow (only until verified) */}
       {local && !linked && (
         <Card className="space-y-4">
-          <SectionLabel>Back up, then link</SectionLabel>
+          <SectionLabel>{t('wallet.backupTitle')}</SectionLabel>
           <p className="text-sm text-ink-700">
-            <span className="font-semibold text-gold-400">Back up your secret key first.</span>{' '}
-            Officers are locked into a pool at deploy — if you lose this key there is no way to
-            replace it, and your approvals stop working.
+            <span className="font-semibold text-gold-400">{t('wallet.backupLead')}</span>{' '}
+            {t('wallet.backupBody')}
           </p>
           {revealed ? (
             <div className="space-y-2">
@@ -180,12 +179,12 @@ export function WalletPage() {
                 {local.secret}
               </p>
               <Button variant="ghost" className="w-full" onClick={copySecret}>
-                {copied ? 'Copied ✓' : 'Copy secret key'}
+                {copied ? t('wallet.copied') : t('wallet.copy')}
               </Button>
             </div>
           ) : (
             <Button variant="ghost" className="w-full" onClick={() => setRevealed(true)}>
-              Reveal secret key
+              {t('wallet.reveal')}
             </Button>
           )}
           <label className="flex items-start gap-2 text-sm text-ink-700">
@@ -195,7 +194,7 @@ export function WalletPage() {
               checked={backedUp}
               onChange={(e) => setBackedUp(e.target.checked)}
             />
-            I saved my secret key somewhere safe (password manager, paper, another device).
+            {t('wallet.confirmBackup')}
           </label>
           <Button
             className="w-full"
@@ -203,16 +202,15 @@ export function WalletPage() {
             loading={link.isPending}
             onClick={() => link.mutate(undefined)}
           >
-            Link wallet to my account
+            {t('wallet.link')}
           </Button>
           {link.isError && (
             <p className="text-center text-xs text-rose-400">
-              {String((link.error as Error)?.message || 'Could not link wallet')}
+              {String((link.error as Error)?.message || t('wallet.linkFailed'))}
             </p>
           )}
           <p className="text-xs text-ink-500">
-            Linking funds the account on testnet, adds the USDC trustline, and proves you hold the
-            key by signing a one-time challenge. Only then does it count as your verified signer.
+            {t('wallet.linkBody')}
           </p>
         </Card>
       )}

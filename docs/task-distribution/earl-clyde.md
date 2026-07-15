@@ -14,17 +14,17 @@ every feed and notification (Shello builds on top of it).
 `user_wallets` shapes (D0/D1/D3) for the nonce + indexer scoping. **Consumers:** Shello (`chain_events`
 + Realtime), David (wallet `/challenge` + `/verify` endpoints).
 
-## 🟢 Status — mostly done (2026-07-13, on `main`)
+## ✅ Status — complete (2026-07-15)
 
 Most of your spine shipped in the build sprint (commit `faf527a`), so **review + extend, don't rebuild**:
 
-- **E1 ✅ DONE** — `services/ai/src/indexer.ts` + `indexer-main.ts` (`pnpm indexer`). `chain_events` + `indexer_cursor` were already in `0001_init.sql`. Checkpointed `getEvents` poller, idempotent upsert on the 5-tuple, i128 stored as **strings**, `spend_req`/`execute` enriched via `contract.Client.from` `get_spend`. **Verified live:** contribute/request/approve/execute all landed in `chain_events` within a poll. (Fixes already folded in: backfill suppresses stale notification fan-out, narrowed cursor age-out regex.)
+- **E1 ✅ DONE** — `services/ai/src/indexer.ts` + `indexer-main.ts` (`pnpm indexer`). `chain_events` + `indexer_cursor` were already in `0001_init.sql`. Checkpointed `getEvents` poller, idempotent event insertion on the 5-tuple, i128 stored as **strings**, `spend_req`/`execute` enriched via `contract.Client.from` `get_spend`. **Verified live:** contribute/request/approve/execute all landed in `chain_events` within a poll. Backfill suppresses stale fan-out and only a successful new event insert can trigger notifications.
 - **E4 ✅ DONE** — `services/ai/src/wallet.ts` (`/wallet/challenge` + `/wallet/verify`), with `supabaseAdmin.ts` + `ratelimit.ts`. Verified E2E. Rate limiter ignores spoofable `X-Forwarded-For` unless `TRUST_PROXY=1`.
-- **E5 ✅ DONE** — `services/ai/src/notify.ts` fans out per event type (+ `push.ts` sender). `spend_req` skips fan-out when un-enriched.
-- **E3 🟡 BUILT, UNWIRED** — `services/ai/src/chain.ts` has `deployPool` / `mintUsdc` / `ensureWasmHash` / `submitTx` (SDK equivalents of the CLI path), typechecked but **not cut over**. **Your remaining work:** wire the `USE_SDK_BACKEND=1` dispatch into `services/ai/src/index.ts` `/pool/create` + `/faucet` (keep the CLI branch as fallback), add faucet **rate limits** + CORS tightening, set `DEPLOYER_SECRET`/`ISSUER_SECRET` env, prove it with `smoke-write.mts`, then flip the default **after Jul 15**.
+- **E5 ✅ DONE** — `services/ai/src/notify.ts` fans out per event type into Supabase notifications. The Supabase webhook/Edge Function owns delivery; `spend_req` skips fan-out when un-enriched.
+- **E3 ✅ DONE** — `services/ai/src/chain.ts` powers `/pool/create` and `/faucet` when `USE_SDK_BACKEND=1`, with the CLI retained as an explicit fallback. CORS is allowlisted; faucet and deployment routes are rate-limited; server-only keys can be exported with `sdk:configure`; a hosted testnet write loop passed from deploy through release.
 - **E2 ✅ DONE** — Supabase **Realtime** on `chain_events` via [`0008_chain_events_realtime.sql`](../../supabase/migrations/0008_chain_events_realtime.sql). RLS smoke test [`0008_chain_events_rls.sql`](../../supabase/tests/0008_chain_events_rls.sql). Interface contract + reference helper [`apps/web/src/lib/chainEventsRealtime.ts`](../../apps/web/src/lib/chainEventsRealtime.ts) (wired into `AppActivityPage` for live invalidation).
 
-**Left for you: E3 cutover.** Everything else is done and E2E-verified. Detail below is retained for reference.
+**No assigned implementation remains.** Detail below is retained for reference.
 
 ---
 

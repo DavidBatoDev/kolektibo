@@ -17,7 +17,7 @@ import { PoolInvitePage } from './routes/PoolInvite'
 import { PoolContributePage } from './routes/PoolContribute'
 import { PoolSpendPage } from './routes/PoolSpend'
 import { JoinPage } from './routes/Join'
-import { requireAuth, requireProductionAuth } from './lib/authGuard'
+import { requireAuth, requireProductionAuth, requireProductionFeatures } from './lib/authGuard'
 import { supabase } from './lib/supabase'
 import { LandingPage } from './routes/LandingPage'
 import {
@@ -58,6 +58,9 @@ import {
 } from './routes/Onboarding'
 
 const rootRoute = createRootRoute({ component: AppShell })
+const requireProduct = requireProductionFeatures('production_shell')
+const requirePools = requireProductionFeatures('production_shell', 'multi_pool')
+const requirePoolWizard = requireProductionFeatures('production_shell', 'multi_pool', 'pool_wizard_v1')
 
 // Public product site.
 const landingRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: LandingPage })
@@ -107,36 +110,36 @@ const onboardingRecoveryRoute = createRoute({ getParentRoute: () => rootRoute, p
 const onboardingCompleteRoute = createRoute({ getParentRoute: () => rootRoute, path: '/onboarding/complete', component: OnboardingCompletePage, beforeLoad: requireProductionAuth })
 
 // Authenticated product workspace.
-const appRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app', component: AppDashboardPage, beforeLoad: requireProductionAuth })
-const appActivityRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/activity', component: AppActivityPage, beforeLoad: requireProductionAuth })
-const appNotificationsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/notifications', component: NotificationsPage, beforeLoad: requireProductionAuth })
-const appWalletRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/wallet', component: WalletPage, beforeLoad: requireProductionAuth })
-const appProfileRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/profile', component: ProfilePage, beforeLoad: requireProductionAuth })
-const appPreferencesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/preferences', component: PreferencesPage, beforeLoad: requireProductionAuth })
-const appSecurityRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/security', component: SecurityPage, beforeLoad: requireProductionAuth })
-const appDataRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/data', component: DataPrivacyPage, beforeLoad: requireProductionAuth })
-const appHelpRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/help', component: AppHelpPage, beforeLoad: requireProductionAuth })
-const appPoolsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools', component: PoolsPage, beforeLoad: requireProductionAuth })
-const appPoolNewRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/new', component: PoolWizardPage, beforeLoad: requireProductionAuth })
-const appPoolRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId', component: PoolDetailPage, beforeLoad: requireProductionAuth })
-const appPoolActivityRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/activity', component: PoolActivityPage, beforeLoad: requireProductionAuth })
-const appPoolContributionsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/contributions', component: PoolContributionsPage, beforeLoad: requireProductionAuth })
-const appPoolContributeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/contribute', component: PoolContributePage, beforeLoad: requireProductionAuth })
-const appPoolSpendsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/spends', component: PoolSpendsPage, beforeLoad: requireProductionAuth })
-const appPoolSpendNewRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/spends/new', component: PoolSpendPage, beforeLoad: requireProductionAuth })
-const appPoolSpendDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/spends/$spendId', component: SpendDetailPage, beforeLoad: requireProductionAuth })
-const appPoolApprovalsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/approvals', component: PoolApprovalsPage, beforeLoad: requireProductionAuth })
-const appPoolMembersRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/members', component: PoolMembersPage, beforeLoad: requireProductionAuth })
-const appPoolInvitesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/invites', component: PoolInvitePage, beforeLoad: requireProductionAuth })
-const appPoolPayeesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/payees', component: PoolPayeesPage, beforeLoad: requireProductionAuth })
-const appPoolGoalsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/goals', component: PoolGoalsPage, beforeLoad: requireProductionAuth })
-const appPoolRulesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/rules', component: PoolRulesPage, beforeLoad: requireProductionAuth })
-const appPoolReportsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/reports', component: PoolReportsPage, beforeLoad: requireProductionAuth })
-const appPoolGeneralRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/settings/general', component: () => <PoolSettingsPage section="general" />, beforeLoad: requireProductionAuth })
-const appPoolContributionSettingsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/settings/contributions', component: () => <PoolSettingsPage section="contributions" />, beforeLoad: requireProductionAuth })
-const appPoolGovernanceRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/settings/governance', component: () => <PoolSettingsPage section="governance" />, beforeLoad: requireProductionAuth })
-const appPoolSecurityRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/settings/security', component: () => <PoolSettingsPage section="security" />, beforeLoad: requireProductionAuth })
-const appPoolArchiveRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/settings/archive', component: () => <PoolSettingsPage section="archive" />, beforeLoad: requireProductionAuth })
+const appRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app', component: AppDashboardPage, beforeLoad: requireProduct })
+const appActivityRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/activity', component: AppActivityPage, beforeLoad: requireProduct })
+const appNotificationsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/notifications', component: NotificationsPage, beforeLoad: requireProduct })
+const appWalletRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/wallet', component: WalletPage, beforeLoad: requireProduct })
+const appProfileRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/profile', component: ProfilePage, beforeLoad: requireProduct })
+const appPreferencesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/preferences', component: PreferencesPage, beforeLoad: requireProduct })
+const appSecurityRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/security', component: SecurityPage, beforeLoad: requireProduct })
+const appDataRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/data', component: DataPrivacyPage, beforeLoad: requireProduct })
+const appHelpRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/help', component: AppHelpPage, beforeLoad: requireProduct })
+const appPoolsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools', component: PoolsPage, beforeLoad: requirePools })
+const appPoolNewRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/new', component: PoolWizardPage, beforeLoad: requirePoolWizard })
+const appPoolRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId', component: PoolDetailPage, beforeLoad: requirePools })
+const appPoolActivityRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/activity', component: PoolActivityPage, beforeLoad: requirePools })
+const appPoolContributionsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/contributions', component: PoolContributionsPage, beforeLoad: requirePools })
+const appPoolContributeRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/contribute', component: PoolContributePage, beforeLoad: requirePools })
+const appPoolSpendsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/spends', component: PoolSpendsPage, beforeLoad: requirePools })
+const appPoolSpendNewRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/spends/new', component: PoolSpendPage, beforeLoad: requirePools })
+const appPoolSpendDetailRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/spends/$spendId', component: SpendDetailPage, beforeLoad: requirePools })
+const appPoolApprovalsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/approvals', component: PoolApprovalsPage, beforeLoad: requirePools })
+const appPoolMembersRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/members', component: PoolMembersPage, beforeLoad: requirePools })
+const appPoolInvitesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/invites', component: PoolInvitePage, beforeLoad: requirePools })
+const appPoolPayeesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/payees', component: PoolPayeesPage, beforeLoad: requirePools })
+const appPoolGoalsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/goals', component: PoolGoalsPage, beforeLoad: requirePools })
+const appPoolRulesRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/rules', component: PoolRulesPage, beforeLoad: requirePools })
+const appPoolReportsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/reports', component: PoolReportsPage, beforeLoad: requirePools })
+const appPoolGeneralRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/settings/general', component: () => <PoolSettingsPage section="general" />, beforeLoad: requirePools })
+const appPoolContributionSettingsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/settings/contributions', component: () => <PoolSettingsPage section="contributions" />, beforeLoad: requirePools })
+const appPoolGovernanceRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/settings/governance', component: () => <PoolSettingsPage section="governance" />, beforeLoad: requirePools })
+const appPoolSecurityRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/settings/security', component: () => <PoolSettingsPage section="security" />, beforeLoad: requirePools })
+const appPoolArchiveRoute = createRoute({ getParentRoute: () => rootRoute, path: '/app/pools/$poolId/settings/archive', component: () => <PoolSettingsPage section="archive" />, beforeLoad: requirePools })
 
 // Compatibility aliases for existing links and saved bookmarks. These retain the
 // product shell while components migrate to /app paths.

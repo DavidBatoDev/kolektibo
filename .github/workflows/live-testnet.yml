@@ -1,0 +1,90 @@
+name: Live testnet push
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 20 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-testnet-push
+  cancel-in-progress: false
+
+jobs:
+  push-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: '1'
+      PLAYWRIGHT_PUSH_E2E: '1'
+      PLAYWRIGHT_RETRIES: '0'
+      PLAYWRIGHT_SLOW_MO: '0'
+      E2E_AI_URL: http://127.0.0.1:8787
+      E2E_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      E2E_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      VITE_AI_URL: http://127.0.0.1:8787
+      VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+      USE_SDK_BACKEND: '1'
+      DEPLOYER_SECRET: ${{ secrets.TESTNET_DEPLOYER_SECRET }}
+      ISSUER_SECRET: ${{ secrets.TESTNET_ISSUER_SECRET }}
+      TREASURY_WASM_HASH: ${{ vars.TREASURY_WASM_HASH }}
+      USDC_SAC_ID: ${{ vars.USDC_SAC_ID }}
+      USDC_ISSUER: ${{ vars.USDC_ISSUER }}
+      SOROBAN_RPC_URL: ${{ vars.SOROBAN_RPC_URL }}
+      STELLAR_NETWORK_PASSPHRASE: Test SDF Network ; September 2015
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Verify live-test configuration
+        shell: bash
+        run: |
+          required=(E2E_SUPABASE_URL E2E_SUPABASE_SERVICE_ROLE_KEY VITE_SUPABASE_ANON_KEY DEPLOYER_SECRET ISSUER_SECRET TREASURY_WASM_HASH USDC_SAC_ID USDC_ISSUER)
+          for name in "${required[@]}"; do
+            if [ -z "${!name}" ]; then
+              echo "Missing required GitHub Actions configuration: $name"
+              exit 1
+            fi
+          done
+      - name: Type-check and build
+        run: |
+          pnpm --filter @kolektibo/ai exec tsc --noEmit
+          pnpm build
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Start the SDK API
+        shell: bash
+        run: |
+          pnpm --filter @kolektibo/ai start > "$RUNNER_TEMP/kolektibo-ai.log" 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8787/config > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/kolektibo-ai.log"
+          exit 1
+      - name: Run real chain-to-service-worker push test
+        run: xvfb-run -a pnpm exec playwright test tests/e2e/push.spec.ts --project=chromium
+      - name: Upload browser evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-testnet-playwright-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7

@@ -12,8 +12,8 @@ test('loads the production landing page', async ({ page }) => {
   await page.goto('/')
 
   await expect(page.getByRole('banner').getByRole('link', { name: 'Kolektibo' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Pooled money your whole group can trust.' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Explore the testnet demo' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Pooled money your group can trust.' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Watch the 60-sec demo' })).toBeVisible()
 })
 
 test('keeps the original treasury flow under the demo route', async ({ page }) => {

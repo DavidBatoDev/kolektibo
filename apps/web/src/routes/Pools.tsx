@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { AppPageHero, Badge, Button, Card, inputClass } from '../components/ui'
 import { usePools } from '../hooks/usePools'
+import { useI18n } from '../lib/i18n'
 
 const STATUS_TONE = {
   draft: 'gold',
@@ -14,6 +15,7 @@ const STATUS_TONE = {
 } as const
 
 export function PoolsPage() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const pools = usePools()
   const [joinCode, setJoinCode] = useState('')
@@ -21,15 +23,15 @@ export function PoolsPage() {
   return (
     <div className="space-y-6 pb-6">
       <AppPageHero
-        eyebrow="Shared treasuries"
-        title="My pools"
-        body="Create, join, and keep track of every group fund in one place."
+        eyebrow={t('pools.eyebrow')}
+        title={t('pools.title')}
+        body={t('pools.intro')}
         asset="/assets/pool.webp"
       />
 
       {pools.isLoading && (
         <Card>
-          <p className="text-sm text-ink-500">Loading your pools…</p>
+          <p className="text-sm text-ink-500">{t('pools.loading')}</p>
         </Card>
       )}
 
@@ -37,7 +39,7 @@ export function PoolsPage() {
         <Card className="relative overflow-hidden py-7 pr-24">
           <img src="/assets/empty.webp" alt="" className="absolute -bottom-2 -right-2 h-24 w-24 object-contain" />
           <p className="text-sm text-ink-700">
-            You're not in any pool yet. Create one, or join with an invite from an officer.
+            {t('pools.empty')}
           </p>
         </Card>
       )}
@@ -53,11 +55,15 @@ export function PoolsPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-[16px] text-ink-950">{pool.name}</p>
                   <p className="mt-0.5 text-[13px] text-ink-700">
-                    {pool.currency_label} · you are {role === 'officer' ? 'an officer' : 'a member'}
+                    {pool.currency_label} · {t('pools.role', { role: role === 'officer' ? t('common.officer') : t('common.member') })}
                   </p>
                 </div>
                 <Badge tone={STATUS_TONE[pool.status as keyof typeof STATUS_TONE] ?? 'slate'}>
-                  {pool.status}
+                  {pool.status === 'active' ? t('common.active')
+                    : pool.status === 'draft' ? t('common.draft')
+                      : pool.status === 'deploying' ? t('common.deploying')
+                        : pool.status === 'migrated' ? t('common.migrated')
+                          : pool.status === 'archived' ? t('common.archived') : pool.status}
                 </Badge>
               </Card>
             </Link>
@@ -66,16 +72,16 @@ export function PoolsPage() {
       )}
 
       <Button size="lg" className="w-full" onClick={() => navigate({ to: '/app/pools/new' })}>
-        Create a pool
+        {t('dashboard.create')}
       </Button>
 
       {/* Join with a code Card matching the Figma design */}
       <Card className="relative space-y-4 overflow-hidden shadow-lift">
         <img src="/assets/invite.webp" alt="" className="pointer-events-none absolute -right-4 -top-5 h-28 w-28 object-contain opacity-80" />
         <div className="relative pr-20">
-          <h2 className="text-[19px] font-bold text-ink-950">Join a pool</h2>
+          <h2 className="text-[19px] font-bold text-ink-950">{t('pools.joinTitle')}</h2>
           <p className="mt-1 text-[14px] leading-snug text-ink-700">
-            Ask an officer for the invite code, or open the link they sent.
+            {t('pools.joinBody')}
           </p>
         </div>
         <div className="pt-2">
@@ -96,7 +102,7 @@ export function PoolsPage() {
               }
             }}
           >
-            Paste from clipboard
+            {t('pools.paste')}
           </button>
         </div>
         <div className="pt-1">
@@ -106,7 +112,7 @@ export function PoolsPage() {
             disabled={joinCode.length < 6}
             onClick={() => navigate({ to: '/invite/$code', params: { code: joinCode } })}
           >
-            Find pool
+            {t('pools.find')}
           </Button>
         </div>
       </Card>

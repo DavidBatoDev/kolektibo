@@ -1,6 +1,8 @@
 import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { useAuth } from '../lib/auth'
+import { useI18n } from '../lib/i18n'
+import { useNotificationsRealtime, useUnreadNotificationCount } from '../hooks/useNotifications'
 
 type IconProps = { className?: string }
 
@@ -16,7 +18,7 @@ export function AppShell() {
   const isInvite = pathname.startsWith('/invite/') || pathname.startsWith('/join/')
   const isPublic = !isAuth && !isDemo && !isInvite && PUBLIC_PATHS.some((path) => path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`))
 
-  if (pathname === '/') return <Outlet />
+  if (pathname === '/') return <main><Outlet /></main>
   if (isPublic) return <PublicShell />
   if (isAuth || isOnboarding) return <AuthShell />
   if (isInvite) return <FocusShell />
@@ -83,7 +85,7 @@ function DemoShell() {
     <div className="demo-shell product-shell mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50">
       <header className="product-header sticky top-0 z-20 border-b border-ink-300/60 backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3">
-          <Brand to="/demo" theme="light" />
+          <Brand to="/demo" />
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-300/25 px-2.5 py-1 text-[10px] font-semibold text-gold-700 ring-1 ring-gold-400/25">
               <span className="size-1.5 rounded-full bg-gold-400" />Interactive demo
@@ -114,23 +116,26 @@ function ProductShell() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useI18n()
+  useNotificationsRealtime()
+  const unread = useUnreadNotificationCount()
   useEffect(() => {
     if (!user || pathname.startsWith('/invite/')) return
     const code = localStorage.getItem('kolektibo.join.pending')
     if (code) void navigate({ to: '/invite/$code', params: { code } })
   }, [user, pathname, navigate])
   const nav = [
-    { to: '/app', label: 'Home', Icon: IconHome, exact: true },
-    { to: '/app/pools', label: 'Pools', Icon: IconUsers, exact: false },
-    { to: '/app/activity', label: 'Activity', Icon: IconActivity, exact: false },
-    { to: '/app/wallet', label: 'Wallet', Icon: IconWallet, exact: false },
-    { to: '/app/profile', label: 'More', Icon: IconMenu, exact: false },
+    { to: '/app', label: t('nav.home'), Icon: IconHome, exact: true },
+    { to: '/app/pools', label: t('nav.pools'), Icon: IconUsers, exact: false },
+    { to: '/app/activity', label: t('nav.activity'), Icon: IconActivity, exact: false },
+    { to: '/app/wallet', label: t('nav.wallet'), Icon: IconWallet, exact: false },
+    { to: '/app/profile', label: t('nav.more'), Icon: IconMenu, exact: false },
   ] as const
   const active = (to: string, exact?: boolean) => exact ? pathname === to : pathname === to || pathname.startsWith(`${to}/`)
   return (
     <div className="product-shell mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50">
       <header className="product-header sticky top-0 z-20 border-b border-ink-300/60 backdrop-blur">
-        <div className="flex items-center justify-between px-4 py-3"><Brand to="/app" theme="light" /><div className="flex items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-2.5 py-1 text-[10px] font-semibold text-brand-700 ring-1 ring-brand-500/25"><span className="size-1.5 rounded-full bg-brand-500" />Testnet</span><Link to="/app/notifications" aria-label="Notifications" className="product-header-icon"><IconBell className="h-5 w-5" /></Link></div></div>
+        <div className="flex items-center justify-between px-4 py-3"><Brand to="/app" /><div className="flex items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-2.5 py-1 text-[10px] font-semibold text-brand-700 ring-1 ring-brand-500/25"><span className="size-1.5 rounded-full bg-brand-500" />{t('common.testnet')}</span><Link to="/app/notifications" aria-label={t('nav.notifications')} className="product-header-icon relative"><IconBell className="h-5 w-5" />{!!unread.data && <span className="absolute -right-0.5 -top-0.5 flex min-h-3.5 min-w-3.5 items-center justify-center rounded-full bg-brand-600 px-1 text-[8px] font-bold leading-none text-white">{unread.data > 99 ? '99+' : unread.data}</span>}</Link></div></div>
       </header>
       <main className="product-main min-w-0 flex-1 px-4 pb-28 pt-5"><Outlet /></main>
       <nav className="product-nav fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t border-ink-300/60 backdrop-blur" style={{ paddingBottom: 'var(--safe-bottom)' }}>
@@ -140,8 +145,8 @@ function ProductShell() {
   )
 }
 
-function Brand({ to = '/', theme = 'dark' }: { to?: '/' | '/app' | '/demo', theme?: 'dark' | 'light' }) {
-  return <Link to={to} className="app-brand flex items-center gap-2"><img src="/assets/kolektibo.svg" alt="" className="h-7 w-7" /><span className={`text-lg font-semibold tracking-tight ${theme === 'light' ? 'text-ink-950' : 'text-ink-950'}`}>Kolektibo</span></Link>
+function Brand({ to = '/' }: { to?: '/' | '/app' | '/demo' }) {
+  return <Link to={to} className="app-brand flex items-center gap-2"><img src="/assets/kolektibo.svg" alt="" className="h-7 w-7" /><span className="text-lg font-semibold tracking-tight text-ink-950">Kolektibo</span></Link>
 }
 
 function SvgIcon({ className, children }: IconProps & { children: React.ReactNode }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{children}</svg> }

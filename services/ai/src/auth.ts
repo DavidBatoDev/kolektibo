@@ -6,6 +6,7 @@ import { Router, type Request, type Response } from 'express'
 import { createClient } from '@supabase/supabase-js'
 import nodemailer from 'nodemailer'
 import crypto from 'node:crypto'
+import { allow, HOUR, ipOf } from './ratelimit'
 
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -53,26 +54,7 @@ function safeEqualHex(a: string, b: string): boolean {
 }
 
 // ── in-memory rate limiting (resets on restart; adequate for MVP) ─────────────
-const HOUR = 60 * 60 * 1000
-type Hit = { count: number; resetAt: number }
-const buckets = new Map<string, Hit>()
-function allow(key: string, max: number, windowMs: number): boolean {
-  const now = Date.now()
-  const b = buckets.get(key)
-  if (!b || now > b.resetAt) {
-    buckets.set(key, { count: 1, resetAt: now + windowMs })
-    return true
-  }
-  if (b.count >= max) return false
-  b.count++
-  return true
-}
 const cooldown = new Map<string, number>() // email -> last send ts
-function ipOf(req: Request): string {
-  const xf = req.headers['x-forwarded-for']
-  if (typeof xf === 'string' && xf) return xf.split(',')[0]!.trim()
-  return req.socket.remoteAddress || 'unknown'
-}
 
 // ── shared plumbing ───────────────────────────────────────────────────────────
 function requireConfig(res: Response): boolean {

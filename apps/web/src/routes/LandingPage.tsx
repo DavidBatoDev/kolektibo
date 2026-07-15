@@ -16,7 +16,7 @@ export function LandingPage() {
   return (
     <div className="landing-page">
       <div className="banner">
-        <header className="nav">
+        <header className="nav" role="banner">
           <div className="wrap">
             <a className="brand" href="#top">
               <img src="/assets/kolektibo.svg" alt="" />
@@ -428,8 +428,8 @@ function ProofPanel({
         ))}
       </div>
       <div className="pg-seq" aria-hidden="true">
-        {nodes.map((label) => (
-          <i key={label} className="node" data-label={label} />
+        {nodes.map((label, index) => (
+          <i key={`${label}-${index}`} className="node" data-label={label} />
         ))}
       </div>
       <div className="pg-stage">

@@ -1,6 +1,4 @@
-// In-memory rate limiting (resets on restart; adequate for MVP).
-// Copied from auth.ts rather than imported — auth.ts is frozen through the
-// Jul 15 demo; dedupe the two copies after the freeze lifts.
+// Shared in-memory rate limiting (resets on restart; adequate for the MVP).
 import type { Request } from 'express'
 
 export const HOUR = 60 * 60 * 1000

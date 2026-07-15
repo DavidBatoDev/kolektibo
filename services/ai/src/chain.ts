@@ -1,7 +1,6 @@
 // Backend v1 chain module: stellar-sdk replacements for the CLI-shelling in
-// index.ts (deploy+initialize a treasury; mint demo USDC). UNWIRED during the
-// Jul-15 demo freeze — index.ts gains a `USE_SDK_BACKEND=1` dispatch after the
-// freeze lifts, keeping the proven CLI path as fallback.
+// index.ts (deploy+initialize a treasury; mint demo USDC). index.ts dispatches
+// here with `USE_SDK_BACKEND=1` and keeps the proven CLI path as a fallback.
 //
 // Env (all server-only, .env is gitignored):
 //   DEPLOYER_SECRET      S… key that deploys + initializes pools
@@ -42,7 +41,12 @@ function keypairFromEnv(name: 'DEPLOYER_SECRET' | 'ISSUER_SECRET'): Keypair {
 }
 
 export function sdkBackendConfigured(): boolean {
-  return !!(process.env.DEPLOYER_SECRET && process.env.ISSUER_SECRET && WASM_PATH && USDC_SAC)
+  return !!(
+    process.env.DEPLOYER_SECRET
+    && process.env.ISSUER_SECRET
+    && (process.env.TREASURY_WASM_HASH || WASM_PATH)
+    && USDC_SAC
+  )
 }
 
 /** prepare → sign → send → poll to a terminal status. Returns the success response. */
@@ -77,7 +81,10 @@ async function sourceAccount(kp: Keypair) {
 /** Wasm hash for the treasury contract: env cache → on-chain check → upload. */
 export async function ensureWasmHash(): Promise<Buffer> {
   const cached = process.env.TREASURY_WASM_HASH
-  if (cached) return Buffer.from(cached, 'hex')
+  if (cached) {
+    if (!/^[0-9a-f]{64}$/i.test(cached)) throw new Error('TREASURY_WASM_HASH must be 64 hexadecimal characters')
+    return Buffer.from(cached, 'hex')
+  }
   if (!WASM_PATH) throw new Error('TREASURY_WASM_PATH not set')
 
   const wasm = readFileSync(WASM_PATH)

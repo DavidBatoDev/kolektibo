@@ -4,8 +4,10 @@ import { useAuth } from '../lib/auth'
 import { isSupabaseEnabled } from '../lib/supabase'
 import { usePools } from '../hooks/usePools'
 import { useProfile } from '../hooks/useProfile'
+import { useI18n } from '../lib/i18n'
 
 export function AppDashboardPage() {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const { user } = useAuth()
   const profile = useProfile()
@@ -37,30 +39,30 @@ export function AppDashboardPage() {
   return (
     <div className="space-y-7 pb-6">
       <AppPageHero
-        eyebrow="Welcome back"
+        eyebrow={t('dashboard.welcome')}
         title={name}
-        body="Your groups, pending setup, and money activity in one place."
+        body={t('dashboard.intro')}
         asset="/assets/coins.webp"
       >
-        <Button size="sm" onClick={() => navigate({ to: '/app/pools/new' })}>Create a pool</Button>
+        <Button size="sm" onClick={() => navigate({ to: '/app/pools/new' })}>{t('dashboard.create')}</Button>
       </AppPageHero>
 
       {pools.isLoading ? (
-        <Card><p className="text-sm text-ink-500">Loading your workspace…</p></Card>
+        <Card><p className="text-sm text-ink-500">{t('dashboard.loading')}</p></Card>
       ) : poolRows.length === 0 ? (
         <NoPools />
       ) : (
         <>
           <div className="grid gap-3">
-            <Metric label="Pools" value={poolRows.length} detail="private groups" />
-            <Metric label="Active" value={activeCount} detail="on Stellar" />
-            <Metric label="Needs setup" value={draftCount} detail="draft pools" tone={draftCount ? 'gold' : 'brand'} />
+            <Metric label={t('dashboard.pools')} value={poolRows.length} detail={t('dashboard.privateGroups')} />
+            <Metric label={t('dashboard.active')} value={activeCount} detail={t('dashboard.onStellar')} />
+            <Metric label={t('dashboard.needsSetup')} value={draftCount} detail={t('dashboard.draftPools')} tone={draftCount ? 'gold' : 'brand'} />
           </div>
 
           <section>
             <div className="flex items-center justify-between">
-              <SectionLabel>Your pools</SectionLabel>
-              <Link to="/app/pools" className="mb-2 text-xs text-brand-400 hover:text-brand-300">View all →</Link>
+              <SectionLabel>{t('dashboard.yourPools')}</SectionLabel>
+              <Link to="/app/pools" className="mb-2 text-xs text-brand-400 hover:text-brand-300">{t('dashboard.viewAll')}</Link>
             </div>
             <div className="grid gap-3">
               {poolRows.slice(0, 4).map(({ role, pool }) => (
@@ -81,11 +83,11 @@ export function AppDashboardPage() {
           </section>
 
           <section>
-            <SectionLabel>Quick actions</SectionLabel>
+            <SectionLabel>{t('dashboard.quickActions')}</SectionLabel>
             <div className="grid gap-3">
-              <QuickAction title="Join a pool" body="Use a private invitation code." to="/app/pools" />
-              <QuickAction title="Check activity" body="Review updates across your groups." to="/app/activity" />
-              <QuickAction title="Manage wallet" body="Verify the signer on this device." to="/app/wallet" />
+              <QuickAction title={t('dashboard.join')} body={t('dashboard.joinBody')} to="/app/pools" />
+              <QuickAction title={t('dashboard.activity')} body={t('dashboard.activityBody')} to="/app/activity" />
+              <QuickAction title={t('dashboard.wallet')} body={t('dashboard.walletBody')} to="/app/wallet" />
             </div>
           </section>
         </>
@@ -95,32 +97,32 @@ export function AppDashboardPage() {
 }
 
 function NoPools() {
+  const { t } = useI18n()
   return (
     <div className="grid gap-4">
       <Card className="relative space-y-5 overflow-hidden bg-linear-to-br from-brand-100 to-brand-50 p-6">
         <img src="/assets/pool.webp" alt="" className="pointer-events-none absolute -right-7 -top-2 h-32 w-32 object-contain opacity-90" />
         <div className="relative pr-16">
-          <Badge tone="brand">Start here</Badge>
-          <h2 className="mt-4 text-2xl font-semibold text-ink-950">Create your first group treasury</h2>
+          <Badge tone="brand">{t('dashboard.start')}</Badge>
+          <h2 className="mt-4 text-2xl font-semibold text-ink-950">{t('dashboard.firstPool')}</h2>
           <p className="mt-2 text-sm leading-6 text-ink-700">
-            Choose how members contribute, who can request spending, and how many approvers must
-            agree. Nothing is deployed until the people and wallets are ready.
+            {t('dashboard.firstPoolBody')}
           </p>
         </div>
         <div className="relative flex flex-col gap-2">
-          <Link to="/app/pools/new" className="flex-1"><Button className="w-full">Create a pool</Button></Link>
-          <Link to="/app/pools" className="flex-1"><Button variant="ghost" className="w-full">Join with a code</Button></Link>
+          <Link to="/app/pools/new" className="flex-1"><Button className="w-full">{t('dashboard.create')}</Button></Link>
+          <Link to="/app/pools" className="flex-1"><Button variant="ghost" className="w-full">{t('dashboard.joinCode')}</Button></Link>
         </div>
       </Card>
       <Card className="relative space-y-4 overflow-hidden p-6">
         <img src="/assets/verified.webp" alt="" className="pointer-events-none absolute -right-4 -top-5 h-24 w-24 object-contain opacity-75" />
-        <h2 className="relative max-w-[70%] font-semibold text-ink-950">Want to see the complete flow?</h2>
+        <h2 className="relative max-w-[70%] font-semibold text-ink-950">{t('dashboard.completeFlow')}</h2>
         <ol className="space-y-3 text-sm text-ink-500">
-          {['Members contribute test USDC.', 'An officer requests a payment.', 'Two officers approve.', 'The contract releases the funds.'].map((step, index) => (
+          {[t('dashboard.flow1'), t('dashboard.flow2'), t('dashboard.flow3'), t('dashboard.flow4')].map((step, index) => (
             <li key={step} className="flex gap-3"><span className="text-brand-400">{index + 1}</span><span>{step}</span></li>
           ))}
         </ol>
-        <Link to="/demo"><Button variant="ghost" className="w-full">Explore demo</Button></Link>
+        <Link to="/demo"><Button variant="ghost" className="w-full">{t('dashboard.exploreDemo')}</Button></Link>
       </Card>
     </div>
   )

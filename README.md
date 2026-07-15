@@ -22,7 +22,7 @@ Built for the **APAC Stellar Hackathon 2026**.
 ```
 contracts/            Rust workspace — the Soroban treasury contract (policy + M-of-N approvals) + tests
 apps/web/             Capacitor-ready PWA (Vite · React · TanStack Router/Query · Tailwind) + generated contract bindings
-services/ai/          Node + Express — AI treasurer (OpenAI) AND chain-ops backend (deploy / faucet via the Stellar CLI)
+services/ai/          Node + Express — AI treasurer, SDK chain ops, wallet proof, and event indexer
 scripts/              Testnet deploy + toolchain env helpers
 docs/                 Full timestamped documentation set + QA report
 ```
@@ -45,6 +45,9 @@ pnpm install
 # Backend config: add your OpenAI key (chain settings are pre-filled for testnet)
 cp services/ai/.env.example services/ai/.env    # then set OPENAI_API_KEY
 
+# Export existing local Stellar identities into ignored server env values
+pnpm --filter @kolektibo/ai sdk:configure
+
 pnpm dev                                          # web → :5173   ·   ai + chain-ops → :8787
 ```
 
@@ -57,6 +60,9 @@ Open **http://localhost:5173** and run the demo:
 
 Every action links to the transaction on [stellar.expert](https://stellar.expert/explorer/testnet).
 Full walkthrough + troubleshooting: [`docs/09-how-to-run`](./docs/09-how-to-run_2026-07-11_0146.md).
+
+The authenticated `/app` product additionally uses Supabase for identity, private directory data,
+Realtime feeds, receipts, and Web Push delivery. Supabase never signs or moves treasury funds.
 
 ### Contract
 

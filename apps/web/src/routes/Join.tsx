@@ -31,10 +31,14 @@ export function JoinPage() {
   // key the moment the preview resolves invalid.
   useEffect(() => {
     if (!isSupabaseEnabled() || !code) return
+    if (user) {
+      localStorage.removeItem(PENDING_JOIN_KEY)
+      return
+    }
     if (preview.data) localStorage.setItem(PENDING_JOIN_KEY, code)
     else if (preview.isError || (preview.isSuccess && !preview.data))
       localStorage.removeItem(PENDING_JOIN_KEY)
-  }, [code, preview.data, preview.isError, preview.isSuccess])
+  }, [code, preview.data, preview.isError, preview.isSuccess, user])
 
   const dismiss = () => {
     localStorage.removeItem(PENDING_JOIN_KEY)
