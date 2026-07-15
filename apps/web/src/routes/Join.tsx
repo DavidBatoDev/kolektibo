@@ -31,10 +31,18 @@ export function JoinPage() {
   // key the moment the preview resolves invalid.
   useEffect(() => {
     if (!isSupabaseEnabled() || !code) return
+    
+    // If they are logged in, they are already on the page. Clear the key so they aren't trapped!
+    if (user) {
+      localStorage.removeItem(PENDING_JOIN_KEY)
+      return
+    }
+    
+    // If they are logged out, save it so they can sign up and automatically return.
     if (preview.data) localStorage.setItem(PENDING_JOIN_KEY, code)
     else if (preview.isError || (preview.isSuccess && !preview.data))
       localStorage.removeItem(PENDING_JOIN_KEY)
-  }, [code, preview.data, preview.isError, preview.isSuccess])
+  }, [code, preview.data, preview.isError, preview.isSuccess, user])
 
   const dismiss = () => {
     localStorage.removeItem(PENDING_JOIN_KEY)
@@ -53,9 +61,9 @@ export function JoinPage() {
     redeem.mutate(
       { code },
       {
-        onSuccess: (poolId) => {
+        onSuccess: () => {
           localStorage.removeItem(PENDING_JOIN_KEY)
-          navigate({ to: '/app/pools/$poolId', params: { poolId } })
+          navigate({ to: '/app/pools' })
         },
       },
     )

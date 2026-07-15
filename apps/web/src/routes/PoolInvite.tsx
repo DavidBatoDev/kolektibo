@@ -3,7 +3,7 @@
 // deploy); active pools invite members only.
 import { useState, useEffect } from 'react'
 import { Link, useParams } from '@tanstack/react-router'
-import { Avatar, Button, Card, CopyField, QRCode, SegmentedControl } from '../components/ui'
+import { Avatar, Button, Card, CopyField, QRCode, SegmentedControl, useToast } from '../components/ui'
 import { inviteUrl } from '../lib/poolsApi'
 import { useCreateInvite, useInvites, usePoolDetail } from '../hooks/usePools'
 import { useAuth } from '../lib/auth'
@@ -14,9 +14,14 @@ export function PoolInvitePage() {
   const invites = useInvites(poolId)
   const create = useCreateInvite(poolId)
   const { user } = useAuth()
+  const toast = useToast()
 
   const isDraft = pool.data?.status === 'draft'
-  const [role, setRole] = useState<'officer' | 'member'>(isDraft ? 'officer' : 'member')
+  // Use useEffect to update role if pool data loads late
+  const [role, setRole] = useState<'officer' | 'member'>('member')
+  useEffect(() => {
+    if (pool.data?.status === 'draft') setRole('officer')
+  }, [pool.data?.status])
 
   // Find a valid, non-exhausted invite for the current role
   const activeInvite = invites.data?.find(
@@ -26,15 +31,19 @@ export function PoolInvitePage() {
       (!inv.expires_at || new Date(inv.expires_at).getTime() > Date.now())
   )
 
+  const [hasAttempted, setHasAttempted] = useState(false)
+  useEffect(() => setHasAttempted(false), [role])
+
   useEffect(() => {
-    if (invites.isSuccess && !activeInvite && !create.isPending) {
+    if (invites.isSuccess && !activeInvite && !create.isPending && !hasAttempted) {
+      setHasAttempted(true)
       create.mutate({
         role,
         maxUses: 100, // Reusable persistent link
         expiresInHours: null, // No expiry
       })
     }
-  }, [invites.isSuccess, activeInvite, role, create.isPending])
+  }, [invites.isSuccess, activeInvite, role, create.isPending, hasAttempted])
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-brand-50 pb-6 pt-2">
