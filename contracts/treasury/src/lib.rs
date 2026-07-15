@@ -4,11 +4,13 @@
 //! One instance of this contract = one group's pooled fund. The contract holds the
 //! group's USDC and will ONLY release it when the group's own on-chain policy is
 //! satisfied: the spend is within its category limit AND enough officers have
-//! approved. No single officer — and no off-chain AI — can move the money.
+//! approved. Treasury v2 additionally lets an isolated agent execute only the
+//! exact recipient, amount, category, schedule, floor, and count that officers
+//! first approved as an on-chain mandate.
 
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, panic_with_error, symbol_short, token,
-    Address, Env, String, Symbol, Vec,
+    Address, BytesN, Env, String, Symbol, Vec,
 };
 
 #[contracterror]
@@ -25,6 +27,17 @@ pub enum Error {
     InvalidInit = 8,
     InsufficientBalance = 9,
     NonPositiveAmount = 10,
+    AgentNotConfigured = 11,
+    MandateNotFound = 12,
+    MandatePaused = 13,
+    MandateNotDue = 14,
+    MandateExpired = 15,
+    MandateExhausted = 16,
+    InvalidMandate = 17,
+    ProposalNotFound = 18,
+    ProposalFinalized = 19,
+    InvalidProposalAction = 20,
+    BalanceFloorViolated = 21,
 }
 
 #[contracttype]
@@ -39,6 +52,12 @@ pub enum DataKey {
     CategoryLimit(Symbol),
     Contribution(Address),
     Spend(u32),
+    Version,
+    Agent,
+    NextMandateId,
+    NextMandateProposalId,
+    Mandate(u32),
+    MandateProposal(u32),
 }
 
 /// A spend category and its per-spend cap (0 = no limit).
@@ -61,6 +80,48 @@ pub struct SpendRequest {
     pub memo: String,
     pub approvals: Vec<Address>,
     pub executed: bool,
+}
+
+/// Authority that officers deliberately delegate to the pool's isolated agent.
+/// Recipient, category, and amount are immutable until another threshold-approved
+/// proposal replaces the mandate.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Mandate {
+    pub id: u32,
+    pub recipient: Address,
+    pub category: Symbol,
+    pub amount: i128,
+    pub not_before: u64,
+    pub interval_seconds: u64,
+    pub expires_at: u64,
+    pub max_executions: u32,
+    pub executions: u32,
+    pub last_executed_at: u64,
+    pub min_balance: i128,
+    /// Hash of the normalized off-chain condition. It is an audit commitment;
+    /// conditions may delay execution but cannot expand the on-chain allowance.
+    pub condition_hash: BytesN<32>,
+    pub paused: bool,
+    pub revoked: bool,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum MandateAction {
+    Activate,
+    Resume,
+    Revoke,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct MandateProposal {
+    pub id: u32,
+    pub action: MandateAction,
+    pub mandate: Mandate,
+    pub approvals: Vec<Address>,
+    pub finalized: bool,
 }
 
 #[contract]
@@ -92,6 +153,9 @@ impl TreasuryContract {
         store.set(&DataKey::NextSpendId, &1u32);
         store.set(&DataKey::Members, &Vec::<Address>::new(&env));
         store.set(&DataKey::Categories, &categories);
+        store.set(&DataKey::Version, &1u32);
+        store.set(&DataKey::NextMandateId, &1u32);
+        store.set(&DataKey::NextMandateProposalId, &1u32);
         for i in 0..categories.len() {
             store.set(
                 &DataKey::CategoryLimit(categories.get(i).unwrap()),
@@ -99,6 +163,28 @@ impl TreasuryContract {
             );
         }
         store.extend_ttl(100_000, 100_000);
+    }
+
+    /// Agent-compatible initialization. Existing v1 entry points remain intact.
+    pub fn initialize_v2(
+        env: Env,
+        token: Address,
+        officers: Vec<Address>,
+        threshold: u32,
+        categories: Vec<Symbol>,
+        limits: Vec<i128>,
+        agent: Address,
+    ) {
+        Self::initialize(
+            env.clone(),
+            token,
+            officers,
+            threshold,
+            categories,
+            limits,
+        );
+        env.storage().instance().set(&DataKey::Version, &2u32);
+        env.storage().instance().set(&DataKey::Agent, &agent);
     }
 
     /// A member pulls their contribution (in the pooled token) into the treasury.
@@ -225,6 +311,231 @@ impl TreasuryContract {
             .publish((symbol_short!("execute"),), (spend_id, spend.amount));
     }
 
+    // ----------------------- delegated agent mandates -----------------------
+
+    /// Propose a fixed autonomous payment allowance. The proposer auto-approves;
+    /// activation still requires the pool's normal officer threshold.
+    #[allow(clippy::too_many_arguments)]
+    pub fn propose_mandate(
+        env: Env,
+        proposer: Address,
+        recipient: Address,
+        category: Symbol,
+        amount: i128,
+        not_before: u64,
+        interval_seconds: u64,
+        expires_at: u64,
+        max_executions: u32,
+        min_balance: i128,
+        condition_hash: BytesN<32>,
+    ) -> u32 {
+        proposer.require_auth();
+        require_officer(&env, &proposer);
+        require_agent(&env);
+        validate_mandate(
+            &env,
+            &category,
+            amount,
+            not_before,
+            interval_seconds,
+            expires_at,
+            max_executions,
+            min_balance,
+        );
+
+        let mandate_id: u32 = env
+            .storage()
+            .instance()
+            .get(&DataKey::NextMandateId)
+            .unwrap_or(1);
+        env.storage()
+            .instance()
+            .set(&DataKey::NextMandateId, &(mandate_id + 1));
+        let mandate = Mandate {
+            id: mandate_id,
+            recipient,
+            category,
+            amount,
+            not_before,
+            interval_seconds,
+            expires_at,
+            max_executions,
+            executions: 0,
+            last_executed_at: 0,
+            min_balance,
+            condition_hash,
+            paused: false,
+            revoked: false,
+        };
+        create_mandate_proposal(&env, proposer, MandateAction::Activate, mandate)
+    }
+
+    /// Propose resuming or revoking an existing mandate. Restrictive emergency
+    /// pause is immediate; expanding authority always goes through governance.
+    pub fn propose_mandate_action(
+        env: Env,
+        proposer: Address,
+        mandate_id: u32,
+        action: MandateAction,
+    ) -> u32 {
+        proposer.require_auth();
+        require_officer(&env, &proposer);
+        match action {
+            MandateAction::Resume | MandateAction::Revoke => {}
+            MandateAction::Activate => panic_with_error!(&env, Error::InvalidProposalAction),
+        }
+        let mandate: Mandate = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Mandate(mandate_id))
+            .unwrap_or_else(|| panic_with_error!(&env, Error::MandateNotFound));
+        create_mandate_proposal(&env, proposer, action, mandate)
+    }
+
+    pub fn approve_mandate_proposal(env: Env, officer: Address, proposal_id: u32) {
+        officer.require_auth();
+        require_officer(&env, &officer);
+        let key = DataKey::MandateProposal(proposal_id);
+        let mut proposal: MandateProposal = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| panic_with_error!(&env, Error::ProposalNotFound));
+        if proposal.finalized {
+            panic_with_error!(&env, Error::ProposalFinalized);
+        }
+        if proposal.approvals.contains(&officer) {
+            panic_with_error!(&env, Error::AlreadyApproved);
+        }
+        proposal.approvals.push_back(officer.clone());
+        env.storage().persistent().set(&key, &proposal);
+        env.events()
+            .publish((symbol_short!("mand_appr"),), (proposal_id, officer));
+    }
+
+    /// Permissionless finalization after officers have approved the proposal.
+    pub fn finalize_mandate_proposal(env: Env, proposal_id: u32) {
+        let key = DataKey::MandateProposal(proposal_id);
+        let mut proposal: MandateProposal = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| panic_with_error!(&env, Error::ProposalNotFound));
+        if proposal.finalized {
+            panic_with_error!(&env, Error::ProposalFinalized);
+        }
+        let threshold: u32 = env.storage().instance().get(&DataKey::Threshold).unwrap();
+        if proposal.approvals.len() < threshold {
+            panic_with_error!(&env, Error::NotEnoughApprovals);
+        }
+        let mkey = DataKey::Mandate(proposal.mandate.id);
+        match proposal.action {
+            MandateAction::Activate => {
+                env.storage().persistent().set(&mkey, &proposal.mandate);
+            }
+            MandateAction::Resume => {
+                let mut mandate: Mandate = env
+                    .storage()
+                    .persistent()
+                    .get(&mkey)
+                    .unwrap_or_else(|| panic_with_error!(&env, Error::MandateNotFound));
+                if mandate.revoked {
+                    panic_with_error!(&env, Error::MandateExpired);
+                }
+                mandate.paused = false;
+                env.storage().persistent().set(&mkey, &mandate);
+            }
+            MandateAction::Revoke => {
+                let mut mandate: Mandate = env
+                    .storage()
+                    .persistent()
+                    .get(&mkey)
+                    .unwrap_or_else(|| panic_with_error!(&env, Error::MandateNotFound));
+                mandate.paused = true;
+                mandate.revoked = true;
+                env.storage().persistent().set(&mkey, &mandate);
+            }
+        }
+        proposal.finalized = true;
+        env.storage().persistent().set(&key, &proposal);
+        env.events().publish(
+            (symbol_short!("mand_act"),),
+            (proposal_id, proposal.mandate.id),
+        );
+    }
+
+    /// Any officer may immediately reduce authority. Resuming needs a proposal.
+    pub fn pause_mandate(env: Env, officer: Address, mandate_id: u32) {
+        officer.require_auth();
+        require_officer(&env, &officer);
+        let key = DataKey::Mandate(mandate_id);
+        let mut mandate: Mandate = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| panic_with_error!(&env, Error::MandateNotFound));
+        mandate.paused = true;
+        env.storage().persistent().set(&key, &mandate);
+        env.events()
+            .publish((symbol_short!("mand_paus"),), (mandate_id, officer));
+    }
+
+    /// Move the exact pre-approved amount to the exact pre-approved recipient.
+    /// The model supplies only a mandate id and an audit memo.
+    pub fn execute_mandate(env: Env, agent: Address, mandate_id: u32, memo: String) {
+        agent.require_auth();
+        let configured: Address = require_agent(&env);
+        if agent != configured {
+            panic_with_error!(&env, Error::AgentNotConfigured);
+        }
+        let key = DataKey::Mandate(mandate_id);
+        let mut mandate: Mandate = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| panic_with_error!(&env, Error::MandateNotFound));
+        if mandate.paused || mandate.revoked {
+            panic_with_error!(&env, Error::MandatePaused);
+        }
+        let now = env.ledger().timestamp();
+        if now < mandate.not_before
+            || (mandate.last_executed_at > 0
+                && now < mandate.last_executed_at.saturating_add(mandate.interval_seconds))
+        {
+            panic_with_error!(&env, Error::MandateNotDue);
+        }
+        if mandate.expires_at > 0 && now > mandate.expires_at {
+            panic_with_error!(&env, Error::MandateExpired);
+        }
+        if mandate.executions >= mandate.max_executions {
+            panic_with_error!(&env, Error::MandateExhausted);
+        }
+        let token: Address = env.storage().instance().get(&DataKey::Token).unwrap();
+        let client = token::TokenClient::new(&env, &token);
+        let balance = client.balance(&env.current_contract_address());
+        if balance < mandate.amount {
+            panic_with_error!(&env, Error::InsufficientBalance);
+        }
+        if balance - mandate.amount < mandate.min_balance {
+            panic_with_error!(&env, Error::BalanceFloorViolated);
+        }
+
+        // Persist before the external token call. A failed transfer reverts the
+        // invocation atomically, and successful retries cannot double-pay.
+        mandate.executions += 1;
+        mandate.last_executed_at = now;
+        env.storage().persistent().set(&key, &mandate);
+        client.transfer(
+            &env.current_contract_address(),
+            &mandate.recipient,
+            &mandate.amount,
+        );
+        env.events().publish(
+            (symbol_short!("mand_pay"),),
+            (mandate_id, mandate.amount, mandate.recipient, memo),
+        );
+    }
+
     // ─────────────── read-only views (feed the app + the AI) ───────────────
 
     pub fn get_balance(env: Env) -> i128 {
@@ -292,6 +603,45 @@ impl TreasuryContract {
     pub fn get_next_spend_id(env: Env) -> u32 {
         env.storage().instance().get(&DataKey::NextSpendId).unwrap()
     }
+
+    pub fn get_version(env: Env) -> u32 {
+        env.storage().instance().get(&DataKey::Version).unwrap_or(1)
+    }
+
+    pub fn get_agent(env: Env) -> Option<Address> {
+        env.storage().instance().get(&DataKey::Agent)
+    }
+
+    pub fn get_mandate(env: Env, id: u32) -> Option<Mandate> {
+        env.storage().persistent().get(&DataKey::Mandate(id))
+    }
+
+    pub fn get_mandates(env: Env) -> Vec<Mandate> {
+        let next: u32 = env
+            .storage()
+            .instance()
+            .get(&DataKey::NextMandateId)
+            .unwrap_or(1);
+        let mut out = Vec::new(&env);
+        let mut id = 1u32;
+        while id < next {
+            if let Some(mandate) = env
+                .storage()
+                .persistent()
+                .get::<_, Mandate>(&DataKey::Mandate(id))
+            {
+                out.push_back(mandate);
+            }
+            id += 1;
+        }
+        out
+    }
+
+    pub fn get_mandate_proposal(env: Env, id: u32) -> Option<MandateProposal> {
+        env.storage()
+            .persistent()
+            .get(&DataKey::MandateProposal(id))
+    }
 }
 
 fn require_officer(env: &Env, who: &Address) {
@@ -299,6 +649,74 @@ fn require_officer(env: &Env, who: &Address) {
     if !officers.contains(who) {
         panic_with_error!(env, Error::NotOfficer);
     }
+}
+
+fn require_agent(env: &Env) -> Address {
+    env.storage()
+        .instance()
+        .get(&DataKey::Agent)
+        .unwrap_or_else(|| panic_with_error!(env, Error::AgentNotConfigured))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn validate_mandate(
+    env: &Env,
+    category: &Symbol,
+    amount: i128,
+    not_before: u64,
+    interval_seconds: u64,
+    expires_at: u64,
+    max_executions: u32,
+    min_balance: i128,
+) {
+    if amount <= 0
+        || max_executions == 0
+        || min_balance < 0
+        || (max_executions > 1 && interval_seconds == 0)
+        || (expires_at > 0 && expires_at < not_before)
+    {
+        panic_with_error!(env, Error::InvalidMandate);
+    }
+    let limit: Option<i128> = env
+        .storage()
+        .instance()
+        .get(&DataKey::CategoryLimit(category.clone()));
+    match limit {
+        Some(cap) if cap == 0 || amount <= cap => {}
+        Some(_) => panic_with_error!(env, Error::OverCategoryLimit),
+        None => panic_with_error!(env, Error::InvalidMandate),
+    }
+}
+
+fn create_mandate_proposal(
+    env: &Env,
+    proposer: Address,
+    action: MandateAction,
+    mandate: Mandate,
+) -> u32 {
+    let id: u32 = env
+        .storage()
+        .instance()
+        .get(&DataKey::NextMandateProposalId)
+        .unwrap_or(1);
+    env.storage()
+        .instance()
+        .set(&DataKey::NextMandateProposalId, &(id + 1));
+    let mut approvals = Vec::new(env);
+    approvals.push_back(proposer);
+    let proposal = MandateProposal {
+        id,
+        action,
+        mandate,
+        approvals,
+        finalized: false,
+    };
+    env.storage()
+        .persistent()
+        .set(&DataKey::MandateProposal(id), &proposal);
+    env.events()
+        .publish((symbol_short!("mand_prop"),), (id, proposal.mandate.id));
+    id
 }
 
 #[cfg(test)]
