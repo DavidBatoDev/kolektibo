@@ -184,6 +184,11 @@ section.powered .wrap { display: flex; flex-direction: column; align-items: cent
 .bento-card {
   display: flex; flex-direction: column; gap: 16px; padding: 26px;
   border-radius: var(--r-card); box-shadow: var(--shadow);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bento-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--shadow-lg);
 }
 .bento-card.lg { grid-column: 1; grid-row: 1 / span 2; padding: 30px; }
 .bento-card.lg .bento-cta { margin-top: auto; }
@@ -261,6 +266,10 @@ section.powered .wrap { display: flex; flex-direction: column; align-items: cent
 .phone-frame {
   position: relative; aspect-ratio: 9/19; border-radius: 34px; padding: 10px; background: var(--ink-btn);
   box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.phone-frame:hover {
+  transform: translateY(-6px);
 }
 .phone-frame::before { content: ""; position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 40%; height: 7px; border-radius: 5px; background: rgba(255,255,255,.16); }
 .phone-frame span {
@@ -458,4 +467,27 @@ section.powered .wrap { display: flex; flex-direction: column; align-items: cent
   .foot-grid { grid-template-columns: 1fr; }
   .hero-card { padding-bottom: 250px; }
   .safe { padding-bottom: 280px; }
+}
+
+/* ===================== ANIMATIONS & REVEALS ===================== */
+@keyframes fade-up-in {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.hero-anim {
+  opacity: 0;
+  animation: fade-up-in 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--delay, 0) * 100ms);
+}
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--delay, 0) * 100ms);
+}
+.reveal-up.active {
+  opacity: 1;
+  transform: translateY(0);
 }
