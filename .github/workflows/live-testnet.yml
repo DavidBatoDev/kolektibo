@@ -19,6 +19,7 @@ jobs:
     env:
       CI: '1'
       PLAYWRIGHT_PUSH_E2E: '1'
+      PLAYWRIGHT_AGENT_UI_E2E: '1'
       PLAYWRIGHT_RETRIES: '0'
       PLAYWRIGHT_SLOW_MO: '0'
       E2E_AI_URL: http://127.0.0.1:8787
@@ -34,6 +35,11 @@ jobs:
       DEPLOYER_SECRET: ${{ secrets.TESTNET_DEPLOYER_SECRET }}
       ISSUER_SECRET: ${{ secrets.TESTNET_ISSUER_SECRET }}
       TREASURY_WASM_HASH: ${{ vars.TREASURY_WASM_HASH }}
+      TREASURY_V2_WASM_HASH: ${{ vars.TREASURY_V2_WASM_HASH }}
+      AGENT_KEY_ENCRYPTION_KEY: ${{ secrets.AGENT_KEY_ENCRYPTION_KEY }}
+      AGENT_WORKER_SECRET: ${{ secrets.AGENT_WORKER_SECRET }}
+      AGENT_WORKER_ENABLED: '0'
+      AGENT_AUTONOMY_ENABLED: '1'
       USDC_SAC_ID: ${{ vars.USDC_SAC_ID }}
       USDC_ISSUER: ${{ vars.USDC_ISSUER }}
       SOROBAN_RPC_URL: ${{ vars.SOROBAN_RPC_URL }}
@@ -51,7 +57,7 @@ jobs:
       - name: Verify live-test configuration
         shell: bash
         run: |
-          required=(E2E_SUPABASE_URL E2E_SUPABASE_SERVICE_ROLE_KEY VITE_SUPABASE_ANON_KEY DEPLOYER_SECRET ISSUER_SECRET TREASURY_WASM_HASH USDC_SAC_ID USDC_ISSUER)
+          required=(E2E_SUPABASE_URL E2E_SUPABASE_SERVICE_ROLE_KEY VITE_SUPABASE_ANON_KEY DEPLOYER_SECRET ISSUER_SECRET TREASURY_WASM_HASH TREASURY_V2_WASM_HASH AGENT_KEY_ENCRYPTION_KEY AGENT_WORKER_SECRET USDC_SAC_ID USDC_ISSUER)
           for name in "${required[@]}"; do
             if [ -z "${!name}" ]; then
               echo "Missing required GitHub Actions configuration: $name"
@@ -78,6 +84,8 @@ jobs:
           exit 1
       - name: Run real chain-to-service-worker push test
         run: xvfb-run -a pnpm exec playwright test tests/e2e/push.spec.ts --project=chromium
+      - name: Run Agent mobile workspace test
+        run: xvfb-run -a pnpm exec playwright test tests/e2e/agent.spec.ts --project=chromium
       - name: Upload browser evidence on failure
         if: failure()
         uses: actions/upload-artifact@v4

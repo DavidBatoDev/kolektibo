@@ -24,6 +24,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Type-check the backend
         run: pnpm --filter @kolektibo/ai exec tsc --noEmit
+      - name: Test treasury contract
+        run: cargo test -p treasury --manifest-path contracts/Cargo.toml
       - name: Build the PWA
         run: pnpm build
       - name: Install Chromium
