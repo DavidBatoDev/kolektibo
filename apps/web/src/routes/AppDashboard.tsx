@@ -37,7 +37,7 @@ export function AppDashboardPage() {
   const activeCount = poolRows.filter(({ pool }) => pool.status === 'active').length
 
   return (
-    <div className="space-y-7 pb-6">
+    <div className="space-y-5 pb-6">
       <AppPageHero
         eyebrow={t('dashboard.welcome')}
         title={name}
@@ -53,10 +53,10 @@ export function AppDashboardPage() {
         <NoPools />
       ) : (
         <>
-          <div className="grid gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <Metric label={t('dashboard.pools')} value={poolRows.length} detail={t('dashboard.privateGroups')} />
             <Metric label={t('dashboard.active')} value={activeCount} detail={t('dashboard.onStellar')} />
-            <Metric label={t('dashboard.needsSetup')} value={draftCount} detail={t('dashboard.draftPools')} tone={draftCount ? 'gold' : 'brand'} />
+            {draftCount > 0 && <div className="col-span-2"><Metric label={t('dashboard.needsSetup')} value={draftCount} detail={t('dashboard.draftPools')} tone="gold" compact /></div>}
           </div>
 
           <section>
@@ -66,16 +66,21 @@ export function AppDashboardPage() {
             </div>
             <div className="grid gap-3">
               {poolRows.slice(0, 4).map(({ role, pool }) => (
-                <Link key={pool.id} to="/app/pools/$poolId" params={{ poolId: pool.id }}>
-                  <Card className="h-full transition hover:bg-paper-100">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate font-semibold text-ink-950">{pool.name}</p>
-                        <p className="mt-1 text-xs text-ink-500">{pool.currency_label} · {role}</p>
+                <Link key={pool.id} to="/app/pools/$poolId" params={{ poolId: pool.id }} className="block min-w-0 overflow-hidden">
+                  <Card className="relative h-full overflow-hidden bg-linear-to-br from-paper-0 to-brand-50/70 transition hover:-translate-y-0.5 hover:shadow-green">
+                    <div className="flex min-w-0 items-center gap-3 pr-16">
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-brand-100 ring-1 ring-brand-500/15">
+                          <img src="/assets/pool.webp" alt="" className="size-9 object-contain" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-ink-950">{pool.name}</p>
+                          <p className="mt-0.5 text-xs capitalize text-ink-500">{pool.currency_label} · {role}</p>
+                        </div>
                       </div>
-                      <Badge tone={pool.status === 'active' ? 'green' : 'gold'}>{pool.status}</Badge>
                     </div>
-                    {pool.description && <p className="mt-3 line-clamp-2 text-sm text-ink-500">{pool.description}</p>}
+                    <span className="absolute right-4 top-4"><Badge tone={pool.status === 'active' ? 'green' : 'gold'}>{pool.status}</Badge></span>
+                    {pool.description && <p className="mt-3 line-clamp-2 border-t border-brand-500/10 pt-3 text-xs leading-5 text-ink-500">{pool.description}</p>}
                   </Card>
                 </Link>
               ))}
@@ -128,12 +133,15 @@ function NoPools() {
   )
 }
 
-function Metric({ label, value, detail, tone = 'brand' }: { label: string; value: number; detail: string; tone?: 'brand' | 'gold' }) {
+function Metric({ label, value, detail, tone = 'brand', compact = false }: { label: string; value: number; detail: string; tone?: 'brand' | 'gold'; compact?: boolean }) {
   return (
-    <Card>
-      <p className="text-xs uppercase tracking-wider text-ink-500">{label}</p>
-      <p className={`mt-2 text-3xl font-bold ${tone === 'gold' ? 'text-gold-400' : 'text-ink-950'}`}>{value}</p>
-      <p className="mt-1 text-xs text-ink-500">{detail}</p>
+    <Card className={`relative overflow-hidden ${compact ? 'flex items-center gap-4 py-3.5' : 'min-h-28 bg-linear-to-br from-paper-0 to-brand-50/55'}`}>
+      <span className={`absolute -right-5 -top-5 size-16 rounded-full ${tone === 'gold' ? 'bg-gold-300/20' : 'bg-brand-100/70'}`} />
+      <span className={`relative grid size-9 shrink-0 place-items-center rounded-2xl text-lg font-bold ${tone === 'gold' ? 'bg-gold-300/25 text-gold-700' : 'bg-brand-100 text-brand-700'} ${compact ? '' : 'mb-3'}`}>{value}</span>
+      <div className="relative min-w-0">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-500">{label}</p>
+        <p className="mt-1 text-xs leading-4 text-ink-500">{detail}</p>
+      </div>
     </Card>
   )
 }

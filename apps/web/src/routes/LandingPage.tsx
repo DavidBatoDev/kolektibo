@@ -155,31 +155,19 @@ export function LandingPage() {
           <div className="phones">
             <figure className="phone reveal-up" style={{ '--delay': 2 } as CSSProperties}>
               <div className="phone-frame">
-                <span>
-                  Drop screen
-                  <br />
-                  <small>Pool · Home</small>
-                </span>
+                <img src="/screens/pool-home.webp" alt="Kolektibo pool dashboard in the authenticated app" loading="lazy" />
               </div>
               <figcaption>Your pool at a glance.</figcaption>
             </figure>
             <figure className="phone lift reveal-up" style={{ '--delay': 4 } as CSSProperties}>
               <div className="phone-frame">
-                <span>
-                  Drop screen
-                  <br />
-                  <small>Ask the AI</small>
-                </span>
+                <img src="/screens/ask-agent.webp" alt="Kolektibo autonomous treasury agent in the authenticated app" loading="lazy" />
               </div>
               <figcaption>Ask the AI treasurer.</figcaption>
             </figure>
             <figure className="phone reveal-up" style={{ '--delay': 6 } as CSSProperties}>
               <div className="phone-frame">
-                <span>
-                  Drop screen
-                  <br />
-                  <small>Spend · Approvals</small>
-                </span>
+                <img src="/screens/spend-approvals.webp" alt="Kolektibo Stellar payment approval in the authenticated app" loading="lazy" />
               </div>
               <figcaption>Approve a spend — 2 of 3 to release.</figcaption>
             </figure>

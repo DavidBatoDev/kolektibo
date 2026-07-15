@@ -609,6 +609,7 @@ body,
 .product-shell {
   position: relative;
   isolation: isolate;
+  overflow-x: hidden;
   background:
     radial-gradient(520px 300px at 92% 2%, rgba(34,197,94,.18), transparent 70%),
     radial-gradient(420px 320px at -12% 20%, rgba(134,239,172,.2), transparent 72%),
@@ -873,14 +874,15 @@ body,
 .landing-page .phone-frame {
   position: relative; aspect-ratio: 9/19; border-radius: 34px; padding: 10px; background: var(--ink-btn);
   box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden;
 }
 
 .landing-page .phone-frame:hover {
   transform: translateY(-6px);
 }
 
-.landing-page .phone-frame::before { content: ""; position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 40%; height: 7px; border-radius: 5px; background: rgba(255,255,255,.16); }
+.landing-page .phone-frame::before { content: ""; position: absolute; z-index: 1; top: 15px; left: 50%; transform: translateX(-50%); width: 40%; height: 7px; border-radius: 5px; background: rgba(255,255,255,.16); }
+.landing-page .phone-frame img { width: 100%; height: 100%; border-radius: 26px; object-fit: cover; object-position: top center; display: block; }
 .landing-page .phone-frame span {
   width: 100%; height: 100%; border-radius: 26px; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 4px; font-weight: 700; font-size: 15px; color: var(--green-700);

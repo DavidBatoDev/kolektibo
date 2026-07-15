@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import ReactMarkdown, { type Components } from 'react-markdown'
 import { Link } from '@tanstack/react-router'
 import { AppPageHero, Badge, Button, Card, SectionLabel, peso } from '../components/ui'
 import { useI18n } from '../lib/i18n'
@@ -359,11 +360,27 @@ function RunCard({ run, poolName, locale }: { run: AgentRunWithSteps; poolName?:
           <span className="grid h-7 w-7 place-items-center rounded-full bg-brand-100"><AgentSparkIcon className="h-4 w-4" /></span>
           <p className="text-[11px] font-bold uppercase tracking-[0.07em]">Kolektibo Agent</p>
         </div>
-        <p className="mt-3 whitespace-pre-wrap break-words text-[14px] leading-6 text-ink-950">{run.response}</p>
+        <div className="mt-3 break-words text-[14px] leading-6 text-ink-950">
+          <ReactMarkdown components={agentMarkdownComponents}>{run.response}</ReactMarkdown>
+        </div>
       </div>}
       {run.error && <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3.5"><p className="text-[10px] font-bold uppercase tracking-[0.07em] text-danger">The Agent hit a problem</p><p className="mt-1.5 text-xs leading-5 text-danger">{run.error}</p></div>}
     </div>}
   </Card>
+}
+
+const agentMarkdownComponents: Components = {
+  h1: ({ children }) => <h3 className="mb-2 mt-4 text-base font-bold tracking-tight first:mt-0">{children}</h3>,
+  h2: ({ children }) => <h3 className="mb-2 mt-4 text-base font-bold tracking-tight first:mt-0">{children}</h3>,
+  h3: ({ children }) => <h3 className="mb-2 mt-4 text-sm font-bold tracking-tight first:mt-0">{children}</h3>,
+  p: ({ children }) => <p className="my-2 first:mt-0 last:mb-0">{children}</p>,
+  strong: ({ children }) => <strong className="font-semibold text-ink-950">{children}</strong>,
+  ul: ({ children }) => <ul className="my-2 list-disc space-y-1 pl-5 marker:text-brand-500">{children}</ul>,
+  ol: ({ children }) => <ol className="my-2 list-decimal space-y-1 pl-5 marker:font-semibold marker:text-brand-700">{children}</ol>,
+  li: ({ children }) => <li className="pl-0.5">{children}</li>,
+  blockquote: ({ children }) => <blockquote className="my-3 border-l-2 border-brand-400 pl-3 text-ink-700">{children}</blockquote>,
+  code: ({ children }) => <code className="rounded-md bg-paper-100 px-1.5 py-0.5 font-mono text-[12px] text-brand-700">{children}</code>,
+  a: ({ children, href }) => <a href={href} target="_blank" rel="noreferrer" className="font-medium text-brand-700 underline decoration-brand-300 underline-offset-2">{children}</a>,
 }
 
 function ToolStep({ step, last }: { step: AgentRunStep; last: boolean }) {
