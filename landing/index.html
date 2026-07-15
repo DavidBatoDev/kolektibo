@@ -38,7 +38,7 @@
             <a class="btn-primary" href="#" data-app>Start a pool <span class="arw">→</span></a>
             <a class="btn-ghost" href="#" data-demo>Watch the 60-sec demo →</a>
           </div>
-          <div class="live-chip hero-anim" style="--delay: 11"><span class="dot"></span>Live demo treasury · <b>₱48,200</b> · Stellar testnet</div>
+          <div class="live-chip hero-anim" style="--delay: 11"><span class="dot"></span>Live demo treasury · <b class="counter" data-target="48200">₱48,200</b> · Stellar testnet</div>
         </div>
       </div>
     </div>
@@ -61,7 +61,7 @@
   <!-- ===== 3 PILLARS (bento) ===== -->
   <section class="pillars">
     <div class="wrap bento">
-      <article class="bento-card lg green reveal-up" style="--delay: 0">
+      <article class="bento-card lg green reveal-up glow-card" style="--delay: 0">
         <span class="icon-badge"><img src="assets/pool.webp" alt="" /></span>
         <div class="bento-body">
           <h3>One shared pool</h3>
@@ -69,14 +69,14 @@
         </div>
         <a class="bento-cta" href="#how">See how it works →</a>
       </article>
-      <article class="bento-card mint reveal-up" style="--delay: 2">
+      <article class="bento-card mint reveal-up glow-card" style="--delay: 2">
         <span class="icon-badge"><img src="assets/coin.webp" alt="" /></span>
         <div class="bento-body">
           <h3>An AI treasurer</h3>
           <p>Ask how much you have or where the money went. Straight answers.</p>
         </div>
       </article>
-      <article class="bento-card paper reveal-up" style="--delay: 4">
+      <article class="bento-card paper reveal-up glow-card" style="--delay: 4">
         <span class="icon-badge"><img src="assets/vault.webp" alt="" /></span>
         <div class="bento-body">
           <h3>Locked by a contract</h3>
@@ -162,7 +162,7 @@
 
       <div class="pg-grid">
         <!-- A · valid -->
-        <article class="pg-panel valid reveal-up" data-type="valid" data-break="7">
+        <article class="pg-panel valid reveal-up glow-card" data-type="valid" data-break="7">
           <header class="pg-head">
             <img class="pg-ico" src="assets/verified.webp" alt="" />
             <span class="pg-tag-id">PANEL_A // VALID</span>
@@ -191,7 +191,7 @@
         </article>
 
         <!-- B · AI hijack -->
-        <article class="pg-panel attack reveal-up" data-type="attack" data-break="4">
+        <article class="pg-panel attack reveal-up glow-card" data-type="attack" data-break="4">
           <header class="pg-head">
             <img class="pg-ico" src="assets/vault.webp" alt="" />
             <span class="pg-tag-id">PANEL_B // INJECTION</span>
@@ -220,7 +220,7 @@
         </article>
 
         <!-- C · under-signed -->
-        <article class="pg-panel attack reveal-up" data-type="attack" data-break="5">
+        <article class="pg-panel attack reveal-up glow-card" data-type="attack" data-break="5">
           <header class="pg-head">
             <img class="pg-ico" src="assets/approvals.webp" alt="" />
             <span class="pg-tag-id">PANEL_C // UNDER-SIGNED</span>
@@ -374,6 +374,84 @@
       document.querySelectorAll('.reveal-up').forEach(function(el) {
         observer.observe(el);
       });
+    })();
+  </script>
+  <script>
+    // --- Advanced Interactive Effects ---
+    (function() {
+      // 1. Cursor-Tracking Glow
+      document.querySelectorAll('.glow-card').forEach(function(card) {
+        card.addEventListener('mousemove', function(e) {
+          var rect = card.getBoundingClientRect();
+          var x = e.clientX - rect.left;
+          var y = e.clientY - rect.top;
+          card.style.setProperty('--mouse-x', x + 'px');
+          card.style.setProperty('--mouse-y', y + 'px');
+        });
+      });
+
+      // 2. Animated Number Counters
+      var counterObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var el = entry.target;
+            if (el.dataset.counted) return;
+            el.dataset.counted = "true";
+            
+            var target = parseInt(el.getAttribute('data-target'), 10);
+            var duration = 3000;
+            var start = null;
+            
+            function step(timestamp) {
+              if (!start) start = timestamp;
+              var progress = Math.min((timestamp - start) / duration, 1);
+              var ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+              var current = Math.floor(ease * target);
+              
+              el.textContent = '₱' + current.toLocaleString('en-US');
+              
+              if (progress < 1) {
+                window.requestAnimationFrame(step);
+              }
+            }
+            window.requestAnimationFrame(step);
+          }
+        });
+      });
+      document.querySelectorAll('.counter').forEach(function(el) {
+        counterObserver.observe(el);
+      });
+
+      // 3. Parallax & 4. Smart Navbar
+      var nav = document.querySelector('.nav');
+      var lastScrollY = window.scrollY;
+      var hero = document.querySelector('.hero-card');
+      var safe = document.querySelector('.safe');
+      
+      window.addEventListener('scroll', function() {
+        var currentScrollY = window.scrollY;
+        
+        // Smart Navbar
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          nav.classList.add('nav-hidden');
+        } else {
+          nav.classList.remove('nav-hidden');
+        }
+        lastScrollY = currentScrollY;
+
+        // Background Parallax (only on desktop)
+        if (window.innerWidth > 900) {
+          if (currentScrollY < window.innerHeight && hero) {
+            hero.style.backgroundPosition = 'center, center, center, center, 76% calc(50% + ' + (currentScrollY * 0.4) + 'px)';
+          }
+          if (safe) {
+            var safeTop = safe.getBoundingClientRect().top;
+            if (safeTop < window.innerHeight && safeTop > -safe.offsetHeight) {
+              safe.style.backgroundPosition = 'center, 82% calc(50% + ' + (safeTop * -0.3) + 'px)';
+            }
+          }
+        }
+      }, { passive: true });
     })();
   </script>
 </body>
