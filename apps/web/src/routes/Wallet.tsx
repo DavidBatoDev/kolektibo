@@ -176,7 +176,7 @@ export function WalletPage() {
           </p>
           {revealed ? (
             <div className="space-y-2">
-              <p className="break-all rounded-xl bg-ink-950/60 p-3 font-mono text-xs text-ink-700 ring-1 ring-ink-200">
+              <p className="break-all rounded-xl bg-paper-100 p-3 font-mono text-xs text-ink-700 ring-1 ring-ink-300">
                 {local.secret}
               </p>
               <Button variant="ghost" className="w-full" onClick={copySecret}>

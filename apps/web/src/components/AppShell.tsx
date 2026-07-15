@@ -46,13 +46,13 @@ function AuthShell() {
 function PublicShell() {
   const { user } = useAuth()
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/50 shadow-2xl shadow-black/40 ring-1 ring-ink-200">
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-white/5 bg-ink-950/85 px-4 py-3 backdrop-blur">
+    <div className="product-shell mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50">
+      <header className="product-header sticky top-0 z-20 flex items-center justify-between border-b border-ink-300/60 px-4 py-3 backdrop-blur">
         <Brand />
         <Link to={user ? '/app' : '/auth/sign-in'} className="text-sm text-ink-700 hover:text-ink-950">{user ? 'Open app' : 'Sign in'}</Link>
       </header>
-      <main className="flex-1 px-4"><Outlet /></main>
-      <footer className="border-t border-white/5 px-4 py-7 text-xs text-ink-500">
+      <main className="product-main flex-1 px-4"><Outlet /></main>
+      <footer className="relative z-10 border-t border-ink-300/60 bg-paper-0/80 px-4 py-7 text-xs text-ink-500 backdrop-blur">
         <div className="grid grid-cols-2 gap-5">
           <div className="space-y-2"><p className="font-medium text-ink-950">Product</p><Link to="/about" className="block hover:text-ink-700">About</Link><Link to="/help" className="block hover:text-ink-700">Help</Link><Link to="/status" className="block hover:text-ink-700">Status</Link></div>
           <div className="space-y-2"><p className="font-medium text-ink-950">Legal</p><Link to="/legal/terms" className="block hover:text-ink-700">Terms</Link><Link to="/legal/privacy" className="block hover:text-ink-700">Privacy</Link><Link to="/legal/risk" className="block hover:text-ink-700">Risk</Link></div>
@@ -64,9 +64,9 @@ function PublicShell() {
 
 function FocusShell() {
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/50 shadow-2xl shadow-black/40 ring-1 ring-ink-200">
-      <header className="flex items-center justify-between border-b border-white/5 px-4 py-3"><Brand /><span className="rounded-full bg-paper-100 px-2 py-1 text-[10px] text-ink-500 ring-1 ring-ink-200">Testnet beta</span></header>
-      <main className="flex-1 px-4 py-4"><Outlet /></main>
+    <div className="product-shell mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50">
+      <header className="product-header relative z-20 flex items-center justify-between border-b border-ink-300/60 px-4 py-3"><Brand /><span className="rounded-full bg-brand-100 px-2.5 py-1 text-[10px] font-semibold text-brand-700 ring-1 ring-brand-500/20">Testnet beta</span></header>
+      <main className="product-main flex-1 px-4 py-4"><Outlet /></main>
     </div>
   )
 }
