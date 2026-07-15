@@ -119,11 +119,16 @@ test.describe('live Web Push', () => {
     // On a fresh browser profile the PWA service worker can take control and
     // reload once. Stabilize that lifecycle before typing so activation cannot
     // replace the controlled form between fill() and click().
-    await page.evaluate(async () => {
-      await navigator.serviceWorker.ready
-    })
-    await page.reload({ waitUntil: 'domcontentloaded' })
-    await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
+    await expect.poll(async () => {
+      try {
+        return await page.evaluate(() =>
+          document.readyState === 'complete' && !!navigator.serviceWorker.controller,
+        )
+      } catch {
+        return false // activation navigation destroyed this execution context
+      }
+    }, { timeout: 20_000, intervals: [250, 500, 1_000] }).toBe(true)
+    await page.waitForTimeout(500)
     await page.getByLabel('Email').fill(email)
     await page.getByLabel('Password').fill(password)
     const signInButton = page.getByRole('button', { name: 'Sign in' })
