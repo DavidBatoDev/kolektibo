@@ -87,12 +87,12 @@ function ProductShell() {
   ] as const
   const active = (to: string, exact?: boolean) => exact ? pathname === to : pathname === to || pathname.startsWith(`${to}/`)
   return (
-    <div className="product-shell mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50 sm:max-w-2xl md:max-w-3xl">
+    <div className="product-shell mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50">
       <header className="product-header sticky top-0 z-20 border-b border-ink-300/60 backdrop-blur">
         <div className="flex items-center justify-between px-4 py-3"><Brand to="/app" theme="light" /><div className="flex items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-2.5 py-1 text-[10px] font-semibold text-brand-700 ring-1 ring-brand-500/25"><span className="size-1.5 rounded-full bg-brand-500" />Testnet</span><Link to="/app/notifications" aria-label="Notifications" className="product-header-icon"><IconBell className="h-5 w-5" /></Link></div></div>
       </header>
       <main className="product-main min-w-0 flex-1 px-4 pb-28 pt-5"><Outlet /></main>
-      <nav className="product-nav fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t border-ink-300/60 backdrop-blur sm:max-w-2xl md:max-w-3xl" style={{ paddingBottom: 'var(--safe-bottom)' }}>
+      <nav className="product-nav fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t border-ink-300/60 backdrop-blur" style={{ paddingBottom: 'var(--safe-bottom)' }}>
         {nav.map(({ to, label, Icon, exact }) => { const isActive = active(to, exact); return <Link key={to} to={to} className={`product-nav-item flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold transition ${isActive ? 'is-active text-brand-700' : 'text-ink-500 hover:text-ink-700'}`}><span className="product-nav-icon"><Icon className="h-[18px] w-[18px]" /></span>{label}</Link> })}
       </nav>
     </div>

@@ -51,7 +51,7 @@ export function AppDashboardPage() {
         <NoPools />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3">
             <Metric label="Pools" value={poolRows.length} detail="private groups" />
             <Metric label="Active" value={activeCount} detail="on Stellar" />
             <Metric label="Needs setup" value={draftCount} detail="draft pools" tone={draftCount ? 'gold' : 'brand'} />
@@ -62,7 +62,7 @@ export function AppDashboardPage() {
               <SectionLabel>Your pools</SectionLabel>
               <Link to="/app/pools" className="mb-2 text-xs text-brand-400 hover:text-brand-300">View all →</Link>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3">
               {poolRows.slice(0, 4).map(({ role, pool }) => (
                 <Link key={pool.id} to="/app/pools/$poolId" params={{ poolId: pool.id }}>
                   <Card className="h-full transition hover:bg-paper-100">
@@ -82,7 +82,7 @@ export function AppDashboardPage() {
 
           <section>
             <SectionLabel>Quick actions</SectionLabel>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3">
               <QuickAction title="Join a pool" body="Use a private invitation code." to="/app/pools" />
               <QuickAction title="Check activity" body="Review updates across your groups." to="/app/activity" />
               <QuickAction title="Manage wallet" body="Verify the signer on this device." to="/app/wallet" />
@@ -96,7 +96,7 @@ export function AppDashboardPage() {
 
 function NoPools() {
   return (
-    <div className="grid gap-4 sm:grid-cols-[1.2fr_1fr]">
+    <div className="grid gap-4">
       <Card className="relative space-y-5 overflow-hidden bg-linear-to-br from-brand-100 to-brand-50 p-6">
         <img src="/assets/pool.webp" alt="" className="pointer-events-none absolute -right-7 -top-2 h-32 w-32 object-contain opacity-90" />
         <div className="relative pr-16">
@@ -107,7 +107,7 @@ function NoPools() {
             agree. Nothing is deployed until the people and wallets are ready.
           </p>
         </div>
-        <div className="relative flex flex-col gap-2 sm:flex-row">
+        <div className="relative flex flex-col gap-2">
           <Link to="/app/pools/new" className="flex-1"><Button className="w-full">Create a pool</Button></Link>
           <Link to="/app/pools" className="flex-1"><Button variant="ghost" className="w-full">Join with a code</Button></Link>
         </div>
