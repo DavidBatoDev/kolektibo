@@ -16,7 +16,7 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'autoUpdate',
-      includeAssets: ['kolektibo.svg'],
+      includeAssets: ['favicon.ico', 'icon.svg'],
       manifest: {
         name: 'Kolektibo — Group Treasury',
         short_name: 'Kolektibo',
@@ -27,7 +27,8 @@ export default defineConfig({
         orientation: 'portrait',
         start_url: '/',
         icons: [
-          { src: 'kolektibo.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: 'favicon.ico', sizes: '48x48', type: 'image/x-icon' },
         ],
       },
       devOptions: { enabled: true, type: 'module' },
