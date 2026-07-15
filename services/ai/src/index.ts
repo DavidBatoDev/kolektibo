@@ -38,13 +38,9 @@ const CHAIN = {
 }
 
 async function stellar(args: string[]): Promise<string> {
-  // Strip RPC/passphrase env vars so `--network testnet` fully defines the network
-  // (a leaked SOROBAN_RPC_URL makes the CLI demand a matching passphrase).
   const env = { ...process.env }
-  delete env.SOROBAN_RPC_URL
-  delete env.STELLAR_RPC_URL
-  delete env.STELLAR_NETWORK_PASSPHRASE
-  delete env.SOROBAN_NETWORK_PASSPHRASE
+  env.STELLAR_RPC_URL = CHAIN.rpcUrl
+  env.STELLAR_NETWORK_PASSPHRASE = CHAIN.passphrase
   const { stdout } = await pExecFile(CHAIN.bin, args, {
     maxBuffer: 16 * 1024 * 1024,
     env,

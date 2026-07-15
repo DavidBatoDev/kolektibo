@@ -284,7 +284,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
       <PoolNavigation poolId={poolId} />
 
       {/* On-chain treasury */}
-      <Card className="space-y-3 p-4 shadow-sm border-0 ring-1 ring-ink-200">
+      <Card className="space-y-3 p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-[16px] font-bold text-ink-950">On-chain treasury</h2>
           <Badge tone="green">Live on testnet</Badge>
@@ -309,7 +309,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
       </Card>
 
       {/* AI Treasurer */}
-      <Card className="space-y-4 p-4 shadow-sm border-0 ring-1 ring-ink-200">
+      <Card className="space-y-4 p-4">
         <div className="relative">
           <input
             type="text"
@@ -334,7 +334,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
 
       {/* Budget */}
       {state.data && state.data.categories.length > 0 && (
-        <Card className="space-y-4 p-5 shadow-sm border-0 ring-1 ring-ink-200">
+        <Card className="space-y-4 p-5">
           <h2 className="text-[17px] font-bold text-ink-950">Budget</h2>
           <div className="space-y-5 mt-2">
             {state.data.categories.map((c, i) => (
@@ -343,7 +343,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
                   <span className="text-ink-900">{c.name}</span>
                   <span className="text-ink-950 font-bold tracking-tight">{peso(c.monthlyLimit || c.perSpendCap).replace('.00', '')}</span>
                 </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-paper-100/60 ring-1 ring-ink-100">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-paper-100/60 shadow-sm">
                   <div
                     className="h-full rounded-full bg-brand-500"
                     style={{ width: `${Math.min(100, 30 + i * 20)}%` }}
@@ -356,7 +356,7 @@ function ActivePool({ poolId, pool }: { poolId: string; pool: PoolRow }) {
       )}
 
       {/* Recent activity */}
-      <Card className="space-y-4 p-5 shadow-sm border-0 ring-1 ring-ink-200">
+      <Card className="space-y-4 p-5">
         <h2 className="text-[17px] font-bold text-ink-950">Recent activity</h2>
         <div className="space-y-5 mt-2">
           {recentActivity.map((s, i) => {
@@ -415,7 +415,7 @@ function PoolNavigation({ poolId, draft = false }: { poolId: string; draft?: boo
         ['Settings', '/app/pools/$poolId/settings/general'],
       ] as const
   return (
-    <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+    <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pt-1 pb-1">
       {items.map(([label, to]) => (
         <Link
           key={to}
