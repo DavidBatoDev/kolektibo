@@ -5,20 +5,41 @@ import { useAuth } from '../lib/auth'
 type IconProps = { className?: string }
 
 const PUBLIC_PATHS = ['/', '/how-it-works', '/features', '/security', '/pricing', '/about', '/help', '/status', '/legal']
-const AUTH_PATHS = ['/auth', '/onboarding', '/signin', '/signup', '/forgot-password', '/reset-password', '/verify-email']
+const AUTH_PATHS = ['/auth', '/signin', '/signup', '/forgot-password', '/reset-password', '/verify-email']
+const ONBOARDING_PATHS = ['/onboarding']
 
 export function AppShell() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const isAuth = AUTH_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
+  const isOnboarding = ONBOARDING_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
   const isDemo = pathname === '/demo' || pathname.startsWith('/demo/')
   const isInvite = pathname.startsWith('/invite/') || pathname.startsWith('/join/')
   const isPublic = !isAuth && !isDemo && !isInvite && PUBLIC_PATHS.some((path) => path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`))
 
   if (pathname === '/') return <Outlet />
   if (isPublic) return <PublicShell />
-  if (isAuth || isInvite) return <FocusShell />
+  if (isAuth || isOnboarding) return <AuthShell />
+  if (isInvite) return <FocusShell />
   if (isDemo) return <DemoShell />
   return <ProductShell />
+}
+
+function AuthShell() {
+  return (
+    <div className="auth-shell mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50">
+      <header className="auth-nav">
+        <div className="auth-nav-inner">
+          <Brand />
+          <div className="auth-nav-actions">
+            <span className="auth-testnet"><span />Testnet beta</span>
+          </div>
+        </div>
+      </header>
+      <main className="auth-main">
+        <Outlet />
+      </main>
+    </div>
+  )
 }
 
 /** Public reading pages use the same phone frame as the member product. */
@@ -100,7 +121,7 @@ function ProductShell() {
 }
 
 function Brand({ to = '/', theme = 'dark' }: { to?: '/' | '/app' | '/demo', theme?: 'dark' | 'light' }) {
-  return <Link to={to} className="flex items-center gap-2"><img src="/assets/kolektibo.svg" alt="" className="h-7 w-7" /><span className={`text-lg font-semibold tracking-tight ${theme === 'light' ? 'text-ink-950' : 'text-ink-950'}`}>Kolektibo</span></Link>
+  return <Link to={to} className="app-brand flex items-center gap-2"><img src="/assets/kolektibo.svg" alt="" className="h-7 w-7" /><span className={`text-lg font-semibold tracking-tight ${theme === 'light' ? 'text-ink-950' : 'text-ink-950'}`}>Kolektibo</span></Link>
 }
 
 function SvgIcon({ className, children }: IconProps & { children: React.ReactNode }) { return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{children}</svg> }

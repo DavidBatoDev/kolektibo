@@ -3,6 +3,7 @@ import {
   type ButtonHTMLAttributes, type HTMLAttributes,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 
 /* ============================================================
    ui.tsx — the kit. Nobody hand-rolls CSS. Import from here.
@@ -569,18 +570,19 @@ export function Sheet({
   }, [open, onClose]);
 
   if (!open) return null;
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       <div className="absolute inset-0 bg-ink-950/40" onClick={onClose} aria-hidden />
       <div
         ref={ref} role="dialog" aria-modal="true" aria-label={title}
-        className="relative w-full max-w-md rounded-t-[32px] bg-paper-0 p-5 pb-8 shadow-lift animate-[slideUp_220ms_ease-out] motion-reduce:animate-none"
+        className="relative max-h-[calc(100dvh-1rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-t-[32px] bg-paper-0 p-5 pb-[calc(2rem+var(--safe-bottom))] shadow-lift animate-[slideUp_220ms_ease-out] motion-reduce:animate-none"
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-ink-300" />
         <h2 className="mb-4 text-[19px] font-bold text-ink-950">{title}</h2>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

@@ -96,15 +96,6 @@ export async function signIn(email: string, password: string) {
   return data
 }
 
-export async function signInWithGoogle() {
-  const { data, error } = await client().auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: `${window.location.origin}/auth/callback` },
-  })
-  if (error) throw error
-  return data
-}
-
 export async function signOut() {
   const { error } = await client().auth.signOut()
   if (error) throw error
