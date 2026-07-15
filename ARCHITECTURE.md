@@ -7,7 +7,7 @@
 > execute what the group's on-chain policy allows.
 
 > **Status — built & verified on Stellar Testnet.** The full loop below runs today. The Soroban
-> contract is written and **deployed** (4/4 unit tests pass); the create-pool → contribute →
+> contract is written and **deployed** (8/8 unit tests pass); the create-pool → contribute →
 > request → 2-of-3 approve → release → AI-Q&A loop is wired client-side and **verified
 > end-to-end** — Node smoke tests plus a live Playwright walkthrough (all QA findings resolved).
 > Live contract IDs and proof transactions: [`DEPLOYMENT.md`](./DEPLOYMENT.md). Full documentation
@@ -55,9 +55,9 @@ drain the fund — it can only ever call a contract that enforces the group's po
         Stellar Testnet · USDC as a SAC · Friendbot funding
 ```
 
-- **The AI never holds keys and never moves money.** It reads chain state (passed to it by the
-  client) and produces (a) a proposed policy for display and (b) plain-language answers. Every
-  actual movement is a signed contract call enforced on-chain.
+- **The model never receives keys or a direct transfer tool.** The server maintains one encrypted,
+  isolated agent signer per v2 pool. That signer can execute only a threshold-approved mandate;
+  every actual movement is a signed contract call whose exact limits are enforced on-chain.
 
 ---
 
@@ -72,7 +72,7 @@ CLI 27. Full reference: [`docs/03-smart-contract`](./docs/03-smart-contract_2026
 per-category spend caps, per-member contributions, and spend requests
 (`id → { proposer, category, amount, recipient, memo, approvals, executed }`).
 
-**Interface (as deployed):**
+**Legacy v1 interface (deployed and retained for existing pools):**
 | fn | who | does |
 |---|---|---|
 | `initialize(token, officers, threshold, categories, limits)` | deployer | one-time setup |
@@ -88,10 +88,19 @@ approval came from that officer — no impersonation. Ten typed error codes (e.g
 off-chain** (a display/contribution target, not enforced by the contract) — deliberate MVP
 simplifications, documented in [`docs/08-decisions`](./docs/08-decisions-and-rationale_2026-07-11_0146.md).
 
+**Treasury v2** keeps the entire v1 interface and adds an immutable pool agent address plus
+threshold-governed mandates. A mandate fixes recipient, category, raw amount, start/interval,
+expiry, maximum executions, a minimum-balance floor, and a condition hash. Officers propose and
+approve activation/resume/revoke actions; any officer can pause immediately. `execute_mandate`
+requires the pool agent's signature and rechecks every limit before transferring. The installed
+Testnet Wasm hash and proof transaction are recorded in [`DEPLOYMENT.md`](./DEPLOYMENT.md).
+
 ### `services/ai` — Node + Express — AI treasurer **and** chain-ops backend
 A small local backend so no secret ever ships to the client. Full reference:
 [`docs/04-backend-and-ai`](./docs/04-backend-and-ai_2026-07-11_0146.md).
-- **AI (OpenAI SDK):** `POST /rules {text}` → validated JSON policy for display; `POST /ask {question, state}` → plain-language answer grounded in the pool state + spend history the client fetched from chain.
+- **AI (OpenAI SDK):** legacy `POST /rules` and `/ask`, plus authenticated `/agent` runs whose
+  strict tools read only the caller's pools, expose durable tool-call evidence, and may create a
+  reviewable mandate draft. The model has no payment-execution tool.
 - **Chain ops (via the machine's Stellar CLI keystore):** `GET /config` (public chain config), `POST /faucet {address}` (mints test USDC), `POST /pool/create {officers, threshold}` (deploys + initializes a fresh treasury for the browser's officer keys). The CLI holds the issuer/deployer identities — **no secrets in code, env, or the bundle**.
 
 ### `apps/web` — Capacitor-ready PWA
@@ -113,12 +122,13 @@ Full reference: [`docs/05-frontend`](./docs/05-frontend_2026-07-11_0146.md).
 - **The local backend deploys with the CLI keystore.** `POST /pool/create` and `/faucet` use the
   deployer/issuer identities already in the machine's Stellar CLI keystore — secrets are never
   materialized into code, env files, the transcript, or the client bundle.
-- **Our database is the blockchain.** All trust-critical state (balances, officers, threshold,
-  spends, approvals) lives on-chain and is read back via Soroban RPC. `localStorage` holds only
-  client wallet state; the backend is stateless. See
-  [`docs/02-architecture`](./docs/02-architecture_2026-07-11_0146.md) for why, and when an
-  off-chain directory DB becomes warranted (multi-device names/membership — with zero authority
-  over money).
+- **Each v2 pool has an isolated agent key.** The server generates it, encrypts it with AES-256-GCM,
+  and stores only ciphertext in a service-role-only Supabase table. The model and browser never
+  receive it. A deterministic worker decrypts it only to sign an already-active mandate.
+- **The blockchain remains the money authority.** Supabase now provides multi-device identity,
+  directories, Realtime read models, run/tool audit records, and claim-once scheduling. Balances,
+  officer thresholds, spend approvals, mandate limits, and every transfer remain authoritative on
+  Stellar; deleting or forging database rows cannot authorize a payment.
 
 ---
 
@@ -126,13 +136,15 @@ Full reference: [`docs/05-frontend`](./docs/05-frontend_2026-07-11_0146.md).
 
 | Capability | Status |
 |---|---|
-| Soroban policy contract + M-of-N approvals | ✅ **built, deployed, 4/4 tests** |
+| Soroban policy contract + M-of-N approvals | ✅ **built, deployed, 8/8 tests** |
+| Autonomous Agent workspace + on-chain delegated mandates | ✅ **built; v2 Wasm installed on Testnet** |
+| Existing-pool v1 → v2 upgrade | ✅ **officer-controlled stage/drain/activate flow** |
 | USDC settlement (test USDC as a SAC) | ✅ **built** |
 | AI: NL → policy (display) + grounded Q&A | ✅ **built** (OpenAI) |
 | Create-your-own-pool onboarding + USDC faucet + trustlines | ✅ **built** |
 | On/off-ramp (GCash / SEP-24 anchor) | ⏳ next — today it's a **testnet faucet + client-side trustlines**; a real anchor flow is the composability story |
 | Yield on idle funds (Blend / Soroswap) | ⏳ next — composability |
-| Multi-device (shared directory service) | ⏳ next — single-browser today (keys in `localStorage`) |
+| Multi-device directory and Realtime activity | ✅ **built with member-scoped Supabase RLS** |
 | Native mobile | PWA today; Capacitor wrap = stretch |
 
 Roadmap detail: [`docs/10-roadmap-and-next-steps`](./docs/10-roadmap-and-next-steps_2026-07-11_0146.md) (hackathon horizon) and the go-forward **[production roadmap](./docs/production-roadmap_2026-07-11_0552.md)** (passkeys · Supabase · paluwagan · compliance).

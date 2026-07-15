@@ -13,7 +13,8 @@ Built for the **APAC Stellar Hackathon 2026**.
 
 > **Status: built & verified on Stellar Testnet.** The whole loop works today — create a pool,
 > contribute USDC, request a spend, gather 2-of-3 officer approvals, release USDC, and ask the AI
-> where the money went. The contract is deployed (4/4 unit tests pass) and the end-to-end flow is
+> where the money went. Treasury v2 also supports officer-approved autonomous mandates whose
+> limits remain enforced on-chain. The contract is deployed (8/8 unit tests pass) and the end-to-end flow is
 > verified by Node smoke tests **and** a live Playwright walkthrough. Built in a single session
 > (see [`docs/07-progress-log`](./docs/07-progress-log_2026-07-11_0146.md)).
 
@@ -64,10 +65,26 @@ Full walkthrough + troubleshooting: [`docs/09-how-to-run`](./docs/09-how-to-run_
 The authenticated `/app` product additionally uses Supabase for identity, private directory data,
 Realtime feeds, receipts, and Web Push delivery. Supabase never signs or moves treasury funds.
 
+### Autonomous Agent
+
+The center **Agent** tab is a cross-pool AI workspace. It reads only the signed-in member's pools
+and indexed activity, shows each tool call as an expandable audit card, and can draft a structured
+mandate from chat. Drafts never move money. Officers must propose and approve the exact recipient,
+category, amount, schedule, expiry, execution count, and minimum-balance floor on Stellar first.
+
+After the mandate reaches the pool's normal approval threshold, an isolated per-pool agent signer
+may execute only that pre-authorized transfer. The Soroban contract rejects the wrong signer,
+recipient, category, amount, timing, frequency, balance floor, or exhausted/revoked mandate. Any
+officer can pause immediately; resuming or revoking uses threshold governance. Existing v1 pools
+remain unchanged until officers explicitly stage, drain, and activate a v2 treasury.
+
+Operational setup and the trust boundary are documented in
+[`docs/autonomous-agent`](./docs/autonomous-agent_2026-07-15.md).
+
 ### Contract
 
 ```bash
-cargo test --manifest-path contracts/treasury/Cargo.toml   # 4/4 unit tests
+cargo test --manifest-path contracts/treasury/Cargo.toml   # 8/8 unit tests
 pnpm contract:build                                        # build the wasm
 pnpm contract:deploy                                       # deploy + init on testnet, writes apps/web/.env.local
 ```

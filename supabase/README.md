@@ -97,6 +97,12 @@ migrations/20260715104500_activate_testnet_product_flags.sql
                            enables the hosted production shell, multi-pool UI, and pool wizard
 migrations/20260715120000_harden_pool_governance_policy_rpc.sql
                            bounds and validates atomic draft governance policy replacement
+migrations/20260715140000_autonomous_treasury_agent.sql
+                           v1/v2 contract history, private per-pool agent identities, governed
+                           mandates, durable runs/tool steps/executions, claim-once scheduling,
+                           member-scoped RLS, and Realtime publication
+migrations/20260715150000_harden_agent_identity_grants.sql
+                           removes browser SQL privileges from encrypted agent identities
 seed.sql                   feature flags for local dev
 config.toml                auth providers (email magic-link · Google · anonymous), ports
 ```
@@ -112,6 +118,9 @@ config.toml                auth providers (email magic-link · Google · anonymo
 - `chain_events`, `indexer_cursor`, `audit_log`, and payout writes have **no** authenticated
   policy → only the backend/indexer (service role) can write them.
 - The **service-role key is server-only** — never shipped to the browser/PWA (it bypasses RLS).
+- `agent_identities` has no member/browser policy or grant. Only the service role can read the
+  encrypted per-pool signing material. Members see run, tool, and mandate audit records through
+  pool membership RLS; the browser cannot claim execution jobs.
 
 ## Testing (Phase 1)
 
@@ -119,3 +128,14 @@ Run the RLS allow/deny suite against `supabase start` before every schema change
 intended matrix is documented as a comment block at the bottom of `0001_init.sql`. After any
 change, run the Security + Performance advisors (`get_advisors`) and fix lints 0013 (RLS on all
 public tables), 0003 (initplan / `(select auth.uid())`), 0011 (function `search_path`).
+
+The autonomous-agent migration has an additional allow/deny and claim-once suite:
+
+```powershell
+Get-Content supabase/tests/20260715140000_autonomous_treasury_agent.sql |
+  docker exec -i supabase_db_kolektibo psql -v ON_ERROR_STOP=1 -U postgres -d postgres
+```
+
+After applying that migration remotely, regenerate `apps/web/src/db/types.gen.ts`. The Agent UI
+uses Supabase Realtime only to invalidate durable database records; autonomous execution is always
+authorized again by the v2 Soroban mandate.

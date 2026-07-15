@@ -4,6 +4,23 @@ Live, verified deployment of the Kolektibo treasury.
 
 ## Contracts
 
+### Treasury v2 code
+
+The autonomous-agent-capable treasury v2 Wasm is installed on Testnet. New pools and opt-in v1
+upgrades deploy instances from this immutable code hash:
+
+| Artifact | Value |
+|---|---|
+| Treasury v2 Wasm hash | `ac4ec50f445fb38e6ff785b839351b76bd15225b9920342f52638aed3b672457` |
+| Upload transaction | `918e19913543a0a1ea5170573911835d743ffd5c31c5c8a9ef597d2b1da4b794` |
+
+Explorer: https://stellar.expert/explorer/testnet/tx/918e19913543a0a1ea5170573911835d743ffd5c31c5c8a9ef597d2b1da4b794
+
+The hash installs contract code, not a shared treasury instance. Every pool receives its own v2
+contract instance and isolated agent address when officers create or upgrade that pool.
+
+### Treasury v1 instances
+
 Two treasury instances exist on testnet (both 2-of-3, same USDC SAC + issuer). The **canonical**
 treasury is the one the web app runs against — its ID is baked into the generated TS bindings and
 written to `apps/web/.env.local` (`VITE_TREASURY_CONTRACT_ID`). The **first** treasury is the
