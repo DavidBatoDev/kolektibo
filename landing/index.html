@@ -162,7 +162,7 @@
 
       <div class="pg-grid">
         <!-- A · valid -->
-        <article class="pg-panel valid" data-type="valid" data-break="7">
+        <article class="pg-panel valid reveal-up" data-type="valid" data-break="7">
           <header class="pg-head">
             <img class="pg-ico" src="assets/verified.webp" alt="" />
             <span class="pg-tag-id">PANEL_A // VALID</span>
@@ -191,7 +191,7 @@
         </article>
 
         <!-- B · AI hijack -->
-        <article class="pg-panel attack" data-type="attack" data-break="4">
+        <article class="pg-panel attack reveal-up" data-type="attack" data-break="4">
           <header class="pg-head">
             <img class="pg-ico" src="assets/vault.webp" alt="" />
             <span class="pg-tag-id">PANEL_B // INJECTION</span>
@@ -220,7 +220,7 @@
         </article>
 
         <!-- C · under-signed -->
-        <article class="pg-panel attack" data-type="attack" data-break="5">
+        <article class="pg-panel attack reveal-up" data-type="attack" data-break="5">
           <header class="pg-head">
             <img class="pg-ico" src="assets/approvals.webp" alt="" />
             <span class="pg-tag-id">PANEL_C // UNDER-SIGNED</span>
@@ -338,12 +338,12 @@
           var n = nodes[i], label = n.getAttribute('data-label') || '';
           if (type === 'attack' && i === brk - 1) {
             n.classList.add('fail'); setStep(panel, label, true);
-            return setTimeout(finish, 780);
+            return setTimeout(finish, 1200);
           }
           n.classList.add('on'); setStep(panel, label, false);
-          i++; setTimeout(tick, 340);
+          i++; setTimeout(tick, 600);
         }
-        setTimeout(tick, 180);
+        setTimeout(tick, 300);
       }
       document.querySelectorAll('.pg-panel .pg-run').forEach(function (btn) {
         btn.addEventListener('click', function () { run(btn.closest('.pg-panel')); });
@@ -357,6 +357,15 @@
         entries.forEach(function(entry) {
           if (entry.isIntersecting) {
             entry.target.classList.add('active');
+            
+            if (entry.target.classList.contains('pg-panel') && !entry.target.dataset.auto) {
+              entry.target.dataset.auto = '1';
+              setTimeout(function() {
+                var btn = entry.target.querySelector('.pg-run');
+                if (btn) btn.click();
+              }, 600);
+            }
+
             observer.unobserve(entry.target);
           }
         });
