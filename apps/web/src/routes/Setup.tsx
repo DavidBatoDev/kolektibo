@@ -4,7 +4,7 @@ import { useHasPool, usePool } from '../hooks/usePool'
 import { parseRules, type Policy } from '../lib/ai'
 import { clearPool } from '../lib/livepool'
 import { resetPersonas } from '../lib/wallet'
-import { Badge, Button, Card, List, Row, peso, SectionLabel } from '../components/ui'
+import { AppPageHero, Badge, Button, Card, List, Row, peso, SectionLabel } from '../components/ui'
 
 const EXAMPLE =
   '₱200 per member every month. Equipment up to ₱5,000, venue up to ₱3,000, refreshments up to ₱1,500. Any spend over ₱5,000 needs 2 of 3 officers to approve.'
@@ -36,6 +36,12 @@ export function SetupPage() {
 
   return (
     <div className="space-y-5">
+      <AppPageHero
+        eyebrow="Interactive demo"
+        title="Turn plain-language rules into policy"
+        body="See how Kolektibo translates group agreements into limits and approval requirements."
+        asset="/assets/verified.webp"
+      />
       <Card className="space-y-3">
         <div>
           <p className="text-sm font-semibold text-ink-950">How the AI reads your rules</p>

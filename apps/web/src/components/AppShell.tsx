@@ -80,11 +80,31 @@ function DemoShell() {
     { to: '/demo/rules', label: 'Rules', Icon: IconGear },
   ] as const
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-ink-900/60 shadow-2xl shadow-black/40 ring-1 ring-ink-200">
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-white/5 bg-ink-950/80 px-4 py-3 backdrop-blur"><Brand to="/demo" /><div className="flex items-center gap-2"><span className="rounded-full bg-gold-500/15 px-2 py-1 text-[10px] font-medium text-gold-400 ring-1 ring-gold-500/30">Demo</span><Link to="/" aria-label="Leave demo" className="text-xs text-ink-500 hover:text-ink-950">Exit</Link></div></header>
-      <main className="no-scrollbar flex-1 overflow-y-auto px-4 pb-28 pt-4"><Outlet /></main>
-      <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto flex max-w-md border-t border-white/5 bg-ink-950/90 backdrop-blur" style={{ paddingBottom: 'var(--safe-bottom)' }}>
-        {tabs.map(({ to, label, Icon }) => { const active = to === '/demo' ? pathname === to : pathname.startsWith(to); return <Link key={to} to={to} className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium ${active ? 'text-brand-400' : 'text-ink-500'}`}><Icon className="h-5 w-5" />{label}</Link> })}
+    <div className="demo-shell product-shell mx-auto flex min-h-dvh max-w-md flex-col shadow-2xl shadow-black/10 ring-1 ring-ink-300/50">
+      <header className="product-header sticky top-0 z-20 border-b border-ink-300/60 backdrop-blur">
+        <div className="flex items-center justify-between px-4 py-3">
+          <Brand to="/demo" theme="light" />
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-300/25 px-2.5 py-1 text-[10px] font-semibold text-gold-700 ring-1 ring-gold-400/25">
+              <span className="size-1.5 rounded-full bg-gold-400" />Interactive demo
+            </span>
+            <Link to="/" aria-label="Leave demo" className="product-header-icon">
+              <IconExit className="h-5 w-5" />
+            </Link>
+          </div>
+        </div>
+      </header>
+      <main className="product-main no-scrollbar min-w-0 flex-1 overflow-y-auto px-4 pb-28 pt-5"><Outlet /></main>
+      <nav className="product-nav fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t border-ink-300/60 backdrop-blur" style={{ paddingBottom: 'var(--safe-bottom)' }}>
+        {tabs.map(({ to, label, Icon }) => {
+          const active = to === '/demo' ? pathname === to : pathname.startsWith(to)
+          return (
+            <Link key={to} to={to} className={`product-nav-item flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold transition ${active ? 'is-active text-brand-700' : 'text-ink-500 hover:text-ink-700'}`}>
+              <span className="product-nav-icon"><Icon className="h-[18px] w-[18px]" /></span>
+              {label}
+            </Link>
+          )
+        })}
       </nav>
     </div>
   )
@@ -134,3 +154,4 @@ function IconActivity(props: IconProps) { return <SvgIcon {...props}><path d="M4
 function IconWallet(props: IconProps) { return <SvgIcon {...props}><path d="M4 6h14a2 2 0 0 1 2 2v10H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12" /><path d="M15 11h5v4h-5a2 2 0 0 1 0-4Z" /></SvgIcon> }
 function IconMenu(props: IconProps) { return <SvgIcon {...props}><path d="M4 7h16M4 12h16M4 17h16" /></SvgIcon> }
 function IconBell(props: IconProps) { return <SvgIcon {...props}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></SvgIcon> }
+function IconExit(props: IconProps) { return <SvgIcon {...props}><path d="M10 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h5M14 8l4 4-4 4M18 12H8" /></SvgIcon> }
