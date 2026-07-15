@@ -116,9 +116,19 @@ test.describe('live Web Push', () => {
     const page = pushContext.pages()[0] ?? await pushContext.newPage()
 
     await page.goto('/auth/sign-in')
+    // On a fresh browser profile the PWA service worker can take control and
+    // reload once. Stabilize that lifecycle before typing so activation cannot
+    // replace the controlled form between fill() and click().
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready
+    })
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
     await page.getByLabel('Email').fill(email)
     await page.getByLabel('Password').fill(password)
-    await page.getByRole('button', { name: 'Sign in' }).click()
+    const signInButton = page.getByRole('button', { name: 'Sign in' })
+    await expect(signInButton).toBeEnabled()
+    await signInButton.click()
     await expect(page).toHaveURL(/\/app$/)
 
     await page.goto('/app/preferences')
