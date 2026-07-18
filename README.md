@@ -4,7 +4,7 @@
 
 <br/>
 
-**AI-Governed Group Treasury on Stellar**
+**AI-Governed Group Treasury On Stellar**
 
 *Pooled money your group can trust — locked by a Soroban smart contract, not one treasurer.*
 
